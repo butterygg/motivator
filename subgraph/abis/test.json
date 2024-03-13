@@ -1,0 +1,35 @@
+[
+  {
+    "type": "function",
+    "name": "test_fct",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+
+  {
+    "type": "event",
+    "name": "test",
+    "inputs": [
+      {
+        "name": "base_pool",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  }
+]

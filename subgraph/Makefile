@@ -1,6 +1,6 @@
 VERSION=v0.0.1
-CONTRACTS_DIR=../pegasus/packages/solidity/
-CI_RPC_URL=http://ci1.usual.team:8545
+CONTRACTS_DIR=../contracts/solidity/
+CI_RPC_URL=http://localhost:8545
 CHAIN_ID=1
 STABLESWAP_NG_FACTORY=0x6A8cbed756804B16E05E741eDaBd5cB544AE21bf
 USDC=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
