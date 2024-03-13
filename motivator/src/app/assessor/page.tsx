@@ -1,7 +1,7 @@
 import React from "react";
 import {DataTable} from "@/components/assessor/DataTable";
 import RewardedUsers from "@/components/assessor/RewardedUsers";
-import {User} from "@/types/data/users";
+import {User} from "@/types/data/user";
 
 type Props = {};
 

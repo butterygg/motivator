@@ -1,5 +1,5 @@
 import React from "react";
-import {User} from "../../types/data/users";
+import {User} from "../../types/data/user";
 import ReducedDataUsers from "./ReducedDataUsers";
 
 type Props = {

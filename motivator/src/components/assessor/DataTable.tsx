@@ -28,6 +28,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import {UserData} from "./UserData";
+import AddrAvatar from "../globals/AddrAvatar";
 
 const data: Users[] = [
 	{
@@ -75,15 +76,7 @@ export const columns: ColumnDef<Users>[] = [
 	{
 		accessorKey: "name",
 		header: "name",
-		cell: ({row}) => (
-			<div className="font-bold gap-1 flex items-center">
-				<Avatar>
-					<AvatarImage src="https://avatars.githubusercontent.com/u/1000000?v=4" />
-					<AvatarFallback>?</AvatarFallback>
-				</Avatar>
-				<p className="">{row.getValue("name")}</p>
-			</div>
-		),
+		cell: ({row}) => <AddrAvatar addressName={row.getValue("name")} />,
 	},
 	{
 		accessorKey: "data",
@@ -136,16 +129,26 @@ export const columns: ColumnDef<Users>[] = [
 		id: "actions",
 		enableHiding: false,
 		cell: ({row}) => {
-			const payment = row.original;
-
+			const data = row.getValue("data") as Users["data"];
+			const volume = data.volume;
+			const pnl = data.pnl;
+			const actions = data.actions;
 			return (
-				<div className="flex items-center gap-3 border p-1 rounded-lg w-fit">
-					<UserData>
-						<Button variant="secondary" className="rounded-full">
-							?
-						</Button>
-					</UserData>
-					{/* <Button variant="destructive" className="rounded-full">
+				<UserData
+					user={{
+						addressName: row.getValue("name"),
+						volume: volume,
+						pnl: pnl,
+						actions: actions,
+					}}
+					onChainActions={[]}
+					offChainActions={[]}
+				>
+					{/* <Button variant="secondary" className="rounded-full">
+						?
+					</Button> */}
+				</UserData>
+				/* <Button variant="destructive" className="rounded-full">
 						X
 					</Button>
 					<div className="align-top flex gap-2">
@@ -155,8 +158,7 @@ export const columns: ColumnDef<Users>[] = [
 							className="w-10 appearance-none"
 						/>
 						<Button type="submit">Reward</Button>
-					</div> */}
-				</div>
+					</div> */
 			);
 		},
 	},
