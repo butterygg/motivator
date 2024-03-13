@@ -53,7 +53,7 @@ export function UserData({user}: Props) {
 						<Input
 							placeholder="Points"
 							type="number"
-							className="w-64 appearance-none"
+							className="w-32 appearance-none"
 							min={0}
 						/>
 						<Button type="submit">Reward</Button>
