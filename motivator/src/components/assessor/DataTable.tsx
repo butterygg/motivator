@@ -1,11 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-	CaretSortIcon,
-	ChevronDownIcon,
-	DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+
 import {
 	ColumnDef,
 	ColumnFiltersState,
@@ -21,18 +17,8 @@ import {
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 
 import {Button} from "@/components/ui/button";
-import {Checkbox} from "@/components/ui/checkbox";
 import EthLogo from "~/ethereum-eth-logo.svg";
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {Input} from "@/components/ui/input";
+
 import {
 	Table,
 	TableBody,
@@ -41,38 +27,32 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {Label} from "@radix-ui/react-dropdown-menu";
+import {UserData} from "./UserData";
 
 const data: Users[] = [
 	{
-		id: "m5gr84i9",
 		name: "0xmazout.eth",
 		data: {volume: 500, pnl: 30, actions: 40},
 	},
 	{
-		id: "3u1reuv4",
 		name: "0xmazout.eth",
 		data: {volume: 500, pnl: 30, actions: 40},
 	},
 	{
-		id: "derv1ws0",
 		name: "0xmazout.eth",
 		data: {volume: 500, pnl: 30, actions: 40},
 	},
 	{
-		id: "5kma53ae",
 		name: "0xmazout.eth",
 		data: {volume: 500, pnl: 30, actions: 40},
 	},
 	{
-		id: "bhqecj4p",
 		name: "0xmazout.eth",
 		data: {volume: 500, pnl: 30, actions: 40},
 	},
 ];
 
 export type Users = {
-	id: string;
 	name: string;
 	data: {
 		volume: number;
@@ -160,10 +140,12 @@ export const columns: ColumnDef<Users>[] = [
 
 			return (
 				<div className="flex items-center gap-3 border p-1 rounded-lg w-fit">
-					<Button variant="secondary" className="rounded-full">
-						?
-					</Button>
-					<Button variant="destructive" className="rounded-full">
+					<UserData>
+						<Button variant="secondary" className="rounded-full">
+							?
+						</Button>
+					</UserData>
+					{/* <Button variant="destructive" className="rounded-full">
 						X
 					</Button>
 					<div className="align-top flex gap-2">
@@ -173,7 +155,7 @@ export const columns: ColumnDef<Users>[] = [
 							className="w-10 appearance-none"
 						/>
 						<Button type="submit">Reward</Button>
-					</div>
+					</div> */}
 				</div>
 			);
 		},
@@ -209,7 +191,7 @@ export function DataTable() {
 	});
 
 	return (
-		<div className="w-full p-8">
+		<div className="w-3/4 p-8">
 			<div className="rounded-md border">
 				<Table>
 					<TableBody>
