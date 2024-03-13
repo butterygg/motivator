@@ -1,0 +1,216 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "registryContract_",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "createLsausUSD",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "startBlock",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "endBlock",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "transferabilityFee",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "bond",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "getBondFromSymbol",
+    "inputs": [
+      {
+        "name": "bondSymbol",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "hasBondToken",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "bond",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isBond",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeBond",
+    "inputs": [
+      {
+        "name": "bond",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "NewBond",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "indexed": true,
+        "internalType": "string"
+      },
+      {
+        "name": "bond",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "transferabilityFee",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "RemoveBond",
+    "inputs": [
+      {
+        "name": "bond",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "error",
+    "name": "AlreadyExist",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "BeginInPast",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "DurationTooLong",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "Invalid",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidEndBlock",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidName",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidSymbol",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotAuthorized",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NullAddress",
+    "inputs": []
+  }
+]

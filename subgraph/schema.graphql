@@ -1,0 +1,162 @@
+type TokenBalance @entity {
+  id: Bytes!
+  token: Bytes! # address
+  owner: Bytes! # address
+  value: BigInt!
+}
+
+type TokenBalanceSnapshot @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  owner: Bytes! # address
+  value: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+type TokenSupply @entity {
+  id: Bytes!
+  token: Bytes! # address
+  value: BigInt!
+}
+
+type TokenSupplySnapshot @entity(immutable: true) {
+  id: Bytes!
+  token: Bytes! # address
+  value: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+type Mint @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  rwaToken: Bytes! # address
+  rwaProvider: Bytes! # address
+  rwaValue: BigInt!
+  value: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
+
+type Swap @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  rwaToken: Bytes! # address
+  rwaValue: BigInt!
+  value: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
+
+type Redeem @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  rwaToken: Bytes! # address
+  rwaValue: BigInt!
+  value: BigInt!
+  fee: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
+
+type MintVolume @entity {
+  id: Bytes!
+  value: BigInt!
+  rewards: BigInt!
+}
+
+type MintVolumeSnapshot @entity(immutable: true) {
+  id: Bytes!
+  value: BigInt!
+  rewards: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+enum MintEngineOfferSide {
+  MINT
+  PROVIDE
+}
+
+enum MintEngineOfferStatus {
+  PENDING
+  OPEN
+  FILLED
+  CANCELLED
+}
+
+type MintEngineOffer @entity {
+  id: Bytes!
+  offerId: BigInt!
+  side: MintEngineOfferSide!
+  status: MintEngineOfferStatus!
+  token: Bytes! # address
+  totalValue: BigInt!
+  remainingValue: BigInt!
+  components: [MintEngineOfferComponent!]! @derivedFrom(field: "offer")
+}
+
+type MintEngineOfferComponent @entity {
+  id: Bytes!
+  offer: MintEngineOffer!
+  owner: Bytes! # address
+  value: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
+
+type MintEngineLiquidity @entity {
+  id: Bytes!
+  side: MintEngineOfferSide!
+  token: Bytes! # address
+  value: BigInt!
+}
+
+type MintEngineLiquiditySnapshot @entity(immutable: true) {
+  id: Bytes!
+  side: MintEngineOfferSide!
+  token: Bytes! # address
+  value: BigInt!
+  blockNumber: BigInt!
+  timestamp: BigInt!
+}
+
+type Bond @entity(immutable: true) {
+  id: Bytes! # address
+  name: String!
+  symbol: String!
+  startBlock: BigInt!
+  endBlock: BigInt!
+}
+
+type LpSwap @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  pool: Bytes! # address
+  from: Bytes! # address
+  to: Bytes! # address
+  valueFrom: BigInt!
+  valueTo: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
+
+type LpDeposit @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  pool: Bytes! # address
+  value: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
+
+type LpRewardsClaim @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  pool: Bytes! # address
+  token: Bytes! # address
+  value: BigInt!
+  txHash: Bytes!
+  timestamp: BigInt!
+}
