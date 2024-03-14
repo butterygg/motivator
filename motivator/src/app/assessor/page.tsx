@@ -8,18 +8,21 @@ type Props = {};
 const HomeAssessor = (props: Props) => {
 	const users: User[] = [
 		{
+			id: "1",
 			addressName: "User 1",
 			volume: 100,
 			pnl: 100,
 			actions: 100,
 		},
 		{
+			id: "2",
 			addressName: "User 2",
 			volume: 100,
 			pnl: 100,
 			actions: 100,
 		},
 		{
+			id: "3",
 			addressName: "User 3",
 			volume: 100,
 			pnl: 100,

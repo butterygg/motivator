@@ -29,40 +29,47 @@ import {
 } from "@/components/ui/table";
 import {UserData} from "./UserData";
 import AddrAvatar from "../globals/AddrAvatar";
+import {User} from "@/types/data/user";
 
-const data: Users[] = [
+const data: User[] = [
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "1",
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "2",
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "3",
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "4",
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "5",
 	},
 ];
 
-export type Users = {
-	name: string;
-	data: {
-		volume: number;
-		pnl: number;
-		actions: number;
-	};
-};
-
-export const columns: ColumnDef<Users>[] = [
+export const columns: ColumnDef<User>[] = [
 	{
 		id: "id",
 		cell: ({row}) => (
@@ -76,15 +83,14 @@ export const columns: ColumnDef<Users>[] = [
 	{
 		accessorKey: "name",
 		header: "name",
-		cell: ({row}) => <AddrAvatar addressName={row.getValue("name")} />,
+		cell: ({row}) => <AddrAvatar addressName={row.getValue("addressName")} />,
 	},
 	{
 		accessorKey: "data",
 		cell: ({row}) => {
-			const data = row.getValue("data") as Users["data"];
-			const volume = data.volume;
-			const pnl = data.pnl;
-			const actions = data.actions;
+			const volume = row.getValue("volume") as User["volume"];
+			const pnl = row.getValue("pnl") as User["pnl"];
+			const actions = row.getValue("actions") as User["actions"];
 			return (
 				<div className="flex justify-evenly">
 					<div>
@@ -129,17 +135,17 @@ export const columns: ColumnDef<Users>[] = [
 		id: "actions",
 		enableHiding: false,
 		cell: ({row}) => {
-			const data = row.getValue("data") as Users["data"];
-			const volume = data.volume;
-			const pnl = data.pnl;
-			const actions = data.actions;
+			const volume = row.getValue("volume") as User["volume"];
+			const pnl = row.getValue("pnl") as User["pnl"];
+			const actions = row.getValue("actions") as User["actions"];
 			return (
 				<UserData
 					user={{
-						addressName: row.getValue("name"),
+						addressName: row.getValue("addressName"),
 						volume: volume,
 						pnl: pnl,
 						actions: actions,
+						id: row.id,
 					}}
 					onChainActions={[]}
 					offChainActions={[]}

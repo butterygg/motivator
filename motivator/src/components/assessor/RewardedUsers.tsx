@@ -18,6 +18,7 @@ const RewardedUsers = ({value, users}: Props) => {
 						actions={user.actions}
 						pnl={user.pnl}
 						volume={user.volume}
+						id={user.id}
 					/>
 				))}
 			</div>
