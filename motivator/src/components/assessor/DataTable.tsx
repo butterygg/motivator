@@ -143,22 +143,7 @@ export const columns: ColumnDef<Users>[] = [
 					}}
 					onChainActions={[]}
 					offChainActions={[]}
-				>
-					{/* <Button variant="secondary" className="rounded-full">
-						?
-					</Button> */}
-				</UserData>
-				/* <Button variant="destructive" className="rounded-full">
-						X
-					</Button>
-					<div className="align-top flex gap-2">
-						<Input
-							placeholder="Points"
-							type="number"
-							className="w-10 appearance-none"
-						/>
-						<Button type="submit">Reward</Button>
-					</div> */
+				></UserData>
 			);
 		},
 	},
