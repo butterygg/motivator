@@ -2,6 +2,7 @@ import React from "react";
 import {DataTable} from "@/components/assessor/DataTable";
 import RewardedUsers from "@/components/assessor/RewardedUsers";
 import {User} from "@/types/data/user";
+import {Status} from "../../types/enum/status";
 
 type Props = {};
 
@@ -13,6 +14,7 @@ const HomeAssessor = (props: Props) => {
 			volume: 100,
 			pnl: 100,
 			actions: 100,
+			status: Status.Pending,
 		},
 		{
 			id: "2",
@@ -20,6 +22,7 @@ const HomeAssessor = (props: Props) => {
 			volume: 100,
 			pnl: 100,
 			actions: 100,
+			status: Status.Rewarded,
 		},
 		{
 			id: "3",
@@ -27,6 +30,7 @@ const HomeAssessor = (props: Props) => {
 			volume: 100,
 			pnl: 100,
 			actions: 100,
+			status: Status.Pending,
 		},
 	];
 	return (
