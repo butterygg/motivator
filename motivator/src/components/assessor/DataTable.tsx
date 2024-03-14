@@ -27,9 +27,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {UserData} from "./UserData";
-import AddrAvatar from "../globals/AddrAvatar";
+import {UserData} from "@/components/assessor/UserData";
+import AddrAvatar from "@/components/globals/AddrAvatar";
 import {User} from "@/types/data/user";
+import {Status} from "@/types/enum/status";
+import {Tag} from "@/components/assessor/Tag";
 
 const data: User[] = [
 	{
@@ -38,13 +40,15 @@ const data: User[] = [
 		pnl: 30,
 		actions: 40,
 		id: "1",
+		status: Status.Pending,
 	},
 	{
-		addressName: "0xmazout.eth",
+		addressName: "0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102",
 		volume: 500,
 		pnl: 30,
 		actions: 40,
 		id: "2",
+		status: Status.Rewarded,
 	},
 	{
 		addressName: "0xmazout.eth",
@@ -52,6 +56,7 @@ const data: User[] = [
 		pnl: 30,
 		actions: 40,
 		id: "3",
+		status: Status.Pending,
 	},
 	{
 		addressName: "0xmazout.eth",
@@ -59,13 +64,15 @@ const data: User[] = [
 		pnl: 30,
 		actions: 40,
 		id: "4",
+		status: Status.NullReward,
 	},
 	{
-		addressName: "0xmazout.eth",
+		addressName: "0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102",
 		volume: 500,
 		pnl: 30,
 		actions: 40,
 		id: "5",
+		status: Status.Pending,
 	},
 ];
 
@@ -83,7 +90,21 @@ export const columns: ColumnDef<User>[] = [
 	{
 		accessorKey: "addressName",
 		header: "addressName",
-		cell: ({row}) => <AddrAvatar addressName={row.getValue("addressName")} />,
+		cell: ({row}) => (
+			<div className="flex gap-6 items-center">
+				<AddrAvatar addressName={row.getValue("addressName")} />
+				<div className="w-fit">
+					<Tag value={row.getValue("status")} />
+				</div>
+			</div>
+		),
+	},
+	{
+		accessorKey: "status",
+		enableHiding: true,
+		cell: () => {
+			<></>;
+		},
 	},
 	{
 		accessorKey: "volume",
@@ -161,7 +182,9 @@ export function DataTable() {
 		[],
 	);
 	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
+		React.useState<VisibilityState>({
+			columnId3: true,
+		});
 	const [rowSelection, setRowSelection] = React.useState({});
 
 	const table = useReactTable({
