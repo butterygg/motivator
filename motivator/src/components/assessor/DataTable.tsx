@@ -27,42 +27,56 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {UserData} from "./UserData";
-import AddrAvatar from "../globals/AddrAvatar";
+import {UserData} from "@/components/assessor/UserData";
+import AddrAvatar from "@/components/globals/AddrAvatar";
+import {User} from "@/types/data/user";
+import {Status} from "@/types/enum/status";
+import {Tag} from "@/components/assessor/Tag";
 
-const data: Users[] = [
+const data: User[] = [
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "1",
+		status: Status.Pending,
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "2",
+		status: Status.Rewarded,
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "3",
+		status: Status.Pending,
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xmazout.eth",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "4",
+		status: Status.NullReward,
 	},
 	{
-		name: "0xmazout.eth",
-		data: {volume: 500, pnl: 30, actions: 40},
+		addressName: "0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102",
+		volume: 500,
+		pnl: 30,
+		actions: 40,
+		id: "5",
+		status: Status.Pending,
 	},
 ];
 
-export type Users = {
-	name: string;
-	data: {
-		volume: number;
-		pnl: number;
-		actions: number;
-	};
-};
-
-export const columns: ColumnDef<Users>[] = [
+export const columns: ColumnDef<User>[] = [
 	{
 		id: "id",
 		cell: ({row}) => (
@@ -74,17 +88,30 @@ export const columns: ColumnDef<Users>[] = [
 		enableHiding: false,
 	},
 	{
-		accessorKey: "name",
-		header: "name",
-		cell: ({row}) => <AddrAvatar addressName={row.getValue("name")} />,
+		accessorKey: "addressName",
+		header: "addressName",
+		cell: ({row}) => (
+			<div className="flex gap-6 items-center">
+				<AddrAvatar addressName={row.getValue("addressName")} />
+				<div className="w-fit">
+					<Tag value={row.getValue("status")} />
+				</div>
+			</div>
+		),
 	},
 	{
-		accessorKey: "data",
+		accessorKey: "status",
+		enableHiding: true,
+		cell: () => {
+			<></>;
+		},
+	},
+	{
+		accessorKey: "volume",
 		cell: ({row}) => {
-			const data = row.getValue("data") as Users["data"];
-			const volume = data.volume;
-			const pnl = data.pnl;
-			const actions = data.actions;
+			const volume = row.getValue("volume") as User["volume"];
+			const pnl = row.getValue("pnl") as User["pnl"];
+			const actions = row.getValue("actions") as User["actions"];
 			return (
 				<div className="flex justify-evenly">
 					<div>
@@ -126,39 +153,24 @@ export const columns: ColumnDef<Users>[] = [
 		},
 	},
 	{
-		id: "actions",
+		accessorKey: "actions",
 		enableHiding: false,
 		cell: ({row}) => {
-			const data = row.getValue("data") as Users["data"];
-			const volume = data.volume;
-			const pnl = data.pnl;
-			const actions = data.actions;
+			const volume = row.getValue("volume") as User["volume"];
+			const pnl = row.getValue("pnl") as User["pnl"];
+			const actions = row.getValue("actions") as User["actions"];
 			return (
 				<UserData
 					user={{
-						addressName: row.getValue("name"),
+						addressName: row.getValue("addressName"),
 						volume: volume,
 						pnl: pnl,
 						actions: actions,
+						id: row.id,
 					}}
 					onChainActions={[]}
 					offChainActions={[]}
-				>
-					{/* <Button variant="secondary" className="rounded-full">
-						?
-					</Button> */}
-				</UserData>
-				/* <Button variant="destructive" className="rounded-full">
-						X
-					</Button>
-					<div className="align-top flex gap-2">
-						<Input
-							placeholder="Points"
-							type="number"
-							className="w-10 appearance-none"
-						/>
-						<Button type="submit">Reward</Button>
-					</div> */
+				></UserData>
 			);
 		},
 	},
@@ -170,7 +182,9 @@ export function DataTable() {
 		[],
 	);
 	const [columnVisibility, setColumnVisibility] =
-		React.useState<VisibilityState>({});
+		React.useState<VisibilityState>({
+			columnId3: true,
+		});
 	const [rowSelection, setRowSelection] = React.useState({});
 
 	const table = useReactTable({
