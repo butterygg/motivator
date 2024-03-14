@@ -81,12 +81,12 @@ export const columns: ColumnDef<User>[] = [
 		enableHiding: false,
 	},
 	{
-		accessorKey: "name",
-		header: "name",
+		accessorKey: "addressName",
+		header: "addressName",
 		cell: ({row}) => <AddrAvatar addressName={row.getValue("addressName")} />,
 	},
 	{
-		accessorKey: "data",
+		accessorKey: "volume",
 		cell: ({row}) => {
 			const volume = row.getValue("volume") as User["volume"];
 			const pnl = row.getValue("pnl") as User["pnl"];
@@ -132,7 +132,7 @@ export const columns: ColumnDef<User>[] = [
 		},
 	},
 	{
-		id: "actions",
+		accessorKey: "actions",
 		enableHiding: false,
 		cell: ({row}) => {
 			const volume = row.getValue("volume") as User["volume"];

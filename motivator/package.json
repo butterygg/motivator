@@ -42,7 +42,8 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "viem": "^2.7.12",
-    "wagmi": "^2.5.7"
+    "wagmi": "^2.5.7",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
