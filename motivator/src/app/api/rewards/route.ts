@@ -14,6 +14,6 @@ export async function POST(request: Request) {
 	// Fetch the list of users from the database
 
 	// Return the list of users
-
-	return {users: []};
+	return Response.json({status: "ok"});
+	// return {users: []};
 }
