@@ -34,7 +34,7 @@ const HomeAssessor = (props: Props) => {
 		},
 	];
 	return (
-		<main className="flex">
+		<main className="flex flex-col lg:flex-row">
 			<DataTable />
 			<RewardedUsers value={0} users={users} />
 		</main>

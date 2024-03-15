@@ -10,7 +10,7 @@ type Props = {
 const RewardedUsers = ({value, users}: Props) => {
 	const buildUsers = () => {
 		return (
-			<div className="flex flex-col gap-4">
+			<div className="flex lg:flex-col gap-4">
 				{users.map((user, index) => (
 					<ReducedDataUsers
 						key={index}
@@ -25,7 +25,7 @@ const RewardedUsers = ({value, users}: Props) => {
 		);
 	};
 	return (
-		<section className="p-8 h-full w-1/4">
+		<section className="p-8 h-full lg:w-1/4">
 			<div className="border rounded p-4">
 				<div className="flex justify-between rounded py-2">
 					<h1>Summary</h1>
