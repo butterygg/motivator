@@ -5,13 +5,13 @@
  * @param response Will contain the list of users for this assessor
  */
 export async function GET(request: Request) {
-  // Get the address of the assessor
+    // Get the address of the assessor
 
-  // Define a Randomization function to randomize the list of users
+    // Define a Randomization function to randomize the list of users
 
-  // Fetch the list of users from the database
+    // Fetch the list of users from the database
 
-  // Return the list of users
-  return Response.json({ status: "ok" });
-  // return {users: []};
+    // Return the list of users
+    return Response.json({ status: 'ok' })
+    // return {users: []};
 }

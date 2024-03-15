@@ -1,5 +1,5 @@
 export enum Status {
-  Rewarded = "Rewarded",
-  NullReward = "NullReward",
-  Pending = "Pending",
+    Rewarded = 'Rewarded',
+    NullReward = 'NullReward',
+    Pending = 'Pending',
 }
