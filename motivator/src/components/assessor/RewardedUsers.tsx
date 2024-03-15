@@ -31,7 +31,9 @@ const RewardedUsers = ({value, users}: Props) => {
 				<div className="flex justify-between rounded py-2">
 					<h1 className="font-bold">Summary</h1>
 					<div className="flex gap-4">
-						<Button className="lg:hidden">Submit</Button>
+						<Button variant={"submit"} className="lg:hidden">
+							Submit
+						</Button>
 						<div>
 							<p className="font-extralight pl-1 text-xs">Points</p>
 							<p className="font-bold text-right">{value}</p>
