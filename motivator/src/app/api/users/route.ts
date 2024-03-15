@@ -1,7 +1,3 @@
-export function handlingUsers(req: any, res: any) {
-	res.status(200).json({message: "Handling Users"});
-}
-
 // Fetch the users list from the database
 /**
  *
@@ -16,6 +12,6 @@ export async function GET(request: Request) {
 	// Fetch the list of users from the database
 
 	// Return the list of users
-
-	return {users: []};
+	return Response.json({status: "ok"});
+	// return {users: []};
 }
