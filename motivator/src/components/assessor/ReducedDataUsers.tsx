@@ -22,7 +22,7 @@ const ReducedDataUsers = (props: User) => {
 	};
 
 	return (
-		<form className="border w-full p-4 rounded-md flex flex-col gap-4">
+		<form className="border w-fit p-4 rounded-md flex flex-col gap-4">
 			<AddrAvatar addressName={props.addressName} />
 			<div className=" lg:flex-wrap flex lg-max:flex-col lg:flex-row gap-4">
 				<Input
