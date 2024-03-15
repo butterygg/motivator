@@ -29,9 +29,9 @@ const RewardedUsers = ({value, users}: Props) => {
 		<section className="p-8 h-full w-fit lg:w-1/4">
 			<div className="border rounded p-4">
 				<div className="flex justify-between rounded py-2">
-					<h1>Summary</h1>
+					<h1 className="font-bold">Summary</h1>
 					<div className="flex gap-4">
-						<Button>Submit</Button>
+						<Button className="lg:hidden">Submit</Button>
 						<div>
 							<p className="font-extralight pl-1 text-xs">Points</p>
 							<p className="font-bold text-right">{value}</p>
@@ -39,6 +39,11 @@ const RewardedUsers = ({value, users}: Props) => {
 					</div>
 				</div>
 				{buildUsers()}
+				<div className="items-center p-4">
+					<Button variant={"submit"} className="w-full max-lg:hidden">
+						Submit
+					</Button>
+				</div>
 			</div>
 		</section>
 	);
