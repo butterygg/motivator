@@ -24,14 +24,14 @@ const ReducedDataUsers = (props: User) => {
 	return (
 		<form className="border w-full p-4 rounded-md flex flex-col gap-4">
 			<AddrAvatar addressName={props.addressName} />
-			<div className="flex-wrap flex flex-col xl:flex-row gap-4">
+			<div className=" lg:flex-wrap flex lg-max:flex-col lg:flex-row gap-4">
 				<Input
 					type="number"
-					className=" w-24"
+					className="w-24 lg:w-full"
 					placeholder="Points"
 					onChange={handlePointsUpdate}
 				/>
-				<Button onClick={handleSubmit} type="submit">
+				<Button className="w-full" onClick={handleSubmit} type="submit">
 					Update
 				</Button>
 			</div>

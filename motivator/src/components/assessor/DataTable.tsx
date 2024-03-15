@@ -207,7 +207,7 @@ export function DataTable() {
 	});
 
 	return (
-		<div className="w-3/4 p-8">
+		<div className="lg-max:w-3/4 lg:w-full p-8">
 			<div className="rounded-md border">
 				<Table>
 					<TableBody>
