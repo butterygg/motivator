@@ -1,18 +1,23 @@
 'use client'
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
-import config from 'next/config'
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { WagmiProvider } from 'wagmi'
 import '@rainbow-me/rainbowkit/styles.css'
 import { sepolia } from 'wagmi/chains'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
+import { SessionProvider } from 'next-auth/react'
+// import type { Session } from 'next-auth'
+// import { AppProps } from 'next/app'
+import {
+    RainbowKitSiweNextAuthProvider,
+    GetSiweMessageOptions,
+} from '@rainbow-me/rainbowkit-siwe-next-auth'
 type Props = {}
 
 const Web3Provider = ({
     children,
 }: Readonly<{
-    children: ReactNode
+    children: React.ReactNode
 }>) => {
     const queryClient = new QueryClient()
     const config = getDefaultConfig({
@@ -21,11 +26,20 @@ const Web3Provider = ({
         chains: [sepolia],
         ssr: true, // If your dApp uses server side rendering (SSR)
     })
+    const getSiweMessageOptions: GetSiweMessageOptions = () => ({
+        statement: 'Sign in to The Motivator App',
+    })
     return (
         <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider>{children}</RainbowKitProvider>
-            </QueryClientProvider>
+            <SessionProvider>
+                <QueryClientProvider client={queryClient}>
+                    <RainbowKitSiweNextAuthProvider
+                        getSiweMessageOptions={getSiweMessageOptions}
+                    >
+                        <RainbowKitProvider>{children}</RainbowKitProvider>
+                    </RainbowKitSiweNextAuthProvider>
+                </QueryClientProvider>
+            </SessionProvider>
         </WagmiProvider>
     )
 }
