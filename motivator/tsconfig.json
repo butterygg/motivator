@@ -16,7 +16,8 @@
         "incremental": true,
         "paths": {
             "@/*": ["./src/*"],
-            "~/*": ["./public/*"]
+            "~/*": ["./public/*"],
+            "@db/*": ["./src/app/db/*"],
         },
         "plugins": [
             {
