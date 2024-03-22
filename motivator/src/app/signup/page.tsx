@@ -23,14 +23,10 @@ const Signup = (props: Props) => {
 
     const ComponentToDisplay = () => {
         if (walletStatus === 'connected') {
-            if (authenticationStatus === 'unauthenticated')
-                return <Card>Signup</Card>
             if (authenticationStatus === 'authenticated')
                 return <StartAssessmentSlot week={0} slotsAvailable={0} />
         } else if (walletStatus === 'disconnected') {
             return <ConnectWalletCard />
-        } else {
-            return <Card>Wallet loading</Card>
         }
     }
 
