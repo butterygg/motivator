@@ -15,6 +15,8 @@ type Props = {
 }
 
 const StartAssessmentSlot = (props: Props) => {
+    const pickAssessmentSlot = () => {}
+
     return (
         <Card className="w-96 items-center p-4 rounded-lg mx-auto">
             <CardHeader className="font-bold text-lg flex flex-wrap">
