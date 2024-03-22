@@ -11,6 +11,13 @@ export const user = pgTable('users', {
     address: text('address').unique().primaryKey(),
 })
 
+export const stats = pgTable('stats', {
+    id: uuid('id').defaultRandom().unique().primaryKey(),
+    user_address: text('user_address').references(() => user.address),
+    actions: integer('week').default(0),
+    volume: integer('value').default(0),
+})
+
 export const assessor = pgTable('assessor', {
     address: text('address').unique().primaryKey(),
 })
