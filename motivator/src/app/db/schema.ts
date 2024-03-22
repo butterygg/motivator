@@ -12,8 +12,9 @@ export const user = pgTable('users', {
 })
 
 export const stats = pgTable('stats', {
-    id: uuid('id').defaultRandom().unique().primaryKey(),
-    user_address: text('user_address').references(() => user.address),
+    user_address: text('user_address')
+        .references(() => user.address)
+        .primaryKey(),
     actions: integer('week').default(0),
     volume: integer('value').default(0),
 })
