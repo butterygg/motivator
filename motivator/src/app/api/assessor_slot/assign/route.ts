@@ -12,12 +12,26 @@ export async function GET(request: NextRequest) {
     const body = await request.json()
 
     const assessorAddr = body.address
+    // verify this assessor doesn't have an assessor slot already in progress
+    const hasAssessorSlot = await db.query.assessor_slot.findFirst({
+        where:
+            eq(assessor_slot.assessor_ID, assessorAddr) &&
+            eq(assessor_slot.done, false),
+    })
+
+    if (!hasAssessorSlot) {
+        return Response.json({
+            status: 'ok',
+            message: 'AssessorSlot Already have an Assessor Slot assigned',
+        })
+    }
 
     // grab an assessor slot that is not done and has no assessor assigned
     const assessor_Slot = await db.query.assessor_slot.findFirst({
         where:
             eq(assessor_slot.done, false) && isNull(assessor_slot.assessor_ID),
     })
+
     if (assessor_Slot) {
         const assignAssessor = await db
             .update(assessor_slot)
