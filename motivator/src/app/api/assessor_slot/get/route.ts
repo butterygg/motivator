@@ -1,7 +1,8 @@
 import { eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user } from '@db/schema'
+import { assessor_slot, assessor_slot_user, stats } from '@db/schema'
 import { NextRequest } from 'next/server'
+import { stat } from 'fs'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -27,11 +28,14 @@ export async function GET(request: NextRequest) {
     }
     // Get the list of users for the assessor slot
     const usersOfAssessorSlot = await db.query.assessor_slot_user.findMany({
+        columns: { user_address: true },
         where: eq(
             assessor_slot_user.assessor_slot_ID,
             assessorSlotOfAssessor.id
         ),
     })
+
+    // TODO : FIND A WAY TO FETCH A STAT FOR EACH USER IN THE LIST WITH DRIZZLE
 
     if (usersOfAssessorSlot) {
         return Response.json({

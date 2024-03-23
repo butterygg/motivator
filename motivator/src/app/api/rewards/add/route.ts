@@ -14,11 +14,13 @@ export async function POST(request: NextRequest) {
 
     const userAddr = body.userAddress
     const value = body.value
+    const assessorSlot = body.assessorSlot
 
     const rewardSent = await db.insert(reward).values({
         amount: value,
         user_address: userAddr,
         date: new Date().toISOString(),
+        assessor_slot_ID: assessorSlot,
     })
 
     if (rewardSent) {

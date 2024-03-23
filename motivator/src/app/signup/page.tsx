@@ -21,12 +21,24 @@ const Signup = (props: Props) => {
     //  Fetch API to know if user is signed has already an assessor slot
     const [hasAssessorSlot, setHasAssessorSlot] = useState(false)
 
+    // Fetch slotsAvailable from API
+    const [slotsAvailable, setSlotsAvailable] = useState(0)
+
+    const weekNumber = Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)
+    const weekMax = Number(process.env.NEXT_PUBLIC_WEEK_MAX)
+
     const ComponentToDisplay = () => {
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
-                return <StartAssessmentSlot week={0} slotsAvailable={0} />
+                return <ConnectWalletCard />
         } else if (walletStatus === 'disconnected') {
-            return <ConnectWalletCard />
+            return (
+                <StartAssessmentSlot
+                    week={weekNumber}
+                    slotsAvailable={slotsAvailable}
+                    weekmax={weekMax}
+                />
+            )
         }
     }
 
