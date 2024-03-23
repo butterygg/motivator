@@ -23,6 +23,7 @@ const ReducedDataUsers = (props: User) => {
         value: points,
         assessorAddress: '0x123',
     })
+
     const handleSubmit = () => {
         mutate()
     }
