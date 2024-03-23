@@ -1,6 +1,6 @@
 import { eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user, stats } from '@db/schema'
+import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
 import { NextRequest } from 'next/server'
 import { stat } from 'fs'
 // Send Rewards to specifics users based on their actions
@@ -34,8 +34,18 @@ export async function GET(request: NextRequest) {
             assessorSlotOfAssessor.id
         ),
     })
+    // Get the rewards for the assessor slot
+    const getRewardsUsers = await db
+        .select()
+        .from(reward)
+        .where(eq(reward.assessor_slot_ID, assessorSlotOfAssessor.id))
+        .execute()
 
-    // TODO : FIND A WAY TO FETCH A STAT FOR EACH USER IN THE LIST WITH DRIZZLE
+    //TODO : FIND A WAY TO FETCH A STATS FOR EACH USER IN THE LIST WITH DRIZZLE
+    const getStatsUsers = await db
+        .select()
+        .from(stats)
+        .where(eq(stats.user_address, assessorSlotOfAssessor.id))
 
     if (usersOfAssessorSlot) {
         return Response.json({
