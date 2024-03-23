@@ -1,9 +1,11 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { User } from '@/types/data/user'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { useSendReward } from '../../hooks/useSendReward'
+import { toast } from 'sonner'
 
 type Props = {
     addressName: string
@@ -16,10 +18,25 @@ const ReducedDataUsers = (props: User) => {
     const handlePointsUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPoints(parseInt(e.target.value))
     }
-
+    const { data, error, mutate } = useSendReward({
+        userAddress: props.id,
+        value: points,
+        assessorAddress: '0x123',
+    })
     const handleSubmit = () => {
-        // ! Register into store the new value
+        mutate()
     }
+
+    //Todo: verify the type of message
+    //replace with sonner
+    useEffect(() => {
+        if (data) {
+            toast.success(data.message)
+        }
+        if (error) {
+            toast.error(error.message)
+        }
+    }, [data, error])
 
     return (
         <form className="border w-fit p-4 rounded-md flex flex-col gap-4">

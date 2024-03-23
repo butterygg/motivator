@@ -38,7 +38,7 @@ const StartAssessmentSlot = (props: Props) => {
             </CardDescription>
             <CardFooter className="p-4">
                 <Button className="m-auto">
-                    <Link href={''}>Start assessment slot</Link>
+                    <Link href={'/assessor'}>Start assessment slot</Link>
                 </Button>
             </CardFooter>
         </Card>
