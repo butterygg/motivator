@@ -15,10 +15,12 @@ const RewardedUsers = ({ value, users }: Props) => {
                 {users.map((user, index) => (
                     <ReducedDataUsers
                         key={index}
-                        addressName={user.addressName}
-                        actions={user.actions}
-                        pnl={user.pnl}
-                        volume={user.volume}
+                        userAddress={user.addressName}
+                        // actions={user.stat.actions}
+                        // pnl={user.pnl}
+                        // volume={user.stat.volume}
+                        assessorAddress=""
+                        reward={user.reward ? user.reward.amount : 0}
                         id={user.id}
                     />
                 ))}

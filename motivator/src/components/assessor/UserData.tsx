@@ -39,9 +39,15 @@ export function UserData({ user }: Props) {
                 </Label>
                 <div className="grid gap-4 py-2">
                     <div className="grid grid-cols-3 items-center gap-2">
-                        <DataCard title="Volume" value={user.volume} />
+                        <DataCard
+                            title="Volume"
+                            value={user.stat.volume ? user.stat.volume : 0}
+                        />
                         <DataCard title="Pnl" value={user.pnl} />
-                        <DataCard title="Actions" value={user.actions} />
+                        <DataCard
+                            title="Actions"
+                            value={user.stat.actions ? user.stat.actions : 0}
+                        />
                     </div>
                 </div>
 

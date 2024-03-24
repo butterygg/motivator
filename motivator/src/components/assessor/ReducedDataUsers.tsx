@@ -8,20 +8,27 @@ import { useSendReward } from '../../hooks/useSendReward'
 import { toast } from 'sonner'
 
 type Props = {
-    addressName: string
+    userAddress: string
     id: string
+    assessorAddress: string
+    reward: number | null
 }
 
-const ReducedDataUsers = (props: User) => {
+const ReducedDataUsers = ({
+    id,
+    userAddress,
+    assessorAddress,
+    reward,
+}: Props) => {
     // ! Initialize with store value if available
-    const [points, setPoints] = useState(0)
+    const [points, setPoints] = useState(reward)
     const handlePointsUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPoints(parseInt(e.target.value))
     }
     const { data, error, mutate } = useSendReward({
-        userAddress: props.id,
-        value: points,
-        assessorAddress: '0x123',
+        userAddress: userAddress,
+        value: points ? points : 0,
+        assessorAddress: assessorAddress,
     })
 
     const handleSubmit = () => {
@@ -41,13 +48,14 @@ const ReducedDataUsers = (props: User) => {
 
     return (
         <form className="border w-fit p-4 rounded-md flex flex-col gap-4">
-            <AddrAvatar addressName={props.addressName} />
+            <AddrAvatar addressName={userAddress} />
             <div className=" lg:flex-wrap flex lg-max:flex-col lg:flex-row gap-4">
                 <Input
                     type="number"
                     className="w-24 lg:w-full"
                     placeholder="Points"
                     onChange={handlePointsUpdate}
+                    value={points as number}
                 />
                 <Button className="w-full" onClick={handleSubmit} type="submit">
                     Update
