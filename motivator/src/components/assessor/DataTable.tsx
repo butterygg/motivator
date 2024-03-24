@@ -29,54 +29,62 @@ import {
 } from '@/components/ui/table'
 import { UserData } from '@/components/assessor/UserData'
 import AddrAvatar from '@/components/globals/AddrAvatar'
-import { User } from '@/types/data/user'
 import { Status } from '@/types/enum/status'
 import { Tag } from '@/components/assessor/Tag'
+import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
 
-const data: User[] = [
-    {
-        addressName: '0xmazout.eth',
-        volume: 500,
-        pnl: 30,
-        actions: 40,
-        id: '1',
-        status: Status.Pending,
-    },
-    {
-        addressName: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
-        volume: 500,
-        pnl: 30,
-        actions: 40,
-        id: '2',
-        status: Status.Rewarded,
-    },
-    {
-        addressName: '0xmazout.eth',
-        volume: 500,
-        pnl: 30,
-        actions: 40,
-        id: '3',
-        status: Status.Pending,
-    },
-    {
-        addressName: '0xmazout.eth',
-        volume: 500,
-        pnl: 30,
-        actions: 40,
-        id: '4',
-        status: Status.NullReward,
-    },
-    {
-        addressName: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
-        volume: 500,
-        pnl: 30,
-        actions: 40,
-        id: '5',
-        status: Status.Pending,
-    },
-]
+// const data: User[] = [
+//     {
+//         addressName: '0xmazout.eth',
+//         volume: 500,
+//         pnl: 30,
+//         actions: 40,
+//         id: '1',
+//         status: Status.Pending,
+//     },
+//     {
+//         addressName: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
+//         volume: 500,
+//         pnl: 30,
+//         actions: 40,
+//         id: '2',
+//         status: Status.Rewarded,
+//     },
+//     {
+//         addressName: '0xmazout.eth',
+//         volume: 500,
+//         pnl: 30,
+//         actions: 40,
+//         id: '3',
+//         status: Status.Pending,
+//     },
+//     {
+//         addressName: '0xmazout.eth',
+//         volume: 500,
+//         pnl: 30,
+//         actions: 40,
+//         id: '4',
+//         status: Status.NullReward,
+//     },
+//     {
+//         addressName: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
+//         volume: 500,
+//         pnl: 30,
+//         actions: 40,
+//         id: '5',
+//         status: Status.Pending,
+//     },
+// ]
 
-export const columns: ColumnDef<User>[] = [
+export type UserDatatable = {
+    id: string
+    addressName: string
+    pnl: number
+    stat: Stat
+    status?: Status
+}
+
+export const columns: ColumnDef<UserDatatable>[] = [
     {
         id: 'id',
         cell: ({ row }) => (
@@ -112,9 +120,13 @@ export const columns: ColumnDef<User>[] = [
     {
         accessorKey: 'volume',
         cell: ({ row }) => {
-            const volume = row.getValue('volume') as User['volume']
-            const pnl = row.getValue('pnl') as User['pnl']
-            const actions = row.getValue('actions') as User['actions']
+            const volume = row.getValue(
+                'volume'
+            ) as UserDatatable['stat']['volume']
+            const pnl = row.getValue('pnl') as UserDatatable['pnl']
+            const actions = row.getValue(
+                'actions'
+            ) as UserDatatable['stat']['actions']
             return (
                 <div className="flex justify-evenly">
                     <div>
@@ -159,17 +171,22 @@ export const columns: ColumnDef<User>[] = [
         accessorKey: 'actions',
         enableHiding: false,
         cell: ({ row }) => {
-            const volume = row.getValue('volume') as User['volume']
-            const pnl = row.getValue('pnl') as User['pnl']
-            const actions = row.getValue('actions') as User['actions']
+            const volume = row.getValue(
+                'volume'
+            ) as UserDatatable['stat']['volume']
+            const stat = row.getValue('stat') as UserDatatable['stat']
+            const pnl = row.getValue('pnl') as UserDatatable['pnl']
+            const actions = row.getValue(
+                'actions'
+            ) as UserDatatable['stat']['actions']
             return (
                 <UserData
                     user={{
                         addressName: row.getValue('addressName'),
-                        volume: volume,
+                        stat: stat,
                         pnl: pnl,
-                        actions: actions,
                         id: row.id,
+                        reward: {} as Reward,
                     }}
                     onChainActions={[]}
                     offChainActions={[]}
@@ -179,7 +196,11 @@ export const columns: ColumnDef<User>[] = [
     },
 ]
 
-export function DataTable() {
+export type Props = {
+    assessorSlot: AssessorSlot
+}
+
+export function DataTable({ assessorSlot }: Props) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
@@ -189,8 +210,29 @@ export function DataTable() {
         })
     const [rowSelection, setRowSelection] = React.useState({})
 
+    const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+        const res: UserDatatable[] = []
+        assessorSlot.users.forEach((element, index) => {
+            res.push({
+                id: index.toString(),
+                addressName: element,
+                pnl: 100,
+                stat: assessorSlot.stats.find(
+                    (stat) => stat.user_address === element
+                ) as Stat,
+                status: assessorSlot.rewards.find(
+                    (reward) => reward.user_address === element
+                )
+                    ? Status.Rewarded
+                    : Status.Pending,
+            })
+        })
+
+        return res
+    }
+
     const table = useReactTable({
-        data,
+        data: prepareDataForTable(assessorSlot),
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
