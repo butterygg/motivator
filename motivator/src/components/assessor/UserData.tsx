@@ -24,7 +24,6 @@ type Props = {
 }
 
 export function UserData({ user }: Props) {
-    console.log(user, 'user')
     return (
         <Dialog>
             <DialogTrigger asChild>

@@ -16,15 +16,18 @@ const useGetAssessorSlot = ({ assessorAddress }: Props) => {
     const { data, refetch, error } = useQuery({
         queryKey: ['assessorSlot'],
         queryFn: async () => {
-            const res = await fetch('/api/assessor_slot/get', {
-                body: JSON.stringify({
-                    assessorAddr: assessorAddress,
-                }),
-                method: 'GET',
-            })
+            const res = await fetch(
+                '/api/assessor_slot/get?assessorAddr=' + assessorAddress,
+                {
+                    method: 'GET',
+                }
+            )
             return (await res.json()) as AssessorSlot
         },
+        retry: 1,
     })
+    console.log(data, 'data')
+    console.log(error, 'error')
     return { data, refetch, error }
 }
 
