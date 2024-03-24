@@ -3,6 +3,7 @@ import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
 import { NextRequest } from 'next/server'
 import { stat } from 'fs'
+import { AssessorSlot } from '../../../../types/data/assessorSlot'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -57,16 +58,37 @@ export async function GET(request: NextRequest) {
         .from(stats)
         .where(inArray(stats.user_address, usersOfAssessorSlot))
 
-    if (usersOfAssessorSlot) {
-        return Response.json({
-            status: 'ok',
-            usersOfAssessorSlot,
-            message: `Users of the assessor slot`,
-        })
-    } else {
+    if (!getStatsUsers) {
         return Response.json({
             status: 'ko',
-            message: 'No users for the assessor slot',
+            message: 'No stats for the users',
         })
     }
+    const assessorSlot: AssessorSlot = {
+        id: assessorSlotOfAssessor.id,
+        assessorID: assessorSlotOfAssessor.assessor_ID as string,
+        done: assessorSlotOfAssessor.done as boolean,
+        week: assessorSlotOfAssessor.week as number,
+        users: usersOfAssessorSlot,
+        rewards: getRewardsUsers,
+        stats: getStatsUsers,
+    }
+    return Response.json({
+        status: 'ok',
+        assessorSlot,
+        message: `Assessor slot details for ${assessorAddr}`,
+    })
+
+    // if (usersOfAssessorSlot) {
+    //     return Response.json({
+    //         status: 'ok',
+    //         usersOfAssessorSlot,
+    //         message: `Users of the assessor slot`,
+    //     })
+    // } else {
+    //     return Response.json({
+    //         status: 'ko',
+    //         message: 'No users for the assessor slot',
+    //     })
+    // }
 }
