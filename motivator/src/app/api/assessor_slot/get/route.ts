@@ -1,4 +1,4 @@
-import { eq, isNull } from 'drizzle-orm'
+import { eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
 import { NextRequest } from 'next/server'
@@ -27,13 +27,23 @@ export async function GET(request: NextRequest) {
         })
     }
     // Get the list of users for the assessor slot
-    const usersOfAssessorSlot = await db.query.assessor_slot_user.findMany({
-        columns: { user_address: true },
-        where: eq(
-            assessor_slot_user.assessor_slot_ID,
-            assessorSlotOfAssessor.id
-        ),
-    })
+    const usersOfAssessorSlot = (
+        await db.query.assessor_slot_user.findMany({
+            columns: { user_address: true },
+            where: eq(
+                assessor_slot_user.assessor_slot_ID,
+                assessorSlotOfAssessor.id
+            ),
+        })
+    ).map((user) => user.user_address as string)
+
+    if (!usersOfAssessorSlot) {
+        return Response.json({
+            status: 'ko',
+            message: 'No users for the assessor slot',
+        })
+    }
+
     // Get the rewards for the assessor slot
     const getRewardsUsers = await db
         .select()
@@ -45,7 +55,7 @@ export async function GET(request: NextRequest) {
     const getStatsUsers = await db
         .select()
         .from(stats)
-        .where(eq(stats.user_address, assessorSlotOfAssessor.id))
+        .where(inArray(stats.user_address, usersOfAssessorSlot))
 
     if (usersOfAssessorSlot) {
         return Response.json({
