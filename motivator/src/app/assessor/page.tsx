@@ -76,7 +76,7 @@ const HomeAssessor = (props: Props) => {
             },
         ],
         users: [
-            '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
+            '0x8753DE1914c4AB01F845b05b7BC146Bc898850A2',
             '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
             '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
         ],
@@ -84,7 +84,7 @@ const HomeAssessor = (props: Props) => {
         week: 0,
         stats: [
             {
-                user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
+                user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A2',
                 actions: 40,
                 volume: 500,
             },

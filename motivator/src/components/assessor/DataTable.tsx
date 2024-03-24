@@ -110,18 +110,17 @@ export const columns: ColumnDef<UserDatatable>[] = [
             </div>
         ),
     },
-    // {
-    //     accessorKey: 'status',
-    //     enableHiding: true,
-    //     cell: () => {
-    //         ;<></>
-    //     },
-    // },
+    {
+        accessorKey: 'status',
+        enableHiding: true,
+        cell: () => {
+            ;<></>
+        },
+    },
     {
         accessorKey: 'stat',
         cell: ({ row }) => {
             const stat = row.getValue('stat') as UserDatatable['stat']
-            stat.volume
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
 
             return (
@@ -152,42 +151,50 @@ export const columns: ColumnDef<UserDatatable>[] = [
             )
         },
     },
+    // {
+    //     accessorKey: 'pnl',
+    //     cell: ({ row }) => {
+    //         ;<>
+    //             {/* <p className="font-extralight pl-1 text-xs">pnl</p>
+    //             <div className="flex">
+    //                 <EthLogo className="h-4 w-4" />
+    //                 <p className="font-bold">{row.getValue('pnl')}K</p>
+    //             </div> */}
+    //         </>
+    //     },
+    // },
     {
         accessorKey: 'pnl',
-        cell: ({ row }) => {
-            ;<>
-                {/* <p className="font-extralight pl-1 text-xs">pnl</p>
-                <div className="flex">
-                    <EthLogo className="h-4 w-4" />
-                    <p className="font-bold">{row.getValue('pnl')}K</p>
-                </div> */}
-            </>
-        },
-    },
-    {
-        accessorKey: 'status',
         enableHiding: false,
         cell: ({ row }) => {
-            const stat = row.getValue('stat') as UserDatatable['stat']
-            const pnl = row.getValue('pnl') as UserDatatable['pnl']
+            // const stat = row.getValue('stat') as UserDatatable['stat']
+            // const pnl = row.getValue('pnl') as UserDatatable['pnl']
+            const stat = {
+                volume: 50,
+                actions: 50,
+                user_address: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
+            }
+
             return (
-                <UserData
+                <>
+                    {/* <UserData
                     user={{
-                        addressName: row.getValue('addressName'),
+                        addressName: stat.user_address,
                         stat: stat,
-                        pnl: pnl,
+                        pnl: 52,
                         id: row.index.toString(),
                         // reward: {
-                        //     date: null,
-                        //     user_address: null,
-                        //     id: '',
-                        //     amount: null,
-                        //     assessor_slot_ID: '',
-                        // } as Reward,
-                    }}
-                    onChainActions={[]}
-                    offChainActions={[]}
-                ></UserData>
+                            //     date: null,
+                            //     user_address: null,
+                            //     id: '',
+                            //     amount: null,
+                            //     assessor_slot_ID: '',
+                            // } as Reward,
+                        }}
+                        // onChainActions={[]}
+                        // offChainActions={[]}
+                        /> */}
+                </>
             )
         },
     },
@@ -198,6 +205,17 @@ export type Props = {
 }
 
 export function DataTable({ assessorSlot }: Props) {
+    const dummyUserDatatable: UserDatatable = {
+        id: '1',
+        addressName: '0xmazout.eth',
+        pnl: 100,
+        stat: {
+            volume: 500,
+            actions: 40,
+            user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
+        },
+        status: Status.Pending,
+    } as UserDatatable
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] =
         React.useState<ColumnFiltersState>([])
@@ -208,25 +226,35 @@ export function DataTable({ assessorSlot }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
 
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+        console.log(assessorSlot, 'assessorSlot')
         const res: UserDatatable[] = []
-        assessorSlot.users.forEach((element, index) => {
-            res.push({
-                id: index.toString(),
-                addressName: element,
-                pnl: 100,
-                stat: assessorSlot.stats.find(
-                    (stat) => stat.user_address === element
-                ) as Stat,
-                status: assessorSlot.rewards.find(
-                    (reward) => reward.user_address === element
-                )
-                    ? Status.Rewarded
-                    : Status.Pending,
-            })
-        })
-
+        for (let index = 0; index < 5; index++) {
+            res.push(dummyUserDatatable)
+        }
         return res
     }
+
+    // const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+    //     console.log(assessorSlot, 'assessorSlot')
+    //     const res: UserDatatable[] = []
+    //     assessorSlot.users.forEach((element, index) => {
+    //         res.push({
+    //             id: index.toString(),
+    //             addressName: element,
+    //             pnl: 100,
+    //             stat: assessorSlot.stats.find(
+    //                 (stat) => stat.user_address === element
+    //             ) as Stat,
+    //             status: assessorSlot.rewards.find(
+    //                 (reward) => reward.user_address === element
+    //             )
+    //                 ? Status.Rewarded
+    //                 : Status.Pending,
+    //         })
+    //     })
+
+    //     return res
+    // }
 
     const table = useReactTable({
         data: prepareDataForTable(assessorSlot),

@@ -1,4 +1,6 @@
+'use client'
 import { Button } from '@/components/ui/button'
+
 import {
     Dialog,
     DialogContent,
@@ -17,11 +19,12 @@ import { DataCard } from './DataCard'
 
 type Props = {
     user: User
-    onChainActions: OnChainAction[]
-    offChainActions: OnChainAction[]
+    // onChainActions: OnChainAction[]
+    // offChainActions: OnChainAction[]
 }
 
 export function UserData({ user }: Props) {
+    console.log(user, 'user')
     return (
         <Dialog>
             <DialogTrigger asChild>
