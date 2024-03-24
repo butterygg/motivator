@@ -20,6 +20,7 @@ import { Tag } from '@/components/assessor/Tag'
 import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
 import { UserData } from './UserData'
 import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
+import { useGetAssessorSlot } from '../../hooks/useGetAssessorSlot'
 
 // const data: User[] = [
 //     {
@@ -100,6 +101,10 @@ export const columns: ColumnDef<UserDatatable>[] = [
     },
     {
         accessorKey: 'status',
+        enableHiding: true,
+        cell: () => {
+            ;<></>
+        },
     },
     {
         accessorKey: 'stat',
@@ -178,7 +183,10 @@ export type Props = {
 }
 
 export function DataTable({ assessorSlot }: Props) {
-    // const { data } = useHomeAssessorData()
+    // const { data } = useGetAssessorSlot({
+    //     assessorAddress: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
+    // })
+    console.log('DataTable')
     // console.log('DataTableContainer')
     const dummyUserDatatable: UserDatatable = {
         id: '1',

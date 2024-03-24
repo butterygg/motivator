@@ -11,21 +11,30 @@ import { Address } from 'viem'
 import { AssessorSlot } from '../../types/data/assessorSlot'
 
 type Props = {}
+import { getAccount } from '@wagmi/core'
+// import { config } from './config'
+import { config } from '../../utils/Web3Provider'
+import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
+import DataTableContainer from '../../components/container/DataTableContainer'
 
 const HomeAssessor = (props: Props) => {
+    console.log('HomeAssessor')
+    // const { address } = getAccount(config)
     // TODO : Mock of Data replace with API call using react query
 
-    const { address } = useAccount()
+    // ! My Problem is clearly when we use The UseAccount hook from wagmi or Get Account , we are in an infinite loop
+    // const { address } = useAccount()
+    // TODO : Ive to find a way to unblock this part and get the address of the user
 
-    const { data, error, refetch } = useGetAssessorSlot({
-        assessorAddress: address ? address : '0x0',
-    })
+    // const { data } = useHomeAssessorData()
 
-    const [assessorSlot, setAssessorSlot] = useState<AssessorSlot>()
+    // const [assessorSlot, setAssessorSlot] = useState<AssessorSlot>(
+    //     data as AssessorSlot
+    // )
 
-    useEffect(() => {
-        setAssessorSlot(data)
-    }, [data, error, refetch])
+    // useEffect(() => {
+    //     setAssessorSlot(data)
+    // }, [data, error, refetch])
 
     const users: User[] = [
         {
@@ -103,9 +112,7 @@ const HomeAssessor = (props: Props) => {
 
     return (
         <main className="flex flex-col lg:flex-row">
-            <DataTable
-                assessorSlot={assessorSlot ? assessorSlot : dummyAssessorSlot}
-            />
+            <DataTableContainer />
             <RewardedUsers value={0} users={users} />
         </main>
     )

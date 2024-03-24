@@ -2,6 +2,7 @@ import React from 'react'
 import { User } from '../../types/data/user'
 import ReducedDataUsers from './ReducedDataUsers'
 import { Button } from '../ui/button'
+import { useGetAssessorSlot } from '../../hooks/useGetAssessorSlot'
 
 type Props = {
     value: number
@@ -9,6 +10,7 @@ type Props = {
 }
 
 const RewardedUsers = ({ value, users }: Props) => {
+    const { data } = useGetAssessorSlot({ assessorAddress: '0x0' })
     const buildUsers = () => {
         return (
             <div className="flex flex-wrap lg:flex-col gap-4">

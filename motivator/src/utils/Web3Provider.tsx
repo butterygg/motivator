@@ -25,7 +25,15 @@ const Web3Provider = ({
 }: Readonly<{
     children: React.ReactNode
 }>) => {
-    const queryClient = new QueryClient()
+    const queryClient = new QueryClient({
+        defaultOptions: {
+            queries: {
+                staleTime: 6 * 1000,
+                refetchInterval: 6 * 1000,
+                retry: 3,
+            },
+        },
+    })
     const getSiweMessageOptions: GetSiweMessageOptions = () => ({
         statement: 'Sign in to The Motivator App',
     })
