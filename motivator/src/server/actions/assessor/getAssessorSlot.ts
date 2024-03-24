@@ -21,7 +21,7 @@ export async function getAssessorSlot(address: string) {
             eq(assessor_slot.assessor_ID, assessorAddr as string),
     })
     console.log('assessorSlotOfAssessor', assessorSlotOfAssessor)
-    if (!!assessorSlotOfAssessor) {
+    if (!assessorSlotOfAssessor) {
         return {
             status: 'ko',
             message: 'No assessor slot available',
