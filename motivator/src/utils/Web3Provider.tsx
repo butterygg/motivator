@@ -14,18 +14,18 @@ import {
 } from '@rainbow-me/rainbowkit-siwe-next-auth'
 type Props = {}
 
+export const config = getDefaultConfig({
+    appName: 'Motivator',
+    projectId: 'b23989a1ad4b5577b68f70805a34eef6',
+    chains: [sepolia],
+    ssr: true, // If your dApp uses server side rendering (SSR)
+})
 const Web3Provider = ({
     children,
 }: Readonly<{
     children: React.ReactNode
 }>) => {
     const queryClient = new QueryClient()
-    const config = getDefaultConfig({
-        appName: 'Motivator',
-        projectId: 'b23989a1ad4b5577b68f70805a34eef6',
-        chains: [sepolia],
-        ssr: true, // If your dApp uses server side rendering (SSR)
-    })
     const getSiweMessageOptions: GetSiweMessageOptions = () => ({
         statement: 'Sign in to The Motivator App',
     })
