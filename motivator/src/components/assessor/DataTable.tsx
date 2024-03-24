@@ -4,9 +4,6 @@ import * as React from 'react'
 
 import {
     ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
@@ -14,24 +11,15 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-import { Button } from '@/components/ui/button'
 import EthLogo from '~/ethereum-eth-logo.svg'
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-import { UserData } from '@/components/assessor/UserData'
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 import { Status } from '@/types/enum/status'
 import { Tag } from '@/components/assessor/Tag'
 import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
+import { UserData } from './UserData'
+import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
 
 // const data: User[] = [
 //     {
@@ -89,7 +77,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
         id: 'id',
         cell: ({ row }) => (
             <>
-                <p className="font-bold"># {row.index} </p>
+                <p className="font-bold"># {row.index + 1} </p>
             </>
         ),
         enableSorting: false,
@@ -112,10 +100,6 @@ export const columns: ColumnDef<UserDatatable>[] = [
     },
     {
         accessorKey: 'status',
-        enableHiding: true,
-        cell: () => {
-            ;<></>
-        },
     },
     {
         accessorKey: 'stat',
@@ -176,25 +160,14 @@ export const columns: ColumnDef<UserDatatable>[] = [
             }
 
             return (
-                <>
-                    {/* <UserData
+                <UserData
                     user={{
                         addressName: stat.user_address,
                         stat: stat,
                         pnl: 52,
                         id: row.index.toString(),
-                        // reward: {
-                            //     date: null,
-                            //     user_address: null,
-                            //     id: '',
-                            //     amount: null,
-                            //     assessor_slot_ID: '',
-                            // } as Reward,
-                        }}
-                        // onChainActions={[]}
-                        // offChainActions={[]}
-                        /> */}
-                </>
+                    }}
+                />
             )
         },
     },
@@ -205,6 +178,8 @@ export type Props = {
 }
 
 export function DataTable({ assessorSlot }: Props) {
+    // const { data } = useHomeAssessorData()
+    // console.log('DataTableContainer')
     const dummyUserDatatable: UserDatatable = {
         id: '1',
         addressName: '0xmazout.eth',
@@ -216,13 +191,7 @@ export function DataTable({ assessorSlot }: Props) {
         },
         status: Status.Pending,
     } as UserDatatable
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({
-            columnId3: true,
-        })
+
     const [rowSelection, setRowSelection] = React.useState({})
 
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
@@ -257,20 +226,14 @@ export function DataTable({ assessorSlot }: Props) {
     // }
 
     const table = useReactTable({
-        data: prepareDataForTable(assessorSlot),
+        data: [dummyUserDatatable],
         columns,
-        onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         state: {
-            sorting,
-            columnFilters,
-            columnVisibility,
             rowSelection,
         },
     })
