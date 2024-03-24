@@ -110,30 +110,27 @@ export const columns: ColumnDef<UserDatatable>[] = [
             </div>
         ),
     },
+    // {
+    //     accessorKey: 'status',
+    //     enableHiding: true,
+    //     cell: () => {
+    //         ;<></>
+    //     },
+    // },
     {
-        accessorKey: 'status',
-        enableHiding: true,
-        cell: () => {
-            ;<></>
-        },
-    },
-    {
-        accessorKey: 'volume',
+        accessorKey: 'stat',
         cell: ({ row }) => {
-            const volume = row.getValue(
-                'volume'
-            ) as UserDatatable['stat']['volume']
+            const stat = row.getValue('stat') as UserDatatable['stat']
+            stat.volume
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
-            const actions = row.getValue(
-                'actions'
-            ) as UserDatatable['stat']['actions']
+
             return (
                 <div className="flex justify-evenly">
                     <div>
                         <p className="font-extralight pl-1 text-xs">Volume</p>
                         <div className="flex">
                             <EthLogo className="h-4 w-4" />
-                            <p className="font-bold">{volume}K</p>
+                            <p className="font-bold">{stat.volume}K</p>
                         </div>
                     </div>
 
@@ -148,7 +145,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         <p className="font-extralight pl-1 text-xs">Actions</p>
                         <div className="flex">
                             <EthLogo className="h-4 w-4" />
-                            <p className="font-bold">{actions}K</p>
+                            <p className="font-bold">{stat.actions}K</p>
                         </div>
                     </div>
                 </div>
@@ -159,34 +156,34 @@ export const columns: ColumnDef<UserDatatable>[] = [
         accessorKey: 'pnl',
         cell: ({ row }) => {
             ;<>
-                <p className="font-extralight pl-1 text-xs">pnl</p>
+                {/* <p className="font-extralight pl-1 text-xs">pnl</p>
                 <div className="flex">
                     <EthLogo className="h-4 w-4" />
                     <p className="font-bold">{row.getValue('pnl')}K</p>
-                </div>
+                </div> */}
             </>
         },
     },
     {
-        accessorKey: 'actions',
+        accessorKey: 'status',
         enableHiding: false,
         cell: ({ row }) => {
-            const volume = row.getValue(
-                'volume'
-            ) as UserDatatable['stat']['volume']
             const stat = row.getValue('stat') as UserDatatable['stat']
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
-            const actions = row.getValue(
-                'actions'
-            ) as UserDatatable['stat']['actions']
             return (
                 <UserData
                     user={{
                         addressName: row.getValue('addressName'),
                         stat: stat,
                         pnl: pnl,
-                        id: row.id,
-                        reward: {} as Reward,
+                        id: row.index.toString(),
+                        // reward: {
+                        //     date: null,
+                        //     user_address: null,
+                        //     id: '',
+                        //     amount: null,
+                        //     assessor_slot_ID: '',
+                        // } as Reward,
                     }}
                     onChainActions={[]}
                     offChainActions={[]}
