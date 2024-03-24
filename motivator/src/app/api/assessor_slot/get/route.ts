@@ -11,15 +11,15 @@ import { AssessorSlot } from '../../../../types/data/assessorSlot'
  * @param response Send the status of the transaction
  */
 export async function GET(request: NextRequest) {
-    const body = await request.json()
+    const url = new URL(request.url)
 
-    const assessorAddr = body.assessorAddr
+    const assessorAddr = url.searchParams.get('assessorAddr')
 
     // grab an assessor slot that is not done and has the assessor assigned
     const assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
         where:
             eq(assessor_slot.done, false) &&
-            eq(assessor_slot.assessor_ID, assessorAddr),
+            eq(assessor_slot.assessor_ID, assessorAddr as string),
     })
     if (!assessorSlotOfAssessor) {
         return Response.json({
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         .where(eq(reward.assessor_slot_ID, assessorSlotOfAssessor.id))
         .execute()
 
-    //TODO : FIND A WAY TO FETCH A STATS FOR EACH USER IN THE LIST WITH DRIZZLE
+    // Get the stats for the users present in array usersOfAssessorSlot
     const getStatsUsers = await db
         .select()
         .from(stats)
@@ -64,6 +64,7 @@ export async function GET(request: NextRequest) {
             message: 'No stats for the users',
         })
     }
+    //build the response
     const assessorSlot: AssessorSlot = {
         id: assessorSlotOfAssessor.id,
         assessorID: assessorSlotOfAssessor.assessor_ID as string,
@@ -78,17 +79,4 @@ export async function GET(request: NextRequest) {
         assessorSlot,
         message: `Assessor slot details for ${assessorAddr}`,
     })
-
-    // if (usersOfAssessorSlot) {
-    //     return Response.json({
-    //         status: 'ok',
-    //         usersOfAssessorSlot,
-    //         message: `Users of the assessor slot`,
-    //     })
-    // } else {
-    //     return Response.json({
-    //         status: 'ko',
-    //         message: 'No users for the assessor slot',
-    //     })
-    // }
 }
