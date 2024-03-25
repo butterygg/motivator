@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server'
 import { db } from '@db/dbRouter'
 import { reward, user } from '@db/schema'
 import { and, eq } from 'drizzle-orm'
+import { toast } from 'sonner'
 
 /**
  *
@@ -27,9 +28,19 @@ export async function addReward({
     })
 
     if (isRewardAlreadyAssigned) {
-        return {
-            status: 'ok',
-            message: 'Reward already assigned',
+        const rewardSent = await db
+            .update(reward)
+            .set({
+                amount: value,
+                user_address: userAddr,
+                date: new Date().toISOString(),
+            })
+            .where(eq(reward.id, isRewardAlreadyAssigned.id))
+        if (rewardSent) {
+            return {
+                status: 'ok',
+                message: `Reward of ${value} sent to ${userAddr}`,
+            }
         }
     }
 

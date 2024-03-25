@@ -1,7 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { getRewardedUsers } from '@/server/actions/reward/getRewardedUsers'
-import { Answer } from '@/types/data/answer'
-import { addReward } from '@/server/actions/reward/addReward'
+import { useMutation } from '@tanstack/react-query'
 import { signAssessor } from '../../server/actions/assessor/signAssessor'
 import { Address } from 'viem'
 type Props = {

@@ -1,6 +1,4 @@
 import { useMutation } from '@tanstack/react-query'
-import { getRewardedUsers } from '@/server/actions/reward/getRewardedUsers'
-import { Answer } from '@/types/data/answer'
 import { addReward } from '@/server/actions/reward/addReward'
 type Props = {
     userAddr: string

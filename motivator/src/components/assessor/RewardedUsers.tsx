@@ -23,18 +23,22 @@ const RewardedUsers = ({ value, users }: Props) => {
     const buildUsers = () => {
         return (
             <div className="flex flex-wrap lg:flex-col gap-4">
-                {users.map((user, index) => (
-                    <ReducedDataUsers
-                        key={index}
-                        userAddr={user.addressName}
-                        // actions={user.stat.actions}
-                        // pnl={user.pnl}
-                        // volume={user.stat.volume}
-                        reward={user.reward ? user.reward.amount : 0}
-                        id={user.id}
-                        assessorSlot={assessorSlot?.res?.id as string}
-                    />
-                ))}
+                {rewardedUsers?.res ? (
+                    rewardedUsers.res.map((user, index) => (
+                        <ReducedDataUsers
+                            key={index}
+                            userAddr={user.user_address as string}
+                            // actions={user.stat.actions}
+                            // pnl={user.pnl}
+                            // volume={user.stat.volume}
+                            reward={user.amount}
+                            id={user.id}
+                            assessorSlot={assessorSlot?.res?.id as string}
+                        />
+                    ))
+                ) : (
+                    <></>
+                )}
             </div>
         )
     }
@@ -42,8 +46,10 @@ const RewardedUsers = ({ value, users }: Props) => {
     const handleSubmit = () => {
         console.log('submit')
     }
-    // TODO HIDE THE COMPONENT IF NO USERS
-    return (
+    // hide the component if list empty
+    return rewardedUsers?.res?.length === 0 ? (
+        <></>
+    ) : (
         <section className="p-8 h-full w-full lg:w-fit ">
             <div className="border rounded p-4">
                 <div className="flex justify-between rounded py-2">
