@@ -66,7 +66,7 @@ import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 // ]
 
 export type UserDatatable = {
-    id: { id: string; assessorid: string }
+    id: { id: string; assessorSlotId: string }
     addressName: string
     pnl: number
     stat: Stat
@@ -75,6 +75,7 @@ export type UserDatatable = {
 
 export const columns: ColumnDef<UserDatatable>[] = [
     {
+        accessorKey: 'id',
         id: 'id',
         cell: ({ row }) => (
             <>
@@ -163,6 +164,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
         cell: ({ row }) => {
             const stat = row.getValue('stat') as UserDatatable['stat']
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
+            const id = row.getValue('id') as UserDatatable['id']
             // const stat = {
             //     volume: 50,
             //     actions: 50,
@@ -177,6 +179,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         pnl: pnl,
                         id: row.index.toString(),
                     }}
+                    assessorSlotId={id.assessorSlotId}
                 />
             )
         },

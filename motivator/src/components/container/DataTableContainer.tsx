@@ -12,7 +12,7 @@ const DataTableContainer = () => {
             res.push({
                 id: {
                     id: index.toString(),
-                    assessorid: assessorSlot.assessorID,
+                    assessorSlotId: assessorSlot.id,
                 },
                 addressName: element,
                 pnl: 100,
@@ -75,7 +75,7 @@ const DataTableContainer = () => {
     useEffect(() => {
         console.log('statusAccount', statusAccount)
         if (statusAccount === 'connected' && refetch) refetch()
-    }, [statusAccount])
+    }, [refetch, statusAccount])
 
     if (status === 'pending') {
         return <div>Loading...</div>

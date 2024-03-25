@@ -32,7 +32,7 @@ const RewardedUsers = ({ value, users }: Props) => {
                         // volume={user.stat.volume}
                         reward={user.reward ? user.reward.amount : 0}
                         id={user.id}
-                        assessorSlot={''}
+                        assessorSlot={assessorSlot?.res?.id as string}
                     />
                 ))}
             </div>

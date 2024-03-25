@@ -27,23 +27,24 @@ import { useGetAssessorSlotID } from '../../hooks/assessorSlot/useGetAssessorSlo
 
 type Props = {
     user: User
+    assessorSlotId: string
     // onChainActions: OnChainAction[]
     // offChainActions: OnChainAction[]
 }
 
-export function UserData({ user }: Props) {
+export function UserData({ user, assessorSlotId }: Props) {
     const [points, setPoints] = useState(
         user.reward?.amount ? user.reward.amount : 0
     )
     const { address } = useAccount()
     // const { data } = useGetAssessorSlotID({ assessorAddr: address as Address })
-    // const { mutate } = useAddRewardUsers({
-    //     assessorSlot: data ? (data.res?.id as string) : '0x0',
-    //     userAddr: user.addressName,
-    //     value: points ? points : 0,
-    // })
+    const { mutate } = useAddRewardUsers({
+        assessorSlot: assessorSlotId,
+        userAddr: user.addressName,
+        value: points ? points : 0,
+    })
     const handleSubmit = () => {
-        // mutate()
+        mutate()
     }
     const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPoints(parseInt(e.target.value))
