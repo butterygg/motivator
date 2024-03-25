@@ -20,7 +20,7 @@ import { Tag } from '@/components/assessor/Tag'
 import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
 import { UserData } from './UserData'
 import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
-import { useGetAssessorSlot } from '../../hooks/useGetAssessorSlot'
+import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 
 // const data: User[] = [
 //     {
@@ -114,26 +114,31 @@ export const columns: ColumnDef<UserDatatable>[] = [
 
             return (
                 <div className="flex justify-evenly">
-                    <div>
-                        <p className="font-extralight pl-1 text-xs">Volume</p>
+                    <div className="items-center flex-col flex">
+                        <p className="font-extralight text-center text-xs">
+                            Volume
+                        </p>
                         <div className="flex">
                             <EthLogo className="h-4 w-4" />
-                            <p className="font-bold">{stat.volume}K</p>
+                            <p className="font-bold">{stat.volume}</p>
                         </div>
                     </div>
 
-                    <div>
-                        <p className="font-extralight pl-1 text-xs">PnL</p>
+                    <div className="items-center flex-col flex">
+                        <p className="font-extralight text-center text-xs">
+                            PnL
+                        </p>
                         <div className="flex">
-                            <EthLogo className="h-4 w-4" />
-                            <p className="font-bold">{pnl}K</p>
+                            <p className="font-bold">{pnl}K$</p>
                         </div>
                     </div>
-                    <div>
-                        <p className="font-extralight pl-1 text-xs">Actions</p>
-                        <div className="flex">
-                            <EthLogo className="h-4 w-4" />
-                            <p className="font-bold">{stat.actions}K</p>
+                    <div className="items-center flex-col flex">
+                        <p className="font-extralight text-center text-xs">
+                            Actions
+                        </p>
+                        <div className="flex items-center">
+                            {/* <EthLogo className="h-4 w-4" /> */}
+                            <p className="font-bold">{stat.actions}</p>
                         </div>
                     </div>
                 </div>
@@ -156,20 +161,20 @@ export const columns: ColumnDef<UserDatatable>[] = [
         accessorKey: 'pnl',
         enableHiding: false,
         cell: ({ row }) => {
-            // const stat = row.getValue('stat') as UserDatatable['stat']
-            // const pnl = row.getValue('pnl') as UserDatatable['pnl']
-            const stat = {
-                volume: 50,
-                actions: 50,
-                user_address: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
-            }
+            const stat = row.getValue('stat') as UserDatatable['stat']
+            const pnl = row.getValue('pnl') as UserDatatable['pnl']
+            // const stat = {
+            //     volume: 50,
+            //     actions: 50,
+            //     user_address: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
+            // }
 
             return (
                 <UserData
                     user={{
                         addressName: stat.user_address,
                         stat: stat,
-                        pnl: 52,
+                        pnl: pnl,
                         id: row.index.toString(),
                     }}
                 />
@@ -184,7 +189,7 @@ export type Props = {
 
 export function DataTable({ users }: Props) {
     // const { data } = useGetAssessorSlot({
-    //     assessorAddress: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
+    //     assessorAddr: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
     // })
     const dummyUserDatatable: UserDatatable = {
         id: '1',
@@ -244,7 +249,7 @@ export function DataTable({ users }: Props) {
     })
 
     return (
-        <div className="lg-max:w-3/4 lg:w-full p-8">
+        <div className="lg-max:w-fit lg:w-full p-8">
             <div className="rounded-md border">
                 <Table>
                     <TableBody>

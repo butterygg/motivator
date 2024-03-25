@@ -15,21 +15,21 @@ import { Label } from '@/components/ui/label'
 type Props = {
     title: string
     value: number | string
+    icon?: React.ReactNode
 }
 
-export function DataCard({ title, value }: Props) {
+export function DataCard({ title, value, icon }: Props) {
     return (
         <Card className="p-2">
             <CardHeader className="p-2">
                 <p className="text-xs text-center">{title}</p>
             </CardHeader>
             <CardContent className="p-2">
-                <div className="">
-                    <div className="text-center text-xl">
-                        <Label className="text-xl" htmlFor="name">
-                            {value}
-                        </Label>
-                    </div>
+                <div className=" text-xl flex items-center">
+                    {icon ? icon : null}
+                    <Label className="text-xl mx-auto" htmlFor="name">
+                        {value}
+                    </Label>
                 </div>
             </CardContent>
         </Card>

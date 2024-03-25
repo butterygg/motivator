@@ -6,7 +6,7 @@ import { reward, user } from '@db/schema'
 
 /**
  *
- * @param request Will contain an Array of [{assessorAddress: string, userAddress: string, value: number}]
+ * @param request Will contain an Array of [{assessorAddr: string, userAddr: string, value: number}]
  * @param response Send the status of the transaction
  */
 export async function addReward({
@@ -14,7 +14,6 @@ export async function addReward({
     value,
     assessorSlot,
 }: {
-    assessorAddress: string
     userAddr: string
     value: number
     assessorSlot: string

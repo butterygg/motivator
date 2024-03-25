@@ -2,8 +2,8 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import React from 'react'
 
 type Props = {
-    assessorAddress: string
-    userAddress: string
+    assessorAddr: string
+    userAddr: string
     value: number
 }
 
@@ -24,9 +24,9 @@ const useSendReward = (props: Props) => {
         mutationFn: async () => {
             const res = await fetch('/api/rewards/add', {
                 body: JSON.stringify({
-                    userAddress: props.userAddress,
+                    userAddr: props.userAddr,
                     value: props.value,
-                    assessorSlot: props.assessorAddress,
+                    assessorSlot: props.assessorAddr,
                 }),
                 method: 'POST',
             })

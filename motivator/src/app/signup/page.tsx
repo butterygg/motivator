@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useAccount } from 'wagmi'
 import ConnectWalletCard from '../../components/signup/connectWalletCard'
 import StartAssessmentSlot from '../../components/signup/startAssessmentSlot'
+import { useGetAssessorSlotID } from '../../hooks/assessorSlot/useGetAssessorSlotID'
 
 type Props = {}
 

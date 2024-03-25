@@ -6,29 +6,24 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { useSendReward } from '../../hooks/oldAPIToDelete/useSendReward'
 import { toast } from 'sonner'
+import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 
 type Props = {
-    userAddress: string
+    userAddr: string
     id: string
-    assessorAddress: string
+    assessorSlot: string
     reward: number | null
 }
 
-const ReducedDataUsers = ({
-    id,
-    userAddress,
-    assessorAddress,
-    reward,
-}: Props) => {
-    // ! Initialize with store value if available
+const ReducedDataUsers = ({ userAddr, reward, assessorSlot }: Props) => {
     const [points, setPoints] = useState(reward)
     const handlePointsUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPoints(parseInt(e.target.value))
     }
-    const { data, error, mutate } = useSendReward({
-        userAddress: userAddress,
+    const { data, error, mutate } = useAddRewardUsers({
+        assessorSlot: assessorSlot,
+        userAddr: userAddr,
         value: points ? points : 0,
-        assessorAddress: assessorAddress,
     })
 
     const handleSubmit = () => {
@@ -39,7 +34,7 @@ const ReducedDataUsers = ({
     //replace with sonner
     useEffect(() => {
         if (data) {
-            toast.success(data.message)
+            toast.success("User's reward updated")
         }
         if (error) {
             toast.error(error.message)
@@ -48,7 +43,7 @@ const ReducedDataUsers = ({
 
     return (
         <form className="border w-fit p-4 rounded-md flex flex-col gap-4">
-            <AddrAvatar addressName={userAddress} />
+            <AddrAvatar addressName={userAddr} />
             <div className=" lg:flex-wrap flex lg-max:flex-col lg:flex-row gap-4">
                 <Input
                     type="number"

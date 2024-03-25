@@ -7,13 +7,13 @@ import { eq } from 'drizzle-orm'
 
 /**
  *
- * @param request Will contain an Array of [{assessorAddress: string, userAddress: string, rewardId: number, value: number}]
+ * @param request Will contain an Array of [{assessorAddr: string, userAddr: string, rewardId: number, value: number}]
  * @param response Send the status of the transaction
  */
 export async function POST(request: NextRequest) {
     const body = await request.json()
 
-    const userAddr = body.userAddress
+    const userAddr = body.userAddr
     const value = body.value
 
     const rewardSent = await db

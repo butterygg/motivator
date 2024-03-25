@@ -24,11 +24,11 @@ const StartAssessmentSlot = (props: Props) => {
     const { address } = useAccount()
     console.log(address, 'address')
     const { mutate: mutateSignAssessor } = useSignAssessor({
-        assessorAddress: address as Address,
+        assessorAddr: address as Address,
     })
 
     const { mutate: mutateAssignAssessorSlot } = useAssignAssessorSlot({
-        assessorAddress: address as Address,
+        assessorAddr: address as Address,
     })
 
     const handleStartAssessmentSlot = async () => {

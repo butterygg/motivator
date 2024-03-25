@@ -1,25 +1,27 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { getRewardedUsers } from '@/server/actions/reward/getRewardedUsers'
 import { Answer } from '@/types/data/answer'
 import { addReward } from '@/server/actions/reward/addReward'
-import { signAssessor } from '../../server/actions/assessor/signAssessor'
-import { Address } from 'viem'
 type Props = {
-    assessorAddr: Address | undefined
+    userAddr: string
+    value: number
+    assessorSlot: string
 }
 
 /**
- * This hook is used to sign Assessor into game
+ * This hook is used to fetch the assessor slot of the assessor
  * @param {Props} props
  *
  *
  */
-const useSignAssessor = ({ assessorAddr }: Props) => {
+const useAddRewardUsers = ({ assessorSlot, userAddr, value }: Props) => {
     const { data, mutate, status, error } = useMutation({
-        mutationKey: ['signAssessor'],
+        mutationKey: ['addRewardUsers'],
         mutationFn: async () => {
-            return signAssessor({
-                assessorAddr: assessorAddr as string,
+            return addReward({
+                assessorSlot: assessorSlot,
+                userAddr: userAddr,
+                value: value,
             })
         },
         // enabled: false,
@@ -30,4 +32,4 @@ const useSignAssessor = ({ assessorAddr }: Props) => {
     return { data, mutate, error, status }
 }
 
-export { useSignAssessor }
+export { useAddRewardUsers }

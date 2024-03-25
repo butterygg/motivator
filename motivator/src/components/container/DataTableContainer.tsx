@@ -1,13 +1,11 @@
 import React from 'react'
 import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
 import { AssessorSlot, Stat } from '@/types/data/assessorSlot'
-import { useGetAssessorSlot } from '@/hooks/useGetAssessorSlot'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
 
-type Props = {}
-
-const DataTableContainer = (props: Props) => {
+const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
         assessorSlot.users.forEach((element, index) => {
@@ -67,7 +65,7 @@ const DataTableContainer = (props: Props) => {
     }
     const { address } = useAccount()
     const { data, error, status } = useGetAssessorSlot({
-        assessorAddress: address as string,
+        assessorAddr: address as string,
     })
 
     if (status === 'pending') {

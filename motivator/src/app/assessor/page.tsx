@@ -4,7 +4,7 @@ import { DataTable } from '@/components/assessor/DataTable'
 import RewardedUsers from '@/components/assessor/RewardedUsers'
 import { User } from '@/types/data/user'
 import { Status } from '../../types/enum/status'
-import { useGetAssessorSlot } from '../../hooks/useGetAssessorSlot'
+import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 import { useSession } from 'next-auth/react'
 import { useAccount } from 'wagmi'
 import { Address } from 'viem'
@@ -111,7 +111,7 @@ const HomeAssessor = (props: Props) => {
     }
 
     return (
-        <main className="flex flex-col lg:flex-row">
+        <main className="flex flex-col lg:flex-row w-full">
             <DataTableContainer />
             <RewardedUsers value={0} users={users} />
         </main>
