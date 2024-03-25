@@ -4,7 +4,7 @@ import { User } from '@/types/data/user'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { useSendReward } from '../../hooks/useSendReward'
+import { useSendReward } from '../../hooks/oldAPIToDelete/useSendReward'
 import { toast } from 'sonner'
 
 type Props = {

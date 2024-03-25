@@ -65,7 +65,7 @@ const DataTableContainer = (props: Props) => {
         return <div>No data</div>
     }
 
-    return <DataTable assessorSlot={data} />
+    return <DataTable assessorSlot={data.res as AssessorSlot} />
 }
 
 export default DataTableContainer
