@@ -10,7 +10,6 @@ import { reward, user } from '@db/schema'
  * @param response Send the status of the transaction
  */
 export async function addReward({
-    assessorAddress,
     userAddr,
     value,
     assessorSlot,

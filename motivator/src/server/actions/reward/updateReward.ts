@@ -11,7 +11,6 @@ import { eq } from 'drizzle-orm'
  * @param response Send the status of the transaction
  */
 export async function updateReward({
-    assessorAddress,
     userAddr,
     value,
     rewardId,
