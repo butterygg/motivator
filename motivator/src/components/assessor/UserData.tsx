@@ -33,6 +33,7 @@ type Props = {
 }
 
 export function UserData({ user, assessorSlotId }: Props) {
+    console.log(user, 'user')
     const [points, setPoints] = useState(
         user.reward?.amount ? user.reward.amount : 0
     )
@@ -90,6 +91,7 @@ export function UserData({ user, assessorSlotId }: Props) {
                             className="w-32 appearance-none"
                             min={0}
                             onChange={handleOnChangeInput}
+                            value={points}
                         />
                         <Button onClick={() => handleSubmit()} type="submit">
                             Reward

@@ -70,7 +70,10 @@ export type UserDatatable = {
     addressName: string
     pnl: number
     stat: Stat
-    status?: Status
+    reward?: {
+        reward: Reward | undefined
+        status: Status
+    }
 }
 
 export const columns: ColumnDef<UserDatatable>[] = [
@@ -88,20 +91,27 @@ export const columns: ColumnDef<UserDatatable>[] = [
     {
         accessorKey: 'addressName',
         header: 'addressName',
-        cell: ({ row }) => (
-            <div className="flex gap-6 items-center">
-                <AddrAvatar
-                    addressName={row.getValue('addressName')}
-                    isDatatableStyle
-                />
-                <div className="w-fit">
-                    <Tag value={row.getValue('status')} />
+        cell: ({ row }) => {
+            const reward = row.getValue('reward') as UserDatatable['reward']
+            return (
+                <div className="flex gap-6 items-center">
+                    <AddrAvatar
+                        addressName={row.getValue('addressName')}
+                        isDatatableStyle
+                    />
+                    <div className="w-fit">
+                        <Tag
+                            value={
+                                reward?.status ? reward.status : Status.Pending
+                            }
+                        />
+                    </div>
                 </div>
-            </div>
-        ),
+            )
+        },
     },
     {
-        accessorKey: 'status',
+        accessorKey: 'reward',
         enableHiding: true,
         cell: () => {
             ;<></>
@@ -165,6 +175,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             const stat = row.getValue('stat') as UserDatatable['stat']
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
             const id = row.getValue('id') as UserDatatable['id']
+            const reward = row.getValue('reward') as UserDatatable['reward']
             // const stat = {
             //     volume: 50,
             //     actions: 50,
@@ -178,6 +189,8 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         stat: stat,
                         pnl: pnl,
                         id: row.index.toString(),
+                        reward: reward?.reward,
+                        status: reward?.status,
                     }}
                     assessorSlotId={id.assessorSlotId}
                 />

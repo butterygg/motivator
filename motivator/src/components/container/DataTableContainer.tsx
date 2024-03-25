@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
-import { AssessorSlot, Stat } from '@/types/data/assessorSlot'
+import { AssessorSlot, Reward, Stat } from '@/types/data/assessorSlot'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
@@ -9,6 +9,12 @@ const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
         assessorSlot.users.forEach((element, index) => {
+            const reward = assessorSlot.rewards.find(
+                (reward) => reward.user_address === element
+            )
+            const stat = assessorSlot.stats.find(
+                (stat) => stat.user_address === element
+            ) as Stat
             res.push({
                 id: {
                     id: index.toString(),
@@ -16,14 +22,11 @@ const DataTableContainer = () => {
                 },
                 addressName: element,
                 pnl: 100,
-                stat: assessorSlot.stats.find(
-                    (stat) => stat.user_address === element
-                ) as Stat,
-                status: assessorSlot.rewards.find(
-                    (reward) => reward.user_address === element
-                )
-                    ? Status.Rewarded
-                    : Status.Pending,
+                stat: stat,
+                reward: {
+                    reward: reward ? reward : undefined,
+                    status: reward ? Status.Rewarded : Status.Pending,
+                },
             })
         })
 
