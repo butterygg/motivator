@@ -1,4 +1,4 @@
-import { eq, isNull } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor, assessor_slot, assessor_slot_user } from '@db/schema'
 import { NextRequest } from 'next/server'
@@ -8,6 +8,7 @@ import { NextRequest } from 'next/server'
  * @param response Send the status of the transaction
  */
 export async function signAssessor({ assessorAddr }: { assessorAddr: string }) {
+    console.log('assessorAddr', assessorAddr)
     const userIsSigned = await db.query.assessor.findFirst({
         where: eq(assessor.address, assessorAddr),
     })
@@ -15,9 +16,10 @@ export async function signAssessor({ assessorAddr }: { assessorAddr: string }) {
     if (!userIsSigned) {
         // verify this assessor doesn't have an assessor slot already in progress
         const hasAssessorSlot = await db.query.assessor_slot.findFirst({
-            where:
-                eq(assessor_slot.assessor_ID, assessorAddr) &&
-                eq(assessor_slot.done, false),
+            where: and(
+                eq(assessor_slot.assessor_ID, assessorAddr),
+                eq(assessor_slot.done, false)
+            ),
         })
 
         if (!hasAssessorSlot) {
@@ -26,23 +28,25 @@ export async function signAssessor({ assessorAddr }: { assessorAddr: string }) {
             })
 
             if (result) {
-                return Response.json({
+                return {
                     status: 'ok',
                     message: 'Assessor signed',
-                })
+                    res: result,
+                }
             } else {
-                return Response.json({
+                return {
                     status: 'ko',
                     message: 'Error while signing the assessor',
-                })
+                }
             }
         }
 
-        return Response.json({
+        return {
             status: 'ko',
             message: 'Assessor already have an Assessor Slot assigned',
-        })
+            res: hasAssessorSlot,
+        }
     }
 
-    return Response.json({ status: 'ok', message: 'Assessor already signed' })
+    return { status: 'ok', message: 'Assessor already signed' }
 }

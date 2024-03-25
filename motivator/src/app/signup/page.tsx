@@ -30,15 +30,15 @@ const Signup = (props: Props) => {
     const ComponentToDisplay = () => {
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
-                return <ConnectWalletCard />
+                return (
+                    <StartAssessmentSlot
+                        week={weekNumber}
+                        slotsAvailable={slotsAvailable}
+                        weekmax={weekMax}
+                    />
+                )
         } else if (walletStatus === 'disconnected') {
-            return (
-                <StartAssessmentSlot
-                    week={weekNumber}
-                    slotsAvailable={slotsAvailable}
-                    weekmax={weekMax}
-                />
-            )
+            return <ConnectWalletCard />
         }
     }
 

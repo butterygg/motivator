@@ -3,6 +3,7 @@ import { DataTable } from '../assessor/DataTable'
 import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
 import { AssessorSlot } from '../../types/data/assessorSlot'
 import { useGetAssessorSlot } from '../../hooks/useGetAssessorSlot'
+import { useAccount } from 'wagmi'
 
 type Props = {}
 
@@ -45,7 +46,7 @@ const DataTableContainer = (props: Props) => {
         ],
     }
     const { data, error, status } = useGetAssessorSlot({
-        assessorAddress: '0x0',
+        assessorAddress: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
     })
 
     if (status === 'pending') {

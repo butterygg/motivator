@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useGetAssessorSlot } from '@/hooks/useGetAssessorSlot'
 import { useGetRewardedUsers } from '@/hooks/reward/useGetRewardedUsers'
 import { AssessorSlot, Reward } from '../../types/data/assessorSlot'
+import { useAccount } from 'wagmi'
 
 type Props = {
     value: number
@@ -12,8 +13,10 @@ type Props = {
 }
 
 const RewardedUsers = ({ value, users }: Props) => {
+    const { address } = useAccount()
+    console.log(address, 'address')
     const { data: assessorSlot } = useGetAssessorSlot({
-        assessorAddress: '0x0',
+        assessorAddress: address as string,
     })
     const { data: rewardedUsers } = useGetRewardedUsers({
         assessorAddress: assessorSlot?.res?.assessorID as string,

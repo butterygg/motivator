@@ -186,8 +186,6 @@ export function DataTable({ assessorSlot }: Props) {
     // const { data } = useGetAssessorSlot({
     //     assessorAddress: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
     // })
-    console.log('DataTable')
-    // console.log('DataTableContainer')
     const dummyUserDatatable: UserDatatable = {
         id: '1',
         addressName: '0xmazout.eth',
@@ -202,39 +200,39 @@ export function DataTable({ assessorSlot }: Props) {
 
     const [rowSelection, setRowSelection] = React.useState({})
 
-    const prepareDataForTable = (assessorSlot: AssessorSlot) => {
-        console.log(assessorSlot, 'assessorSlot')
-        const res: UserDatatable[] = []
-        for (let index = 0; index < 5; index++) {
-            res.push(dummyUserDatatable)
-        }
-        return res
-    }
-
     // const prepareDataForTable = (assessorSlot: AssessorSlot) => {
     //     console.log(assessorSlot, 'assessorSlot')
     //     const res: UserDatatable[] = []
-    //     assessorSlot.users.forEach((element, index) => {
-    //         res.push({
-    //             id: index.toString(),
-    //             addressName: element,
-    //             pnl: 100,
-    //             stat: assessorSlot.stats.find(
-    //                 (stat) => stat.user_address === element
-    //             ) as Stat,
-    //             status: assessorSlot.rewards.find(
-    //                 (reward) => reward.user_address === element
-    //             )
-    //                 ? Status.Rewarded
-    //                 : Status.Pending,
-    //         })
-    //     })
-
+    //     for (let index = 0; index < 5; index++) {
+    //         res.push(dummyUserDatatable)
+    //     }
     //     return res
     // }
 
+    const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+        console.log(assessorSlot, 'assessorSlot')
+        const res: UserDatatable[] = []
+        assessorSlot.users.forEach((element, index) => {
+            res.push({
+                id: index.toString(),
+                addressName: element,
+                pnl: 100,
+                stat: assessorSlot.stats.find(
+                    (stat) => stat.user_address === element
+                ) as Stat,
+                status: assessorSlot.rewards.find(
+                    (reward) => reward.user_address === element
+                )
+                    ? Status.Rewarded
+                    : Status.Pending,
+            })
+        })
+
+        return res
+    }
+
     const table = useReactTable({
-        data: [dummyUserDatatable],
+        data: prepareDataForTable(assessorSlot),
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

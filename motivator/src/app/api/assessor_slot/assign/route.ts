@@ -1,4 +1,4 @@
-import { eq, isNull } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot } from '@db/schema'
 import { NextRequest } from 'next/server'
@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
     const assessorAddr = body.address
     // verify this assessor doesn't have an assessor slot already in progress
     const hasAssessorSlot = await db.query.assessor_slot.findFirst({
-        where:
-            eq(assessor_slot.assessor_ID, assessorAddr) &&
-            eq(assessor_slot.done, false),
+        where: and(
+            eq(assessor_slot.assessor_ID, assessorAddr),
+            eq(assessor_slot.done, false)
+        ),
     })
 
     if (!hasAssessorSlot) {
@@ -28,8 +29,10 @@ export async function GET(request: NextRequest) {
 
     // grab an assessor slot that is not done and has no assessor assigned
     const assessor_Slot = await db.query.assessor_slot.findFirst({
-        where:
-            eq(assessor_slot.done, false) && isNull(assessor_slot.assessor_ID),
+        where: and(
+            eq(assessor_slot.done, false),
+            isNull(assessor_slot.assessor_ID)
+        ),
     })
 
     if (assessor_Slot) {
@@ -39,8 +42,10 @@ export async function GET(request: NextRequest) {
                 assessor_ID: assessorAddr,
             })
             .where(
-                eq(assessor_slot.id, assessor_Slot.id) &&
+                and(
+                    eq(assessor_slot.id, assessor_Slot.id),
                     isNull(assessor_slot.assessor_ID)
+                )
             )
 
         if (assignAssessor) {

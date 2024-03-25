@@ -1,4 +1,4 @@
-import { eq, isNull } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor, assessor_slot, assessor_slot_user } from '@db/schema'
 import { NextRequest } from 'next/server'
@@ -19,9 +19,10 @@ export async function POST(request: NextRequest) {
     if (!userIsSigned) {
         // verify this assessor doesn't have an assessor slot already in progress
         const hasAssessorSlot = await db.query.assessor_slot.findFirst({
-            where:
-                eq(assessor_slot.assessor_ID, assessorAddr) &&
-                eq(assessor_slot.done, false),
+            where: and(
+                eq(assessor_slot.assessor_ID, assessorAddr),
+                eq(assessor_slot.done, false)
+            ),
         })
 
         if (!hasAssessorSlot) {

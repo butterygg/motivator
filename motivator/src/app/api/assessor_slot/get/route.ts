@@ -1,4 +1,4 @@
-import { eq, inArray, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
 import { NextRequest } from 'next/server'
@@ -17,9 +17,10 @@ export async function GET(request: NextRequest) {
 
     // grab an assessor slot that is not done and has the assessor assigned
     const assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
-        where:
-            eq(assessor_slot.done, false) &&
-            eq(assessor_slot.assessor_ID, assessorAddr as string),
+        where: and(
+            eq(assessor_slot.done, false),
+            eq(assessor_slot.assessor_ID, assessorAddr as string)
+        ),
     })
     if (!assessorSlotOfAssessor) {
         return Response.json({
