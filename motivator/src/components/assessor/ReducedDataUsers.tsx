@@ -44,15 +44,19 @@ const ReducedDataUsers = ({ userAddr, reward, assessorSlot }: Props) => {
     return (
         <form className="border w-fit p-4 rounded-md flex flex-col gap-4">
             <AddrAvatar addressName={userAddr} />
-            <div className=" lg:flex-wrap flex lg-max:flex-col lg:flex-row gap-4">
+            <div className="  flex lg-max:flex-col gap-4">
                 <Input
                     type="number"
-                    className="w-24 lg:w-full"
+                    className="w-24"
                     placeholder="Points"
                     onChange={handlePointsUpdate}
                     value={points as number}
                 />
-                <Button className="w-full" onClick={handleSubmit} type="submit">
+                <Button
+                    className="w-full lg:w-fit"
+                    onClick={handleSubmit}
+                    type="submit"
+                >
                     Update
                 </Button>
             </div>
