@@ -13,7 +13,7 @@ export async function getAssessorSlotID({
     assessorAddr: string
 }) {
     const assessorSlotID = await db.query.assessor_slot.findFirst({
-        columns: { id: true, done: true },
+        columns: { id: true },
         where: and(
             eq(assessor_slot.assessor_ID, assessorAddr),
             eq(assessor_slot.done, false)

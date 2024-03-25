@@ -10,7 +10,10 @@ const DataTableContainer = () => {
         const res: UserDatatable[] = []
         assessorSlot.users.forEach((element, index) => {
             res.push({
-                id: index.toString(),
+                id: {
+                    id: index.toString(),
+                    assessorid: assessorSlot.assessorID,
+                },
                 addressName: element,
                 pnl: 100,
                 stat: assessorSlot.stats.find(

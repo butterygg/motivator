@@ -66,7 +66,7 @@ import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 // ]
 
 export type UserDatatable = {
-    id: string
+    id: { id: string; assessorid: string }
     addressName: string
     pnl: number
     stat: Stat
@@ -188,52 +188,7 @@ export type Props = {
 }
 
 export function DataTable({ users }: Props) {
-    // const { data } = useGetAssessorSlot({
-    //     assessorAddr: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-    // })
-    const dummyUserDatatable: UserDatatable = {
-        id: '1',
-        addressName: '0xmazout.eth',
-        pnl: 100,
-        stat: {
-            volume: 500,
-            actions: 40,
-            user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-        },
-        status: Status.Pending,
-    } as UserDatatable
-
     const [rowSelection, setRowSelection] = React.useState({})
-
-    // const prepareDataForTable = (assessorSlot: AssessorSlot) => {
-    //     console.log(assessorSlot, 'assessorSlot')
-    //     const res: UserDatatable[] = []
-    //     for (let index = 0; index < 5; index++) {
-    //         res.push(dummyUserDatatable)
-    //     }
-    //     return res
-    // }
-
-    const prepareDataForTable = (assessorSlot: AssessorSlot) => {
-        const res: UserDatatable[] = []
-        assessorSlot.users.forEach((element, index) => {
-            res.push({
-                id: index.toString(),
-                addressName: element,
-                pnl: 100,
-                stat: assessorSlot.stats.find(
-                    (stat) => stat.user_address === element
-                ) as Stat,
-                status: assessorSlot.rewards.find(
-                    (reward) => reward.user_address === element
-                )
-                    ? Status.Rewarded
-                    : Status.Pending,
-            })
-        })
-
-        return res
-    }
 
     const table = useReactTable({
         data: users,
