@@ -15,7 +15,6 @@ export async function updateReward({
     value,
     rewardId,
 }: {
-    assessorAddr: string
     userAddr: string
     value: number
     rewardId: string
@@ -30,14 +29,14 @@ export async function updateReward({
         .where(eq(reward.id, rewardId))
 
     if (rewardSent) {
-        return Response.json({
+        return {
             status: 'ok',
             message: `Reward of ${value} sent to ${userAddr}`,
-        })
+        }
     } else {
-        return Response.json({
+        return {
             status: 'ko',
             message: 'Error while sending the reward',
-        })
+        }
     }
 }

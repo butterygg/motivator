@@ -3,6 +3,7 @@
 import { NextRequest } from 'next/server'
 import { db } from '@db/dbRouter'
 import { reward, user } from '@db/schema'
+import { and, eq } from 'drizzle-orm'
 
 /**
  *
@@ -18,6 +19,20 @@ export async function addReward({
     value: number
     assessorSlot: string
 }) {
+    const isRewardAlreadyAssigned = await db.query.reward.findFirst({
+        where: and(
+            eq(reward.assessor_slot_ID, assessorSlot),
+            eq(reward.user_address, userAddr)
+        ),
+    })
+
+    if (isRewardAlreadyAssigned) {
+        return {
+            status: 'ok',
+            message: 'Reward already assigned',
+        }
+    }
+
     const rewardSent = await db.insert(reward).values({
         amount: value,
         user_address: userAddr,
@@ -26,14 +41,14 @@ export async function addReward({
     })
 
     if (rewardSent) {
-        return Response.json({
+        return {
             status: 'ok',
             message: `Reward of ${value} sent to ${userAddr}`,
-        })
+        }
     } else {
-        return Response.json({
+        return {
             status: 'ko',
             message: 'Error while sending the reward',
-        })
+        }
     }
 }
