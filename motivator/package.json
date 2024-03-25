@@ -12,8 +12,8 @@
         "lint:fix": "eslint --fix .",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "db-generate": " yarn run drizzle-kit generate:pg",
-        "db-migrate": "yarn run drizzle-kit migrate:pg",
+        "db-generate": " yarn drizzle-kit generate:pg",
+        "db-migrate": "yarn drizzle-kit migrate:pg",
         "db-push": "yarn run drizzle-kit push:pg"
     },
     "lint-staged": {

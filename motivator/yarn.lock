@@ -4868,7 +4868,7 @@ dreamopt@~0.8.0:
 
 drizzle-kit@^0.20.14:
   version "0.20.14"
-  resolved "https://registry.npmjs.org/drizzle-kit/-/drizzle-kit-0.20.14.tgz"
+  resolved "https://registry.yarnpkg.com/drizzle-kit/-/drizzle-kit-0.20.14.tgz#bd9bdc01db6630292077d99ba6d2cee3a96e54de"
   integrity sha512-0fHv3YIEaUcSVPSGyaaBfOi9bmpajjhbJNdPsRMIUvYdLVxBu9eGjH8mRc3Qk7HVmEidFc/lhG1YyJhoXrn5yA==
   dependencies:
     "@drizzle-team/studio" "^0.0.39"
