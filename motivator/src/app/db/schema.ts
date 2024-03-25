@@ -15,8 +15,8 @@ export const stats = pgTable('stats', {
     user_address: text('user_address')
         .references(() => user.address)
         .primaryKey(),
-    actions: integer('week').default(0),
-    volume: integer('value').default(0),
+    actions: integer('actions').default(0),
+    volume: integer('volume').default(0),
 })
 
 export const assessor = pgTable('assessor', {
@@ -34,7 +34,9 @@ export const reward = pgTable('reward', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     amount: integer('amount'),
     date: date('date'),
-    assessor_slot_ID: uuid('assessor_ID').references(() => assessor_slot.id),
+    assessor_slot_ID: uuid('assessor_slot_ID').references(
+        () => assessor_slot.id
+    ),
     user_address: text('user_address').references(() => user.address),
 })
 
