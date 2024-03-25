@@ -179,10 +179,10 @@ export const columns: ColumnDef<UserDatatable>[] = [
 ]
 
 export type Props = {
-    assessorSlot: AssessorSlot
+    users: UserDatatable[]
 }
 
-export function DataTable({ assessorSlot }: Props) {
+export function DataTable({ users }: Props) {
     // const { data } = useGetAssessorSlot({
     //     assessorAddress: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
     // })
@@ -210,7 +210,6 @@ export function DataTable({ assessorSlot }: Props) {
     // }
 
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
-        console.log(assessorSlot, 'assessorSlot')
         const res: UserDatatable[] = []
         assessorSlot.users.forEach((element, index) => {
             res.push({
@@ -232,7 +231,7 @@ export function DataTable({ assessorSlot }: Props) {
     }
 
     const table = useReactTable({
-        data: prepareDataForTable(assessorSlot),
+        data: users,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

@@ -1,13 +1,33 @@
 import React from 'react'
-import { DataTable } from '../assessor/DataTable'
-import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
-import { AssessorSlot } from '../../types/data/assessorSlot'
-import { useGetAssessorSlot } from '../../hooks/useGetAssessorSlot'
+import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
+import { AssessorSlot, Stat } from '@/types/data/assessorSlot'
+import { useGetAssessorSlot } from '@/hooks/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
+import { Status } from '@/types/enum/status'
 
 type Props = {}
 
 const DataTableContainer = (props: Props) => {
+    const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+        const res: UserDatatable[] = []
+        assessorSlot.users.forEach((element, index) => {
+            res.push({
+                id: index.toString(),
+                addressName: element,
+                pnl: 100,
+                stat: assessorSlot.stats.find(
+                    (stat) => stat.user_address === element
+                ) as Stat,
+                status: assessorSlot.rewards.find(
+                    (reward) => reward.user_address === element
+                )
+                    ? Status.Rewarded
+                    : Status.Pending,
+            })
+        })
+
+        return res
+    }
     const dummyAssessorSlot: AssessorSlot = {
         id: '1',
         assessorID: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
@@ -45,8 +65,9 @@ const DataTableContainer = (props: Props) => {
             },
         ],
     }
+    const { address } = useAccount()
     const { data, error, status } = useGetAssessorSlot({
-        assessorAddress: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
+        assessorAddress: address as string,
     })
 
     if (status === 'pending') {
@@ -57,16 +78,21 @@ const DataTableContainer = (props: Props) => {
         return (
             <div>
                 Error: {error?.message}
-                <DataTable assessorSlot={dummyAssessorSlot} />
+                <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
             </div>
         )
     }
 
-    if (!data) {
-        return <div>No data</div>
+    if (!data?.status || data.status === 'ko') {
+        return (
+            <div>
+                No data
+                <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
+            </div>
+        )
     }
-
-    return <DataTable assessorSlot={data.res as AssessorSlot} />
+    console.log('data', data)
+    return <DataTable users={prepareDataForTable(data.res as AssessorSlot)} />
 }
 
 export default DataTableContainer

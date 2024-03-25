@@ -1,6 +1,6 @@
-import { eq, isNull } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor, assessor_slot, assessor_slot_user } from '@db/schema'
+import { assessor } from '@db/schema'
 import { NextRequest } from 'next/server'
 /**
  *
