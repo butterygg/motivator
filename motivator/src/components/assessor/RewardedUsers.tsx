@@ -8,23 +8,23 @@ import { useAccount } from 'wagmi'
 
 type Props = {
     value: number
-    users: User[]
 }
 
-const RewardedUsers = ({ value, users }: Props) => {
+const RewardedUsers = ({ value }: Props) => {
     const { address } = useAccount()
     const { data: assessorSlot } = useGetAssessorSlot({
         assessorAddr: address as string,
     })
-    const { data: rewardedUsers } = useGetRewardedUsers({
-        assessorAddr: assessorSlot?.res?.assessorID as string,
-    })
-
+    // const { data: rewardedUsers } = useGetRewardedUsers({
+    //     assessorAddr: assessorSlot?.res?.assessorID as string,
+    // })
+    // console.log(rewardedUsers, 'rewardedUsers')
+    console.log(assessorSlot, 'assessorSlot')
     const buildUsers = () => {
         return (
             <div className="flex flex-wrap lg:flex-col gap-4">
-                {rewardedUsers?.res ? (
-                    rewardedUsers.res.map((user, index) => (
+                {assessorSlot?.res?.rewards ? (
+                    assessorSlot.res.rewards.map((user, index) => (
                         <ReducedDataUsers
                             key={index}
                             userAddr={user.user_address as string}
@@ -47,7 +47,7 @@ const RewardedUsers = ({ value, users }: Props) => {
         console.log('submit')
     }
     // hide the component if list empty
-    return rewardedUsers?.res?.length === 0 ? (
+    return assessorSlot?.res?.rewards.length === 0 ? (
         <></>
     ) : (
         <section className="p-8 h-full w-full lg:w-fit ">

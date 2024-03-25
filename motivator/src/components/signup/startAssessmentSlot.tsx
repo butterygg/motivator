@@ -27,7 +27,7 @@ const StartAssessmentSlot = (props: Props) => {
         assessorAddr: address as Address,
     })
 
-    const { mutate: mutateAssignAssessorSlot } = useAssignAssessorSlot({
+    const { data, mutate: mutateAssignAssessorSlot } = useAssignAssessorSlot({
         assessorAddr: address as Address,
     })
 
@@ -60,8 +60,10 @@ const StartAssessmentSlot = (props: Props) => {
                     className="m-auto"
                     onClick={() => handleStartAssessmentSlot()}
                 >
-                    Start assessment slot
-                    {/* <Link href={'/assessor'}></Link> */}
+                    <Link href={`/assessor`}>
+                        {/* <Link href={`/assessor/slot?id=${data?.res?.id}`}> */}
+                        Start assessment slot
+                    </Link>
                 </Button>
             </CardFooter>
         </Card>
