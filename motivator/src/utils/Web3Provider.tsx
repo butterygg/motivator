@@ -27,10 +27,7 @@ const Web3Provider = ({
 }>) => {
     const queryClient = new QueryClient({
         defaultOptions: {
-            queries: {
-                // refetchInterval: 6 * 1000,
-                retry: 3,
-            },
+            queries: {},
         },
     })
     const getSiweMessageOptions: GetSiweMessageOptions = () => ({

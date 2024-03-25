@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
 import { AssessorSlot, Stat } from '@/types/data/assessorSlot'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
@@ -63,30 +63,31 @@ const DataTableContainer = () => {
             },
         ],
     }
-    const { address } = useAccount()
-    const { data, error, status } = useGetAssessorSlot({
+    const { address, status: statusAccount } = useAccount()
+    const { data, error, status, refetch } = useGetAssessorSlot({
         assessorAddr: address as string,
     })
+
+    // Refresh the data when the account is connected
+    useEffect(() => {
+        console.log('statusAccount', statusAccount)
+        if (statusAccount === 'connected' && refetch) refetch()
+    }, [statusAccount])
 
     if (status === 'pending') {
         return <div>Loading...</div>
     }
-
+    // Implement Skeletton
     if (status === 'error') {
-        return (
-            <div>
-                Error: {error?.message}
-                <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
-            </div>
-        )
+        return <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
     }
 
     if (!data?.status || data.status === 'ko') {
         return (
-            <div>
-                No data
+            <>
+                <p>No data</p>
                 <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
-            </div>
+            </>
         )
     }
     console.log('data', data)
