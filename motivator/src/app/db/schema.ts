@@ -25,7 +25,7 @@ export const assessor = pgTable('assessor', {
 
 export const assessor_slot = pgTable('assessor_slot', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
-    assessor_ID: text('assessor').references(() => assessor.address),
+    assessor_ID: text('assessor_ID').references(() => assessor.address),
     done: boolean('done').default(false),
     week: integer('week').default(0),
 })
