@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
 import { useDebounce } from '@uidotdev/usehooks'

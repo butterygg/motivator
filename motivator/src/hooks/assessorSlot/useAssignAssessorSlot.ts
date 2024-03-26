@@ -12,7 +12,7 @@ type Props = {
  *
  */
 const useAssignAssessorSlot = ({ assessorAddr }: Props) => {
-    const { data, mutate, status, error } = useMutation({
+    const { data, mutateAsync, status, error } = useMutation({
         mutationKey: ['assignAssessor'],
         mutationFn: async () => {
             return assignAssessorSlot({
@@ -24,7 +24,7 @@ const useAssignAssessorSlot = ({ assessorAddr }: Props) => {
     })
     console.log(data, 'data')
     console.log(error, 'error')
-    return { data, mutate, error, status }
+    return { data, mutateAsync, error, status }
 }
 
 export { useAssignAssessorSlot }

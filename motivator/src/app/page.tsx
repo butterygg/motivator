@@ -14,12 +14,6 @@ const Signup = (props: Props) => {
     // Using session hook to get status of user
     const { status: authenticationStatus } = useSession()
 
-    // Fetch API to know if user is signed in DB
-    const [signed, setSigned] = useState(false)
-
-    //  Fetch API to know if user is signed has already an assessor slot
-    const [hasAssessorSlot, setHasAssessorSlot] = useState(false)
-
     // Fetch slotsAvailable from API
     const [slotsAvailable, setSlotsAvailable] = useState(0)
 
