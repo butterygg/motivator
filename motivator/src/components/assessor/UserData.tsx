@@ -71,10 +71,7 @@ export function UserData({ user, assessorSlotId }: Props) {
                     </div>
                 </div>
 
-                <DialogFooter className="flex-row justify-between w-full">
-                    <Button variant="destructive" className="rounded-full">
-                        X
-                    </Button>
+                {/* <DialogFooter className="flex-row justify-between w-full">
                     <div className="align-top flex gap-2 w-fit">
                         <Input
                             placeholder="Points"
@@ -86,7 +83,7 @@ export function UserData({ user, assessorSlotId }: Props) {
                         />
                         <Button onClick={() => handleSubmit()}>Reward</Button>
                     </div>
-                </DialogFooter>
+                </DialogFooter> */}
             </DialogContent>
         </Dialog>
     )
