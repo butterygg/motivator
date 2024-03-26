@@ -9,7 +9,7 @@ import { RoundSpinner } from '../ui/spinner'
 const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
-        assessorSlot.users.forEach((element, index) => {
+        assessorSlot?.users.forEach((element, index) => {
             const reward = assessorSlot.rewards.find(
                 (reward) => reward.user_address === element
             )
