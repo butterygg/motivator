@@ -39,7 +39,6 @@ const HomeAssessor = (props: Props) => {
     return (
         <main className="flex flex-col lg:flex-row w-full">
             <DataTableContainer />
-            <RewardedUsers value={100} />
         </main>
     )
 }
