@@ -1,5 +1,5 @@
 'use server'
-import { and, eq, inArray, isNull } from 'drizzle-orm'
+import { and, eq, inArray, isNull, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
 import { NextRequest } from 'next/server'
@@ -50,7 +50,12 @@ export async function getAssessorSlot(address: string) {
     const getRewardsUsers = await db
         .select()
         .from(reward)
-        .where(eq(reward.assessor_slot_ID, assessorSlotOfAssessor.id))
+        .where(
+            and(
+                eq(reward.assessor_slot_ID, assessorSlotOfAssessor.id),
+                ne(reward.amount, 0)
+            )
+        )
         .execute()
 
     // Get the stats for the users present in array usersOfAssessorSlot

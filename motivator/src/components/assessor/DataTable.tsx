@@ -205,7 +205,6 @@ export type Props = {
 
 export function DataTable({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
-
     const table = useReactTable({
         data: users,
         columns,

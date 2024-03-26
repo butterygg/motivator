@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { User } from '@/types/data/user'
 import ReducedDataUsers from './ReducedDataUsers'
 import { Button } from '@/components/ui/button'
@@ -12,13 +12,9 @@ type Props = {
 
 const RewardedUsers = ({ value }: Props) => {
     const { address } = useAccount()
-    const { data: assessorSlot } = useGetAssessorSlot({
+    const { data: assessorSlot, refetch } = useGetAssessorSlot({
         assessorAddr: address as string,
     })
-    // const { data: rewardedUsers } = useGetRewardedUsers({
-    //     assessorAddr: assessorSlot?.res?.assessorID as string,
-    // })
-    // console.log(rewardedUsers, 'rewardedUsers')
     console.log(assessorSlot, 'assessorSlot')
     const buildUsers = () => {
         return (
@@ -34,6 +30,9 @@ const RewardedUsers = ({ value }: Props) => {
                             reward={user.amount}
                             id={user.id}
                             assessorSlot={assessorSlot?.res?.id as string}
+                            handleUpdate={() =>
+                                setisRefetchNeeded(!isRefetchNeeded)
+                            }
                         />
                     ))
                 ) : (
@@ -42,12 +41,27 @@ const RewardedUsers = ({ value }: Props) => {
             </div>
         )
     }
+    const [userList, setUserList] = useState(buildUsers())
+    const [isRefetchNeeded, setisRefetchNeeded] = useState(false)
+    useEffect(() => {
+        setUserList(buildUsers())
+    }, [assessorSlot])
+
+    useEffect(() => {
+        console.log('update')
+        if (refetch) refetch()
+    }, [isRefetchNeeded])
+
+    // const { data: rewardedUsers } = useGetRewardedUsers({
+    //     assessorAddr: assessorSlot?.res?.assessorID as string,
+    // })
+    // console.log(rewardedUsers, 'rewardedUsers')
 
     const handleSubmit = () => {
         console.log('submit')
     }
     // hide the component if list empty
-    return assessorSlot?.res?.rewards.length === 0 ? (
+    return assessorSlot?.res?.rewards.length == 0 ? (
         <></>
     ) : (
         <section className="p-8 h-full w-full lg:w-fit ">
@@ -70,7 +84,7 @@ const RewardedUsers = ({ value }: Props) => {
                         </div>
                     </div>
                 </div>
-                {buildUsers()}
+                {userList}
                 <div className="items-center p-4">
                     <Button
                         onClick={handleSubmit}

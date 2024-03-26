@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server'
 import { db } from '@db/dbRouter'
 import { reward, user } from '@db/schema'
 import { eq } from 'drizzle-orm'
+import { toast } from 'sonner'
 
 /**
  *
@@ -29,6 +30,7 @@ export async function updateReward({
         .where(eq(reward.id, rewardId))
 
     if (rewardSent) {
+        toast.success(`Reward of ${value} sent to ${userAddr}`)
         return {
             status: 'ok',
             message: `Reward of ${value} sent to ${userAddr}`,

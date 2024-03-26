@@ -13,39 +13,30 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { User } from '@/types/data/user'
-import { OnChainAction } from '@/types/data/action'
 import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
-import { useSendReward } from '../../hooks/oldAPIToDelete/useSendReward'
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
-import { Address } from 'viem'
-import { Reward } from '../../types/data/assessorSlot'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
-import { useGetAssessorSlotID } from '../../hooks/assessorSlot/useGetAssessorSlotID'
 
 type Props = {
     user: User
     assessorSlotId: string
-    // onChainActions: OnChainAction[]
-    // offChainActions: OnChainAction[]
 }
 
 export function UserData({ user, assessorSlotId }: Props) {
-    console.log(user, 'user')
     const [points, setPoints] = useState(
         user.reward?.amount ? user.reward.amount : 0
     )
-    const { address } = useAccount()
-    // const { data } = useGetAssessorSlotID({ assessorAddr: address as Address })
-    const { mutate } = useAddRewardUsers({
+    const { mutate, error, data } = useAddRewardUsers({
         assessorSlot: assessorSlotId,
         userAddr: user.addressName,
         value: points ? points : 0,
     })
     const handleSubmit = () => {
         mutate()
+        console.log('error', error, 'data', data)
     }
     const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPoints(parseInt(e.target.value))
@@ -93,9 +84,7 @@ export function UserData({ user, assessorSlotId }: Props) {
                             onChange={handleOnChangeInput}
                             value={points}
                         />
-                        <Button onClick={() => handleSubmit()} type="submit">
-                            Reward
-                        </Button>
+                        <Button onClick={() => handleSubmit()}>Reward</Button>
                     </div>
                 </DialogFooter>
             </DialogContent>

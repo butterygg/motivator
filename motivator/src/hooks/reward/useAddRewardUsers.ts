@@ -13,7 +13,7 @@ type Props = {
  *
  */
 const useAddRewardUsers = ({ assessorSlot, userAddr, value }: Props) => {
-    const { data, mutate, status, error } = useMutation({
+    const { data, mutate, status, error, mutateAsync } = useMutation({
         mutationKey: ['addRewardUsers'],
         mutationFn: async () => {
             return addReward({
@@ -27,7 +27,7 @@ const useAddRewardUsers = ({ assessorSlot, userAddr, value }: Props) => {
     })
     console.log(data, 'data')
     console.log(error, 'error')
-    return { data, mutate, error, status }
+    return { data, mutate, error, status, mutateAsync }
 }
 
 export { useAddRewardUsers }

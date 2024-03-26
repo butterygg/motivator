@@ -36,7 +36,9 @@ export async function addReward({
                 date: new Date().toISOString(),
             })
             .where(eq(reward.id, isRewardAlreadyAssigned.id))
+        console.log('rewardSent', rewardSent)
         if (rewardSent) {
+            toast.success(`Update: Reward of ${value} sent to ${userAddr}`)
             return {
                 status: 'ok',
                 message: `Reward of ${value} sent to ${userAddr}`,
@@ -52,6 +54,7 @@ export async function addReward({
     })
 
     if (rewardSent) {
+        toast.success(`New: Reward of ${value} sent to ${userAddr}`)
         return {
             status: 'ok',
             message: `Reward of ${value} sent to ${userAddr}`,
