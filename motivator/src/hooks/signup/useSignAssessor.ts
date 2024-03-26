@@ -12,7 +12,7 @@ type Props = {
  *
  */
 const useSignAssessor = ({ assessorAddr }: Props) => {
-    const { data, mutate, status, error } = useMutation({
+    const { data, mutateAsync, status, error } = useMutation({
         mutationKey: ['signAssessor'],
         mutationFn: async () => {
             return signAssessor({
@@ -24,7 +24,7 @@ const useSignAssessor = ({ assessorAddr }: Props) => {
     })
     console.log(data, 'data')
     console.log(error, 'error')
-    return { data, mutate, error, status }
+    return { data, mutateAsync, error, status }
 }
 
 export { useSignAssessor }

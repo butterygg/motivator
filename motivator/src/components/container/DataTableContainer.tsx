@@ -4,11 +4,12 @@ import { AssessorSlot, Reward, Stat } from '@/types/data/assessorSlot'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
+import { RoundSpinner } from '../ui/spinner'
 
 const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
-        assessorSlot.users.forEach((element, index) => {
+        assessorSlot?.users.forEach((element, index) => {
             const reward = assessorSlot.rewards.find(
                 (reward) => reward.user_address === element
             )
@@ -80,22 +81,15 @@ const DataTableContainer = () => {
         if (statusAccount === 'connected' && refetch) refetch()
     }, [refetch, statusAccount])
 
-    if (status === 'pending') {
-        return <div>Loading...</div>
-    }
     // Implement Skeletton
-    if (status === 'error') {
-        return <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
-    }
-
-    if (!data?.status || data.status === 'ko') {
+    if (status != 'success') {
         return (
-            <>
-                <p>No data</p>
-                <DataTable users={prepareDataForTable(dummyAssessorSlot)} />
-            </>
+            <div className="mx-auto">
+                <RoundSpinner size="triplexl" />
+            </div>
         )
     }
+
     console.log('data', data)
     return <DataTable users={prepareDataForTable(data.res as AssessorSlot)} />
 }

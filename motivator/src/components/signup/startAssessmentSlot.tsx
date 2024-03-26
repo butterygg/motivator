@@ -1,4 +1,5 @@
-import React from 'react'
+'use client'
+import React, { useState } from 'react'
 import {
     Card,
     CardContent,
@@ -6,13 +7,12 @@ import {
     CardFooter,
     CardHeader,
 } from '../ui/card'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Button } from '../ui/button'
-import Link from 'next/link'
 import { useSignAssessor } from '@/hooks/signup/useSignAssessor'
 import { useAccount } from 'wagmi'
 import { Address } from 'viem'
 import { useAssignAssessorSlot } from '@/hooks/assessorSlot/useAssignAssessorSlot'
+import { useRouter } from 'next/navigation'
 
 type Props = {
     week: number
@@ -21,19 +21,24 @@ type Props = {
 }
 
 const StartAssessmentSlot = (props: Props) => {
+    const [assessorId, setAssessorId] = useState('')
     const { address } = useAccount()
+    const { push } = useRouter()
     console.log(address, 'address')
-    const { mutate: mutateSignAssessor } = useSignAssessor({
+    const { mutateAsync: mutateSignAssessor } = useSignAssessor({
         assessorAddr: address as Address,
     })
 
-    const { data, mutate: mutateAssignAssessorSlot } = useAssignAssessorSlot({
-        assessorAddr: address as Address,
-    })
+    const { data, mutateAsync: mutateAssignAssessorSlot } =
+        useAssignAssessorSlot({
+            assessorAddr: address as Address,
+        })
 
     const handleStartAssessmentSlot = async () => {
-        mutateSignAssessor()
-        mutateAssignAssessorSlot()
+        await mutateSignAssessor()
+        const { res } = await mutateAssignAssessorSlot()
+        push(`/assessor/slot/${res?.id}`)
+        // setAssessorId(res?.id as string)
     }
 
     return (
@@ -60,10 +65,9 @@ const StartAssessmentSlot = (props: Props) => {
                     className="m-auto"
                     onClick={() => handleStartAssessmentSlot()}
                 >
-                    <Link href={`/assessor`}>
-                        {/* <Link href={`/assessor/slot?id=${data?.res?.id}`}> */}
-                        Start assessment slot
-                    </Link>
+                    Start assessment slot
+                    {/* <Link href={`/assessor/slot/` + assessorId}>
+                    </Link> */}
                 </Button>
             </CardFooter>
         </Card>
