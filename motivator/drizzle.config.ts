@@ -4,7 +4,6 @@ export default {
     out: './drizzle',
     driver: 'pg',
     dbCredentials: {
-        connectionString:
-            'postgresql://motivatordb_owner:CMBw0bJj5uQl@ep-rough-bar-a44axfqa.us-east-1.aws.neon.tech/motivatordb?sslmode=require',
+        connectionString: process.env.PG_CONNECT_STR || '',
     },
 } satisfies Config
