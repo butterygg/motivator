@@ -21,6 +21,10 @@ import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
 import { UserData } from './UserData'
 import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
 import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
+import InputReward from '../globals/InputReward'
+import { Address } from 'viem'
 
 // const data: User[] = [
 //     {
@@ -99,13 +103,13 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         addressName={row.getValue('addressName')}
                         isDatatableStyle
                     />
-                    <div className="w-fit">
+                    {/* <div className="w-fit">
                         <Tag
                             value={
                                 reward?.status ? reward.status : Status.Pending
                             }
                         />
-                    </div>
+                    </div> */}
                 </div>
             )
         },
@@ -113,8 +117,17 @@ export const columns: ColumnDef<UserDatatable>[] = [
     {
         accessorKey: 'reward',
         enableHiding: true,
-        cell: () => {
-            ;<></>
+        cell: ({ row }) => {
+            const reward = row.getValue('reward') as UserDatatable['reward']
+            const id = row.getValue('id') as UserDatatable['id']
+            const userAddr = row.getValue('addressName') as Address
+            return (
+                <InputReward
+                    val={reward?.reward?.amount as number}
+                    userAddr={userAddr}
+                    assessorSlot={id.assessorSlotId}
+                />
+            )
         },
     },
     {
