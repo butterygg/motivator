@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Web3Provider from '../utils/Web3Provider'
 import NavBar from '../components/globals/NavBar'
+import { Toaster } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,6 +23,7 @@ export default function RootLayout({
                 <Web3Provider>
                     <NavBar />
                     {children}
+                    <Toaster />
                 </Web3Provider>
             </body>
         </html>

@@ -5,6 +5,6 @@ export default {
     driver: 'pg',
     dbCredentials: {
         connectionString:
-            'postgresql://motivatordb_owner:CMBw0bJj5uQl@ep-wispy-salad-a4yk2grq.us-east-1.aws.neon.tech/motivatordb?sslmode=require',
+            'postgresql://motivatordb_owner:CMBw0bJj5uQl@ep-rough-bar-a44axfqa.us-east-1.aws.neon.tech/motivatordb?sslmode=require',
     },
 } satisfies Config

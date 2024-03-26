@@ -9,6 +9,10 @@ import {
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Button } from '../ui/button'
 import Link from 'next/link'
+import { useSignAssessor } from '@/hooks/signup/useSignAssessor'
+import { useAccount } from 'wagmi'
+import { Address } from 'viem'
+import { useAssignAssessorSlot } from '@/hooks/assessorSlot/useAssignAssessorSlot'
 
 type Props = {
     week: number
@@ -17,6 +21,21 @@ type Props = {
 }
 
 const StartAssessmentSlot = (props: Props) => {
+    const { address } = useAccount()
+    console.log(address, 'address')
+    const { mutate: mutateSignAssessor } = useSignAssessor({
+        assessorAddr: address as Address,
+    })
+
+    const { data, mutate: mutateAssignAssessorSlot } = useAssignAssessorSlot({
+        assessorAddr: address as Address,
+    })
+
+    const handleStartAssessmentSlot = async () => {
+        mutateSignAssessor()
+        mutateAssignAssessorSlot()
+    }
+
     return (
         <Card className="w-96 items-center p-4 rounded-lg mx-auto">
             <CardHeader className="font-bold p-4  flex flex-wrap">
@@ -37,8 +56,14 @@ const StartAssessmentSlot = (props: Props) => {
                 assessments you do, the more rewards you accumulate.
             </CardDescription>
             <CardFooter className="p-4">
-                <Button className="m-auto">
-                    <Link href={''}>Start assessment slot</Link>
+                <Button
+                    className="m-auto"
+                    onClick={() => handleStartAssessmentSlot()}
+                >
+                    <Link href={`/assessor`}>
+                        {/* <Link href={`/assessor/slot?id=${data?.res?.id}`}> */}
+                        Start assessment slot
+                    </Link>
                 </Button>
             </CardFooter>
         </Card>

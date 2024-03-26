@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useAccount } from 'wagmi'
 import ConnectWalletCard from '../../components/signup/connectWalletCard'
 import StartAssessmentSlot from '../../components/signup/startAssessmentSlot'
+import { useGetAssessorSlotID } from '../../hooks/assessorSlot/useGetAssessorSlotID'
 
 type Props = {}
 
@@ -30,15 +31,15 @@ const Signup = (props: Props) => {
     const ComponentToDisplay = () => {
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
-                return <ConnectWalletCard />
+                return (
+                    <StartAssessmentSlot
+                        week={weekNumber}
+                        slotsAvailable={slotsAvailable}
+                        weekmax={weekMax}
+                    />
+                )
         } else if (walletStatus === 'disconnected') {
-            return (
-                <StartAssessmentSlot
-                    week={weekNumber}
-                    slotsAvailable={slotsAvailable}
-                    weekmax={weekMax}
-                />
-            )
+            return <ConnectWalletCard />
         }
     }
 

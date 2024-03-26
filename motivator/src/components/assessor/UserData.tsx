@@ -1,4 +1,6 @@
+'use client'
 import { Button } from '@/components/ui/button'
+
 import {
     Dialog,
     DialogContent,
@@ -11,17 +13,34 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { User } from '@/types/data/user'
-import { OnChainAction } from '@/types/data/action'
 import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
+import EthLogo from '~/ethereum-eth-logo.svg'
+import { useState } from 'react'
+import { useAccount } from 'wagmi'
+import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 
 type Props = {
     user: User
-    onChainActions: OnChainAction[]
-    offChainActions: OnChainAction[]
+    assessorSlotId: string
 }
 
-export function UserData({ user }: Props) {
+export function UserData({ user, assessorSlotId }: Props) {
+    const [points, setPoints] = useState(
+        user.reward?.amount ? user.reward.amount : 0
+    )
+    const { mutate, error, data } = useAddRewardUsers({
+        assessorSlot: assessorSlotId,
+        userAddr: user.addressName,
+        value: points ? points : 0,
+    })
+    const handleSubmit = () => {
+        mutate()
+        console.log('error', error, 'data', data)
+    }
+    const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPoints(parseInt(e.target.value))
+    }
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -39,9 +58,16 @@ export function UserData({ user }: Props) {
                 </Label>
                 <div className="grid gap-4 py-2">
                     <div className="grid grid-cols-3 items-center gap-2">
-                        <DataCard title="Volume" value={user.volume} />
-                        <DataCard title="Pnl" value={user.pnl} />
-                        <DataCard title="Actions" value={user.actions} />
+                        <DataCard
+                            title="Volume"
+                            value={user.stat.volume ? user.stat.volume : 0}
+                            icon={<EthLogo className="h-4 w-4" />}
+                        />
+                        <DataCard title="Pnl" value={user.pnl + 'K$'} />
+                        <DataCard
+                            title="Actions"
+                            value={user.stat.actions ? user.stat.actions : 0}
+                        />
                     </div>
                 </div>
 
@@ -55,8 +81,10 @@ export function UserData({ user }: Props) {
                             type="number"
                             className="w-32 appearance-none"
                             min={0}
+                            onChange={handleOnChangeInput}
+                            value={points}
                         />
-                        <Button type="submit">Reward</Button>
+                        <Button onClick={() => handleSubmit()}>Reward</Button>
                     </div>
                 </DialogFooter>
             </DialogContent>

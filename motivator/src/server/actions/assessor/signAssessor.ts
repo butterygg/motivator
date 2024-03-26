@@ -7,11 +7,8 @@ import { NextRequest } from 'next/server'
  * @param request Will contain an Array of [{assessorAddr: string}]
  * @param response Send the status of the transaction
  */
-export async function POST(request: NextRequest) {
-    const body = await request.json()
-
-    const assessorAddr = body.assessorAddr
-
+export async function signAssessor({ assessorAddr }: { assessorAddr: string }) {
+    console.log('assessorAddr', assessorAddr)
     const userIsSigned = await db.query.assessor.findFirst({
         where: eq(assessor.address, assessorAddr),
     })
@@ -31,23 +28,25 @@ export async function POST(request: NextRequest) {
             })
 
             if (result) {
-                return Response.json({
+                return {
                     status: 'ok',
                     message: 'Assessor signed',
-                })
+                    res: result,
+                }
             } else {
-                return Response.json({
+                return {
                     status: 'ko',
                     message: 'Error while signing the assessor',
-                })
+                }
             }
         }
 
-        return Response.json({
+        return {
             status: 'ko',
             message: 'Assessor already have an Assessor Slot assigned',
-        })
+            res: hasAssessorSlot,
+        }
     }
 
-    return Response.json({ status: 'ok', message: 'Assessor already signed' })
+    return { status: 'ok', message: 'Assessor already signed' }
 }
