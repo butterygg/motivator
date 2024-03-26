@@ -2248,6 +2248,13 @@
     "@motionone/dom" "^10.16.4"
     tslib "^2.3.1"
 
+"@mynaui/icons-react@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@mynaui/icons-react/-/icons-react-0.2.1.tgz#730860dafbd7eb97f014c109e3e965314aec4c06"
+  integrity sha512-RlE/XZMaStUpf2ai9ud+/+klELqlV7Zxa7RWMMMVXpFg6NZ7J5vTRMVrbliZVAUQ2N7lf4IPi0gOh1gNdJa2Ew==
+  dependencies:
+    prop-types "^15.8.1"
+
 "@neondatabase/serverless@^0.9.0":
   version "0.9.0"
   resolved "https://registry.npmjs.org/@neondatabase/serverless/-/serverless-0.9.0.tgz"
