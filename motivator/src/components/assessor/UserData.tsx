@@ -44,7 +44,9 @@ export function UserData({ user, assessorSlotId }: Props) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">+</Button>
+                <Button className="rounded-full" variant="outline">
+                    ?
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[625px] sm:w-fit">
                 <DialogHeader>
