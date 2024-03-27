@@ -28,6 +28,7 @@ import { Address } from 'viem'
 import { DialogConfirmSubmit } from './DialogConfirmSubmit'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
+import TotalPoints from './TotalPoints'
 
 // const data: User[] = [
 //     {
@@ -241,6 +242,7 @@ export function DataTable({ users }: Props) {
                 <DialogConfirmSubmit
                     assessorSlotId={assessorSlotID as string}
                 />
+                <TotalPoints />
             </div>
             <div className="rounded-md border">
                 <Table>
