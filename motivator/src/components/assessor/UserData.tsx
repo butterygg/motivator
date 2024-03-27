@@ -19,6 +19,12 @@ import EthLogo from '~/ethereum-eth-logo.svg'
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type Props = {
     user: User
@@ -43,11 +49,20 @@ export function UserData({ user, assessorSlotId }: Props) {
     }
     return (
         <Dialog>
-            <DialogTrigger asChild>
-                <Button className="rounded-full" variant="outline">
-                    ?
-                </Button>
-            </DialogTrigger>
+            <TooltipProvider>
+                <Tooltip>
+                    <DialogTrigger asChild>
+                        <TooltipTrigger asChild>
+                            <Button className="rounded-full" variant="outline">
+                                ?
+                            </Button>
+                        </TooltipTrigger>
+                    </DialogTrigger>
+                    <TooltipContent>
+                        <p>Details about the user</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <DialogContent className="sm:max-w-[625px] sm:w-fit">
                 <DialogHeader>
                     <DialogTitle>

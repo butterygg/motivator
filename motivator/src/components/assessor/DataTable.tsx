@@ -234,6 +234,9 @@ export function DataTable({ users }: Props) {
 
     return (
         <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
+            <div className="p-4 w-full justify-end">
+                <Button>Submit</Button>
+            </div>
             <div className="rounded-md border">
                 <Table>
                     <TableBody>
