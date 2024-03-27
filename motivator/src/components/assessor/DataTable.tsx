@@ -122,7 +122,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
 
             return (
-                <div className="flex justify-evenly">
+                <div className="flex gap-6 justify-evenly">
                     <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
                             Volume
