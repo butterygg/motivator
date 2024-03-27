@@ -114,22 +114,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             )
         },
     },
-    {
-        accessorKey: 'reward',
-        enableHiding: true,
-        cell: ({ row }) => {
-            const reward = row.getValue('reward') as UserDatatable['reward']
-            const id = row.getValue('id') as UserDatatable['id']
-            const userAddr = row.getValue('addressName') as Address
-            return (
-                <InputReward
-                    val={reward?.reward?.amount as number}
-                    userAddr={userAddr}
-                    assessorSlot={id.assessorSlotId}
-                />
-            )
-        },
-    },
+
     {
         accessorKey: 'stat',
         cell: ({ row }) => {
@@ -210,6 +195,22 @@ export const columns: ColumnDef<UserDatatable>[] = [
             )
         },
     },
+    {
+        accessorKey: 'reward',
+        enableHiding: true,
+        cell: ({ row }) => {
+            const reward = row.getValue('reward') as UserDatatable['reward']
+            const id = row.getValue('id') as UserDatatable['id']
+            const userAddr = row.getValue('addressName') as Address
+            return (
+                <InputReward
+                    val={reward?.reward?.amount as number}
+                    userAddr={userAddr}
+                    assessorSlot={id.assessorSlotId}
+                />
+            )
+        },
+    },
 ]
 
 export type Props = {
@@ -232,7 +233,7 @@ export function DataTable({ users }: Props) {
     })
 
     return (
-        <div className="lg-max:w-fit lg:w-full p-8">
+        <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
             <div className="rounded-md border">
                 <Table>
                     <TableBody>
