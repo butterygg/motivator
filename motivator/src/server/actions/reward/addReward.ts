@@ -1,3 +1,4 @@
+'use server'
 // Send Rewards to specifics users based on their actions
 
 import { NextRequest } from 'next/server'

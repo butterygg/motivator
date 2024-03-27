@@ -1,8 +1,8 @@
+'use server'
 // Send Rewards to specifics users based on their actions
 
-import { NextRequest } from 'next/server'
 import { db } from '@db/dbRouter'
-import { reward, user } from '@db/schema'
+import { reward } from '@db/schema'
 import { eq } from 'drizzle-orm'
 import { toast } from 'sonner'
 
