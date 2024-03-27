@@ -18,13 +18,16 @@ import AddrAvatar from '@/components/globals/AddrAvatar'
 import { Status } from '@/types/enum/status'
 import { Tag } from '@/components/assessor/Tag'
 import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
-import { UserData } from './UserData'
+import { DialogUserData } from './DialogUserData'
 import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
 import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import InputReward from '../globals/InputReward'
 import { Address } from 'viem'
+import { DialogConfirmSubmit } from './DialogConfirmSubmit'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
 
 // const data: User[] = [
 //     {
@@ -181,7 +184,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             // }
 
             return (
-                <UserData
+                <DialogUserData
                     user={{
                         addressName: stat.user_address,
                         stat: stat,
@@ -231,11 +234,13 @@ export function DataTable({ users }: Props) {
             rowSelection,
         },
     })
-
+    const assessorSlotID = useGetAssessorSlotIDFromURL()
     return (
         <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
             <div className="p-4 w-full justify-end">
-                <Button>Submit</Button>
+                <DialogConfirmSubmit
+                    assessorSlotId={assessorSlotID as string}
+                />
             </div>
             <div className="rounded-md border">
                 <Table>

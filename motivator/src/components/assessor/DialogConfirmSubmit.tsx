@@ -25,28 +25,31 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useGetTotalPointsDistributed } from '../../hooks/dataComponents/useGetTotalPointsDistributed'
 
 type Props = {
-    user: User
     assessorSlotId: string
 }
 
-export function UserData({ user, assessorSlotId }: Props) {
-    const [points, setPoints] = useState(
-        user.reward?.amount ? user.reward.amount : 0
-    )
-    const { mutate, error, data } = useAddRewardUsers({
-        assessorSlot: assessorSlotId,
-        userAddr: user.addressName,
-        value: points ? points : 0,
+export function DialogConfirmSubmit({ assessorSlotId }: Props) {
+    // const { mutate, error, data } = useAddRewardUsers({
+    //     assessorSlot: assessorSlotId,
+    //     userAddr: user.addressName,
+    //     value: points ? points : 0,
+    // })
+    // const handleSubmit = () => {
+    //     mutate()
+    //     console.log('error', error, 'data', data)
+    // }
+
+    const points = useGetTotalPointsDistributed({
+        assessorSlotId: assessorSlotId,
     })
-    const handleSubmit = () => {
-        mutate()
-        console.log('error', error, 'data', data)
+
+    const getPointsAvailable = (val: number) => {
+        return val - 100
     }
-    const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPoints(parseInt(e.target.value))
-    }
+
     return (
         <Dialog>
             <TooltipProvider>
@@ -54,21 +57,29 @@ export function UserData({ user, assessorSlotId }: Props) {
                     <DialogTrigger asChild>
                         <TooltipTrigger asChild>
                             <Button className="rounded-full" variant="outline">
-                                ?
+                                Submit
                             </Button>
                         </TooltipTrigger>
                     </DialogTrigger>
                     <TooltipContent>
-                        <p>Details about the user</p>
+                        <p>
+                            Submit your rewards when you have finished your
+                            assessment
+                        </p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
             <DialogContent className="sm:max-w-[625px] sm:w-fit">
                 <DialogHeader>
                     <DialogTitle>
-                        <AddrAvatar addressName={user.addressName} />
+                        <h3>Confirm Assessment Submit</h3>
                     </DialogTitle>
-                    <DialogDescription>Historical data</DialogDescription>
+                    <DialogDescription>
+                        Pressing the confirm button, will lock the amount you
+                        selected and distribute rewards to the users. You won
+                        `&apos`t have access to this assessment and this will be
+                        definitive.{' '}
+                    </DialogDescription>
                 </DialogHeader>
                 <Label htmlFor="name" className="">
                     Statistics
@@ -76,14 +87,12 @@ export function UserData({ user, assessorSlotId }: Props) {
                 <div className="grid gap-4 py-2">
                     <div className="grid grid-cols-3 items-center gap-2">
                         <DataCard
-                            title="Volume"
-                            value={user.stat.volume ? user.stat.volume : 0}
-                            icon={<EthLogo className="h-4 w-4" />}
+                            title="Available"
+                            value={points ? points - 100 : 0}
                         />
-                        <DataCard title="Pnl" value={user.pnl + 'K$'} />
                         <DataCard
-                            title="Actions"
-                            value={user.stat.actions ? user.stat.actions : 0}
+                            title="Distributed"
+                            value={points ? points : 0}
                         />
                     </div>
                 </div>
