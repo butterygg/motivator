@@ -9,9 +9,9 @@ const TotalPoints = (props: Props) => {
     })
 
     return (
-        <div>
-            <h2>Total Points</h2>
-            <p>{val - 100}</p>
+        <div className="flex gap-2 items-center">
+            <h2 className="font-extralight text-xl">Points</h2>
+            <p className="text-lg font-bold">{100 - val}</p>
         </div>
     )
 }

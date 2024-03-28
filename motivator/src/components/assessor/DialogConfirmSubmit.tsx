@@ -47,7 +47,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     })
 
     const getPointsAvailable = (val: number) => {
-        return val - 100
+        return 100 - val
     }
 
     return (
@@ -63,7 +63,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                     </DialogTrigger>
                     <TooltipContent>
                         <p>
-                            Submit your rewards when you have finished your
+                            Submit your rewards when you finished your
                             assessment
                         </p>
                     </TooltipContent>
@@ -88,7 +88,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                     <div className="grid grid-cols-3 items-center gap-2">
                         <DataCard
                             title="Available"
-                            value={points ? points - 100 : 0}
+                            value={points ? getPointsAvailable(points) : 0}
                         />
                         <DataCard
                             title="Distributed"

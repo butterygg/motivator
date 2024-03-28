@@ -238,7 +238,7 @@ export function DataTable({ users }: Props) {
     const assessorSlotID = useGetAssessorSlotIDFromURL()
     return (
         <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
-            <div className="p-4 w-full justify-end">
+            <div className="flex p-4 w-full justify-between">
                 <DialogConfirmSubmit
                     assessorSlotId={assessorSlotID as string}
                 />
