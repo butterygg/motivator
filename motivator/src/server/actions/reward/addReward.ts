@@ -32,7 +32,7 @@ export async function addReward({
         return await db
             .update(reward)
             .set({
-                amount: value,
+                amount: value ? value : 0,
                 user_address: userAddr,
                 date: new Date().toISOString(),
             })

@@ -4,9 +4,7 @@ import { useGetTotalPointsDistributed } from '../../hooks/dataComponents/useGetT
 type Props = {}
 
 const TotalPoints = (props: Props) => {
-    const val = useGetTotalPointsDistributed({
-        assessorSlotId: 'assessorSlotId',
-    })
+    const val = useGetTotalPointsDistributed()
 
     return (
         <div className="flex gap-2 items-center">

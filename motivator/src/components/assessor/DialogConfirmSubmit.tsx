@@ -42,9 +42,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     //     console.log('error', error, 'data', data)
     // }
 
-    const points = useGetTotalPointsDistributed({
-        assessorSlotId: assessorSlotId,
-    })
+    const points = useGetTotalPointsDistributed()
 
     const getPointsAvailable = (val: number) => {
         return 100 - val

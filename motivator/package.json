@@ -38,6 +38,7 @@
         "@radix-ui/react-tooltip": "^1.0.7",
         "@rainbow-me/rainbowkit": "^2.0.2",
         "@rainbow-me/rainbowkit-siwe-next-auth": "^0.4.0",
+        "@redux-devtools/extension": "^3.3.0",
         "@tanstack/react-query": "^5.28.0",
         "@tanstack/react-table": "^8.13.2",
         "@uidotdev/usehooks": "^2.4.1",
