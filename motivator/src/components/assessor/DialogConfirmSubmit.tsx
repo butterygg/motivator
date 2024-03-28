@@ -74,13 +74,18 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                     </DialogTitle>
                     <DialogDescription>
                         Pressing the confirm button, will lock the amount you
-                        selected and distribute rewards to the users. You won
-                        `&apos`t have access to this assessment and this will be
-                        definitive.{' '}
+                        selected and distribute rewards to the users. You
+                        won&apos;t have access to this assessment and this will
+                        be definitive .
                     </DialogDescription>
                 </DialogHeader>
                 <Label htmlFor="name" className="">
-                    Statistics
+                    {(points ? getPointsAvailable(points) : 0) > 0 ? (
+                        <p className="font-semibold gap">
+                            You still have points to assess. <br /> If you want
+                            press the Cancel button and keep assessing
+                        </p>
+                    ) : null}
                 </Label>
                 <div className="grid gap-4 py-2">
                     <div className="grid grid-cols-3 items-center gap-2">
@@ -92,6 +97,11 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                             title="Distributed"
                             value={points ? points : 0}
                         />
+
+                        <div className="flex flex-col p-4 gap-5">
+                            <Button variant={'submit'}>Confirm</Button>
+                            <Button variant={'destructive'}>Cancel</Button>
+                        </div>
                     </div>
                 </div>
 
