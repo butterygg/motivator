@@ -7,6 +7,7 @@ import StartAssessmentSlot from '@/components/signup/startAssessmentSlot'
 import { useGetAssessorSlotID } from '../hooks/assessorSlot/useGetAssessorSlotID'
 import { useGetNumberAssessorSlotAvailable } from '../hooks/assessorSlot/useGetNumberAssessorSlotAvailable'
 import { useRouter } from 'next/navigation'
+import { useGetAssessorSlot } from '../hooks/assessorSlot/useGetAssessorSlot'
 type Props = {}
 
 const Signup = (props: Props) => {
@@ -19,13 +20,11 @@ const Signup = (props: Props) => {
     // Fetch slotsAvailable from API
     const [slotsAvailable, setSlotsAvailable] = useState(0)
 
-    const { data: assessorSlotsAvailable } = useGetNumberAssessorSlotAvailable()
-    console.log(address, 'address')
     const {
         data: assessorSlotID,
         refetch,
         status,
-    } = useGetAssessorSlotID({
+    } = useGetAssessorSlot({
         assessorAddr: address ? address : '',
     })
     const { push } = useRouter()
@@ -33,11 +32,9 @@ const Signup = (props: Props) => {
         if (refetch) {
             refetch()
         }
-    }, [address])
+    }, [address, status])
 
     useEffect(() => {
-        console.log('assessorSlotID', assessorSlotID, status)
-        // TODO DEBUG THIS PART
         if (assessorSlotID?.res?.id) {
             push(`/assessor/slot/${assessorSlotID?.res?.id}`)
         }
@@ -46,17 +43,16 @@ const Signup = (props: Props) => {
     const weekNumber = Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)
     const weekMax = Number(process.env.NEXT_PUBLIC_WEEK_MAX)
 
+    // TODO : Rework this it's blocking the rendering
+    // const { data: assessorSlotsAvailable } = useGetNumberAssessorSlotAvailable()
+
     const ComponentToDisplay = () => {
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
                 return (
                     <StartAssessmentSlot
                         week={weekNumber}
-                        slotsAvailable={
-                            assessorSlotsAvailable?.res
-                                ? assessorSlotsAvailable?.res
-                                : 0
-                        }
+                        slotsAvailable={0}
                         weekmax={weekMax}
                     />
                 )

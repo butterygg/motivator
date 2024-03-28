@@ -29,7 +29,7 @@ import {
 import { useGetTotalPointsDistributed } from '../../hooks/dataComponents/useGetTotalPointsDistributed'
 import { cn } from '../../utils/utils'
 import { useSubmitAssessorSlot } from '../../hooks/assessorSlot/useSubmitAssessorSlot'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 type Props = {
     assessorSlotId: string
@@ -37,19 +37,10 @@ type Props = {
 
 export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     const { address } = useAccount()
-    const { data, mutateAsync, status } = useSubmitAssessorSlot({
+    const { mutateAsync, status } = useSubmitAssessorSlot({
         assessorAddr: address,
     })
     const { push } = useRouter()
-    // const { mutate, error, data } = useAddRewardUsers({
-    //     assessorSlot: assessorSlotId,
-    //     userAddr: user.addressName,
-    //     value: points ? points : 0,
-    // })
-    // const handleSubmit = () => {
-    //     mutate()
-    //     console.log('error', error, 'data', data)
-    // }
 
     const points = useGetTotalPointsDistributed()
 

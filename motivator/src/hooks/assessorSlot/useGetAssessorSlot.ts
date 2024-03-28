@@ -17,11 +17,11 @@ const useGetAssessorSlot = ({ assessorAddr }: Props) => {
     const { data, refetch, status, error } = useQuery({
         queryKey: ['assessorSlot'],
         queryFn: async () => {
-            return await getAssessorSlot(assessorAddr)
+            return getAssessorSlot(assessorAddr)
         },
         refetchOnWindowFocus: true,
-        retryOnMount: true,
-        staleTime: 1000 * 60,
+        staleTime: 1000 * 6,
+        retry: 5,
         // enabled: false,
     })
 
