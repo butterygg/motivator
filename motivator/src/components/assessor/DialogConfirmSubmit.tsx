@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
@@ -26,12 +27,20 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useGetTotalPointsDistributed } from '../../hooks/dataComponents/useGetTotalPointsDistributed'
+import { cn } from '../../utils/utils'
+import { useSubmitAssessorSlot } from '../../hooks/assessorSlot/useSubmitAssessorSlot'
+import { useRouter } from 'next/router'
 
 type Props = {
     assessorSlotId: string
 }
 
 export function DialogConfirmSubmit({ assessorSlotId }: Props) {
+    const { address } = useAccount()
+    const { data, mutateAsync, status } = useSubmitAssessorSlot({
+        assessorAddr: address,
+    })
+    const { push } = useRouter()
     // const { mutate, error, data } = useAddRewardUsers({
     //     assessorSlot: assessorSlotId,
     //     userAddr: user.addressName,
@@ -48,13 +57,20 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
         return 100 - val
     }
 
+    async function handleSubmit() {
+        await mutateAsync()
+        if (status === 'success') {
+            push(`/`)
+        }
+    }
+
     return (
         <Dialog>
             <TooltipProvider>
                 <Tooltip>
                     <DialogTrigger asChild>
                         <TooltipTrigger asChild>
-                            <Button className="rounded-full" variant="outline">
+                            <Button className="rounded-full" variant="submit">
                                 Submit
                             </Button>
                         </TooltipTrigger>
@@ -99,8 +115,23 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                         />
 
                         <div className="flex flex-col p-4 gap-5">
-                            <Button variant={'submit'}>Confirm</Button>
-                            <Button variant={'destructive'}>Cancel</Button>
+                            <Button
+                                onClick={() => {
+                                    handleSubmit()
+                                }}
+                                className={cn(
+                                    (points ? getPointsAvailable(points) : 0) <
+                                        0
+                                        ? 'hidden'
+                                        : ''
+                                )}
+                                variant={'submit'}
+                            >
+                                Confirm
+                            </Button>
+                            <DialogClose asChild>
+                                <Button variant={'destructive'}>Cancel</Button>
+                            </DialogClose>
                         </div>
                     </div>
                 </div>

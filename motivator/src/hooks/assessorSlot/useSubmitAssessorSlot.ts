@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Address } from 'viem'
 import { assignAssessorSlot } from '@/server/actions/assessor/assignAssessorSlot'
+import { submitAssessorSlot } from '../../server/actions/assessor/submitAssessorSlot'
 type Props = {
     assessorAddr: Address | undefined
 }
@@ -11,11 +12,11 @@ type Props = {
  *
  *
  */
-const useAssignAssessorSlot = ({ assessorAddr }: Props) => {
+const useSubmitAssessorSlot = ({ assessorAddr }: Props) => {
     const { data, mutateAsync, status, error } = useMutation({
         mutationKey: ['assignAssessor'],
         mutationFn: async () => {
-            return await assignAssessorSlot({
+            return submitAssessorSlot({
                 assessorAddr: assessorAddr as string,
             })
         },
@@ -27,4 +28,4 @@ const useAssignAssessorSlot = ({ assessorAddr }: Props) => {
     return { data, mutateAsync, error, status }
 }
 
-export { useAssignAssessorSlot }
+export { useSubmitAssessorSlot }

@@ -80,7 +80,12 @@ export async function getAssessorSlot(address: string) {
         rewards: getRewardsUsers,
         stats: getStatsUsers,
     }
-
+    if (!assessorSlot) {
+        return {
+            status: 'ko',
+            message: 'No assessor slot available',
+        }
+    }
     return {
         status: 'ok',
         message: 'Assessor slot available',

@@ -35,18 +35,18 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
     const [points, setPoints] = useState(
         user.reward?.amount ? user.reward.amount : 0
     )
-    const { mutate, error, data } = useAddRewardUsers({
-        assessorSlot: assessorSlotId,
-        userAddr: user.addressName,
-        value: points ? points : 0,
-    })
-    const handleSubmit = () => {
-        mutate()
-        console.log('error', error, 'data', data)
-    }
-    const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPoints(parseInt(e.target.value))
-    }
+    // const { mutate, error, data } = useAddRewardUsers({
+    //     assessorSlot: assessorSlotId,
+    //     userAddr: user.addressName,
+    //     value: points ? points : 0,
+    // })
+    // const handleSubmit = () => {
+    //     mutate()
+    //     console.log('error', error, 'data', data)
+    // }
+    // const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setPoints(parseInt(e.target.value))
+    // }
     return (
         <Dialog>
             <TooltipProvider>
