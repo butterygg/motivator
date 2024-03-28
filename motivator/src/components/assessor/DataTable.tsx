@@ -18,13 +18,17 @@ import AddrAvatar from '@/components/globals/AddrAvatar'
 import { Status } from '@/types/enum/status'
 import { Tag } from '@/components/assessor/Tag'
 import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
-import { UserData } from './UserData'
+import { DialogUserData } from './DialogUserData'
 import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
 import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import InputReward from '../globals/InputReward'
 import { Address } from 'viem'
+import { DialogConfirmSubmit } from './DialogConfirmSubmit'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
+import TotalPoints from './TotalPoints'
 
 // const data: User[] = [
 //     {
@@ -114,22 +118,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             )
         },
     },
-    {
-        accessorKey: 'reward',
-        enableHiding: true,
-        cell: ({ row }) => {
-            const reward = row.getValue('reward') as UserDatatable['reward']
-            const id = row.getValue('id') as UserDatatable['id']
-            const userAddr = row.getValue('addressName') as Address
-            return (
-                <InputReward
-                    val={reward?.reward?.amount as number}
-                    userAddr={userAddr}
-                    assessorSlot={id.assessorSlotId}
-                />
-            )
-        },
-    },
+
     {
         accessorKey: 'stat',
         cell: ({ row }) => {
@@ -137,7 +126,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
 
             return (
-                <div className="flex justify-evenly">
+                <div className="flex gap-6 justify-evenly">
                     <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
                             Volume
@@ -196,7 +185,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             // }
 
             return (
-                <UserData
+                <DialogUserData
                     user={{
                         addressName: stat.user_address,
                         stat: stat,
@@ -206,6 +195,22 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         status: reward?.status,
                     }}
                     assessorSlotId={id.assessorSlotId}
+                />
+            )
+        },
+    },
+    {
+        accessorKey: 'reward',
+        enableHiding: true,
+        cell: ({ row }) => {
+            const reward = row.getValue('reward') as UserDatatable['reward']
+            const id = row.getValue('id') as UserDatatable['id']
+            const userAddr = row.getValue('addressName') as Address
+            return (
+                <InputReward
+                    val={reward?.reward?.amount as number}
+                    userAddr={userAddr}
+                    assessorSlot={id.assessorSlotId}
                 />
             )
         },
@@ -230,9 +235,15 @@ export function DataTable({ users }: Props) {
             rowSelection,
         },
     })
-
+    const assessorSlotID = useGetAssessorSlotIDFromURL()
     return (
-        <div className="lg-max:w-fit lg:w-full p-8">
+        <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
+            <div className="flex p-4 w-full justify-between">
+                <DialogConfirmSubmit
+                    assessorSlotId={assessorSlotID as string}
+                />
+                <TotalPoints />
+            </div>
             <div className="rounded-md border">
                 <Table>
                     <TableBody>

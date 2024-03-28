@@ -7,32 +7,25 @@ import { assessor_slot } from '@db/schema'
  * @param request Will contain an Array of [{assessorAddr: string}]
  * @param response Send the status of the transaction
  */
-export async function assignAssessorSlot({
+export async function submitAssessorSlot({
     assessorAddr,
 }: {
     assessorAddr: string
 }) {
-    // verify this assessor doesn't have an assessor slot already in progress
-    const hasAssessorSlot = await db.query.assessor_slot.findFirst({
-        where: and(
-            eq(assessor_slot.assessor_ID, assessorAddr),
-            eq(assessor_slot.done, false)
-        ),
-    })
-
-    if (hasAssessorSlot) {
-        return {
-            status: 'ok',
-            message: 'Assessor Already have an Assessor Slot assigned',
-            res: hasAssessorSlot,
-        }
-    }
-
     // grab an assessor slot that is not done and has no assessor assigned
+    // const assessor_Slot = await db.query.assessor_slot.findFirst({
+    //     where: and(
+    //         eq(assessor_slot.done, false),
+    //         isNull(assessor_slot.assessor_ID)
+    //     ),
+    // })
+
+    const actualWeek = process.env.NEXT_PUBLIC_WEEK_ACTUAL as string
+
     const assessor_Slot = await db.query.assessor_slot.findFirst({
         where: and(
             eq(assessor_slot.done, false),
-            isNull(assessor_slot.assessor_ID)
+            eq(assessor_slot.assessor_ID, assessorAddr)
         ),
     })
 
@@ -40,12 +33,13 @@ export async function assignAssessorSlot({
         const assignAssessor = await db
             .update(assessor_slot)
             .set({
-                assessor_ID: assessorAddr,
+                done: true,
+                week: Number(actualWeek),
             })
             .where(
                 and(
                     eq(assessor_slot.id, assessor_Slot.id),
-                    isNull(assessor_slot.assessor_ID)
+                    eq(assessor_slot.assessor_ID, assessorAddr)
                 )
             )
 

@@ -19,33 +19,50 @@ import EthLogo from '~/ethereum-eth-logo.svg'
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 type Props = {
     user: User
     assessorSlotId: string
 }
 
-export function UserData({ user, assessorSlotId }: Props) {
+export function DialogUserData({ user, assessorSlotId }: Props) {
     const [points, setPoints] = useState(
         user.reward?.amount ? user.reward.amount : 0
     )
-    const { mutate, error, data } = useAddRewardUsers({
-        assessorSlot: assessorSlotId,
-        userAddr: user.addressName,
-        value: points ? points : 0,
-    })
-    const handleSubmit = () => {
-        mutate()
-        console.log('error', error, 'data', data)
-    }
-    const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPoints(parseInt(e.target.value))
-    }
+    // const { mutate, error, data } = useAddRewardUsers({
+    //     assessorSlot: assessorSlotId,
+    //     userAddr: user.addressName,
+    //     value: points ? points : 0,
+    // })
+    // const handleSubmit = () => {
+    //     mutate()
+    //     console.log('error', error, 'data', data)
+    // }
+    // const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setPoints(parseInt(e.target.value))
+    // }
     return (
         <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="outline">+</Button>
-            </DialogTrigger>
+            <TooltipProvider>
+                <Tooltip>
+                    <DialogTrigger asChild>
+                        <TooltipTrigger asChild>
+                            <Button className="rounded-full" variant="outline">
+                                ?
+                            </Button>
+                        </TooltipTrigger>
+                    </DialogTrigger>
+                    <TooltipContent>
+                        <p>Details about the user</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <DialogContent className="sm:max-w-[625px] sm:w-fit">
                 <DialogHeader>
                     <DialogTitle>

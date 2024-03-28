@@ -21,10 +21,8 @@ type Props = {
 }
 
 const StartAssessmentSlot = (props: Props) => {
-    const [assessorId, setAssessorId] = useState('')
     const { address } = useAccount()
     const { push } = useRouter()
-    console.log(address, 'address')
     const { mutateAsync: mutateSignAssessor } = useSignAssessor({
         assessorAddr: address as Address,
     })

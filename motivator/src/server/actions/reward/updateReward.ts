@@ -1,8 +1,8 @@
+'use server'
 // Send Rewards to specifics users based on their actions
 
-import { NextRequest } from 'next/server'
 import { db } from '@db/dbRouter'
-import { reward, user } from '@db/schema'
+import { reward } from '@db/schema'
 import { eq } from 'drizzle-orm'
 import { toast } from 'sonner'
 
@@ -20,7 +20,7 @@ export async function updateReward({
     value: number
     rewardId: string
 }) {
-    const rewardSent = await db
+    await db
         .update(reward)
         .set({
             amount: value,
@@ -28,17 +28,4 @@ export async function updateReward({
             date: new Date().toISOString(),
         })
         .where(eq(reward.id, rewardId))
-
-    if (rewardSent) {
-        toast.success(`Reward of ${value} sent to ${userAddr}`)
-        return {
-            status: 'ok',
-            message: `Reward of ${value} sent to ${userAddr}`,
-        }
-    } else {
-        return {
-            status: 'ko',
-            message: 'Error while sending the reward',
-        }
-    }
 }

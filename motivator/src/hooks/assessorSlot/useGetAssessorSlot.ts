@@ -20,12 +20,11 @@ const useGetAssessorSlot = ({ assessorAddr }: Props) => {
             return getAssessorSlot(assessorAddr)
         },
         refetchOnWindowFocus: true,
-        retryOnMount: true,
-        staleTime: 1000 * 60,
+        staleTime: 1000 * 6,
+        retry: 5,
         // enabled: false,
     })
-    console.log(data, 'data')
-    console.log(error, 'error')
+
     if (status === 'error') {
         console.log(error, 'error')
     }
