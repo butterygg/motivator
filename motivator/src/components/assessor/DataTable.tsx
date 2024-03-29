@@ -194,7 +194,6 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         reward: reward?.reward,
                         status: reward?.status,
                     }}
-                    assessorSlotId={id.assessorSlotId}
                 />
             )
         },
