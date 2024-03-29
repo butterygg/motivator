@@ -51,8 +51,9 @@ export const assessor_slot_user = pgTable('assessor_slot_user', {
 export const statistics = pgTable('statistics', {
     block_number: integer('id').unique().primaryKey(),
     user_address: text('user_address').references(() => user.address),
-    week: integer('week').default(0),
-    actions: integer('actions').default(0),
-    volume: integer('volume').default(0),
-    pnl: integer('pnl').default(0),
+    pnl_long: integer('pnl_long').default(0),
+    pnl_short: integer('pnl_short').default(0),
+    volume_long: integer('volume_long').default(0),
+    volume_short: integer('volume_short').default(0),
+    volume_lp: integer('volume_lp').default(0),
 })
