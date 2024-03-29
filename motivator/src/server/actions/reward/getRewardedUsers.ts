@@ -9,7 +9,7 @@ export const getRewardedUsers = async (assessorSlotId: string) => {
         .from(reward)
         .where(
             and(
-                eq(reward.assessor_slot_ID, assessorSlotId),
+                eq(reward.assessor_slot_id, assessorSlotId),
                 ne(reward.amount, 0)
             )
         )

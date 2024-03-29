@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import {
     Dialog,
     DialogContent,
+    DialogContentCustom,
     DialogDescription,
     DialogFooter,
     DialogHeader,
@@ -16,7 +17,7 @@ import { User } from '@/types/data/user'
 import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import {
@@ -25,27 +26,124 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-
+import { PNLChart } from '../statistics/PNLChart'
+import { Separator } from '../ui/separator'
+import { VolumeChart } from '../statistics/VolumeChart'
+import { useGetPNLAndVolume } from '../../hooks/statistics/useGetPNLAndVolume'
+import { LP_PNLChart } from '../statistics/LP_PNLChart'
+import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
 type Props = {
     user: User
-    assessorSlotId: string
 }
 
-export function DialogUserData({ user, assessorSlotId }: Props) {
-    const [points, setPoints] = useState(
-        user.reward?.amount ? user.reward.amount : 0
+export type DataSetChartTrading = {
+    blockNumber: number | null
+    Short: number | null
+    Long: number | null
+}
+
+export type DataSetChartVolumeLP = {
+    blockNumber: number | null
+    volume: number | null
+}
+
+export type DataSetChartPnlLP = {
+    blockNumber: number | null
+    pnl: number | null
+}
+
+export function DialogUserData({ user }: Props) {
+    const { data } = useGetPNLAndVolume({ userAddr: user.addressName })
+    const [PNLTradingData, setPNLTradingData] = useState<DataSetChartTrading[]>(
+        []
     )
-    // const { mutate, error, data } = useAddRewardUsers({
-    //     assessorSlot: assessorSlotId,
-    //     userAddr: user.addressName,
-    //     value: points ? points : 0,
-    // })
-    // const handleSubmit = () => {
-    //     mutate()
-    //     console.log('error', error, 'data', data)
-    // }
-    // const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setPoints(parseInt(e.target.value))
+    const [VolumeTradingData, setVolumeTradingData] = useState<
+        DataSetChartTrading[]
+    >([])
+
+    const [LP_PNLTradingData, setLP_PNLTradingData] = useState<
+        DataSetChartPnlLP[]
+    >([])
+
+    const [LP_VolumeTradingData, setLP_VolumeTradingData] = useState<
+        DataSetChartVolumeLP[]
+    >([])
+
+    useEffect(() => {
+        if (data) {
+            preparePNLTradingData()
+            prepareVolumeTradingData()
+            preparePNLLPData()
+            prepareVolumeLPData()
+        }
+    }, [data])
+
+    const preparePNLTradingData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartTrading[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                Short: element.pnl_short,
+                Long: element.pnl_long,
+            }
+        })
+        setPNLTradingData(result)
+    }
+
+    const prepareVolumeTradingData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartTrading[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                Short: element.volume_short,
+                Long: element.volume_long,
+            }
+        })
+        setVolumeTradingData(result)
+    }
+
+    const preparePNLLPData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartPnlLP[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                pnl: element.pnl_lp,
+            }
+        })
+        setLP_PNLTradingData(result)
+    }
+
+    const prepareVolumeLPData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartVolumeLP[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                volume: element.volume_lp,
+            }
+        })
+        setLP_VolumeTradingData(result)
+    }
+
+    // TODO: prepare Data for PNL and Volume
+    // const prepareDataForPNLLP = () => {
+    //     const pnlLongs = data?.result?.pnlLongs
+    //     return data
+    //         ? {
+    //               pnlLong: data.result?.pnlLongs,
+    //               pnlShorts: data.result?.pnlShorts,
+    //               volumeLong: data.result?.volumeLong,
+    //               volumeShort: data.result?.volumeShort,
+    //               lpVolume: data.result?.lpVolume,
+    //               blockNumbers: data.result?.blockNumbers,
+    //           }
+    //         : {
+    //               pnlLong: [],
+    //               pnlShorts: [],
+    //               volumeLong: [],
+    //               volumeShort: [],
+    //               lpVolume: [],
+    //               blockNumbers: [],
+    //           }
     // }
     return (
         <Dialog>
@@ -63,7 +161,8 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <DialogContent className="sm:max-w-[625px] sm:w-fit">
+            {/* <DialogContent className="sm:max-w-[625px] sm:w-fit overflow-auto"> */}
+            <DialogContentCustom className="w-full overflow-auto">
                 <DialogHeader>
                     <DialogTitle>
                         <AddrAvatar addressName={user.addressName} />
@@ -87,6 +186,52 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
                         />
                     </div>
                 </div>
+                <>
+                    <div className="p-5 ">
+                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                            Trading
+                        </Label>
+                        <div className="grid gap-2 lg:grid-flow-col p-2">
+                            <PNLChart
+                                title={'PNL'}
+                                value={'25000'}
+                                dataset={PNLTradingData ? PNLTradingData : []}
+                            />
+                            <VolumeChart
+                                title={'Volume'}
+                                value={'25000'}
+                                dataset={
+                                    VolumeTradingData ? VolumeTradingData : []
+                                }
+                            />
+                            {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                        </div>
+                    </div>
+                    <div className="p-5 mt-3 ">
+                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                            Liquidity Providing
+                        </Label>
+                        <div className="grid gap-2 lg:grid-flow-col p-2">
+                            <LP_PNLChart
+                                title={'PNL'}
+                                value={'25000'}
+                                dataset={
+                                    LP_PNLTradingData ? LP_PNLTradingData : []
+                                }
+                            />
+                            <LP_VolumeChart
+                                title={'Volume'}
+                                value={'25000'}
+                                dataset={
+                                    LP_VolumeTradingData
+                                        ? LP_VolumeTradingData
+                                        : []
+                                }
+                            />
+                            {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                        </div>
+                    </div>
+                </>
 
                 {/* <DialogFooter className="flex-row justify-between w-full">
                     <div className="align-top flex gap-2 w-fit">
@@ -101,7 +246,7 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
                         <Button onClick={() => handleSubmit()}>Reward</Button>
                     </div>
                 </DialogFooter> */}
-            </DialogContent>
+            </DialogContentCustom>
         </Dialog>
     )
 }

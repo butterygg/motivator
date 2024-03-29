@@ -21,5 +21,5 @@ export type Reward = {
     user_address: string | null
     id: string
     amount: number | null
-    assessor_slot_ID: string | null
+    assessor_slot_id: string | null
 }

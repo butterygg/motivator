@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
     // if (account.address) {
     //     return NextResponse.next()
     // }
-    return NextResponse.redirect(new URL('/signup', request.url))
+    return NextResponse.redirect(new URL('/', request.url))
 }
 
 // See "Matching Paths" below to learn more

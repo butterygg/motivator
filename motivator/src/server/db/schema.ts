@@ -34,7 +34,7 @@ export const reward = pgTable('reward', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     amount: integer('amount'),
     date: date('date'),
-    assessor_slot_ID: uuid('assessor_slot_ID').references(
+    assessor_slot_id: uuid('assessor_slot_id').references(
         () => assessor_slot.id
     ),
     user_address: text('user_address').references(() => user.address),
@@ -42,8 +42,19 @@ export const reward = pgTable('reward', {
 
 export const assessor_slot_user = pgTable('assessor_slot_user', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
-    assessor_slot_ID: uuid('assessor_slot_ID').references(
+    assessor_slot_id: uuid('assessor_slot_id').references(
         () => assessor_slot.id
     ),
     user_address: text('user_address').references(() => user.address),
+})
+
+export const statistics = pgTable('statistics', {
+    block_number: integer('block_number').unique().primaryKey(),
+    user_address: text('user_address').references(() => user.address),
+    pnl_long: integer('pnl_long').default(0),
+    pnl_short: integer('pnl_short').default(0),
+    pnl_lp: integer('pnl_lp').default(0),
+    volume_long: integer('volume_long').default(0),
+    volume_short: integer('volume_short').default(0),
+    volume_lp: integer('volume_lp').default(0),
 })

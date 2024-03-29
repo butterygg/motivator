@@ -20,7 +20,7 @@ type Props = {
 
 export function DataCard({ title, value, icon }: Props) {
     return (
-        <Card className="p-2">
+        <Card className="p-2 w-28">
             <CardHeader className="p-2">
                 <p className="text-xs text-center">{title}</p>
             </CardHeader>
