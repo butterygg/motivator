@@ -1,6 +1,9 @@
 import { BarChart, EventProps } from '@tremor/react'
 import { useState } from 'react'
-import { DataSetChartTrading } from '../assessor/DialogUserData'
+import {
+    DataSetChartTrading,
+    DataSetChartVolumeLP,
+} from '../assessor/DialogUserData'
 
 const chartdata = [
     {
@@ -67,9 +70,9 @@ const chartdata = [
 export type Props = {
     title: string
     value: string
-    dataset: DataSetChartTrading[]
+    dataset: DataSetChartVolumeLP[]
 }
-export function VolumeChart({ title, value, dataset }: Props) {
+export function LP_VolumeChart({ title, value, dataset }: Props) {
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
@@ -82,8 +85,8 @@ export function VolumeChart({ title, value, dataset }: Props) {
                 className="h-80"
                 data={dataset}
                 index="date"
-                categories={['Short', 'Long']}
-                colors={['red', 'blue']}
+                categories={['lp']}
+                colors={['red']}
                 yAxisWidth={80}
             />
         </div>

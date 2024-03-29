@@ -17,7 +17,7 @@ import { User } from '@/types/data/user'
 import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import {
@@ -29,12 +29,122 @@ import {
 import { PNLChart } from '../statistics/PNLChart'
 import { Separator } from '../ui/separator'
 import { VolumeChart } from '../statistics/VolumeChart'
-
+import { useGetPNLAndVolume } from '../../hooks/statistics/useGetPNLAndVolume'
+import { LP_PNLChart } from '../statistics/LP_PNLChart'
+import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
 type Props = {
     user: User
 }
 
+export type DataSetChartTrading = {
+    blockNumber: number | null
+    Short: number | null
+    Long: number | null
+}
+
+export type DataSetChartVolumeLP = {
+    blockNumber: number | null
+    volume: number | null
+}
+
+export type DataSetChartPnlLP = {
+    blockNumber: number | null
+    pnl: number | null
+}
+
 export function DialogUserData({ user }: Props) {
+    const { data } = useGetPNLAndVolume({ userAddr: user.addressName })
+    const [PNLTradingData, setPNLTradingData] = useState<DataSetChartTrading[]>(
+        []
+    )
+    const [VolumeTradingData, setVolumeTradingData] = useState<
+        DataSetChartTrading[]
+    >([])
+
+    const [LP_PNLTradingData, setLP_PNLTradingData] = useState<
+        DataSetChartPnlLP[]
+    >([])
+
+    const [LP_VolumeTradingData, setLP_VolumeTradingData] = useState<
+        DataSetChartVolumeLP[]
+    >([])
+
+    useEffect(() => {
+        if (data) {
+            preparePNLTradingData()
+            prepareVolumeTradingData()
+            preparePNLLPData()
+            prepareVolumeLPData()
+        }
+    }, [data])
+
+    const preparePNLTradingData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartTrading[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                Short: element.pnl_short,
+                Long: element.pnl_long,
+            }
+        })
+        setPNLTradingData(result)
+    }
+
+    const prepareVolumeTradingData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartTrading[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                Short: element.volume_short,
+                Long: element.volume_long,
+            }
+        })
+        setVolumeTradingData(result)
+    }
+
+    const preparePNLLPData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartPnlLP[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                pnl: element.pnl_lp,
+            }
+        })
+        setLP_PNLTradingData(result)
+    }
+
+    const prepareVolumeLPData = () => {
+        if (!data || !data.stats) return
+        const result: DataSetChartVolumeLP[] = data.stats.map((element) => {
+            return {
+                blockNumber: element.block_number,
+                volume: element.volume_lp,
+            }
+        })
+        setLP_VolumeTradingData(result)
+    }
+
+    // TODO: prepare Data for PNL and Volume
+    // const prepareDataForPNLLP = () => {
+    //     const pnlLongs = data?.result?.pnlLongs
+    //     return data
+    //         ? {
+    //               pnlLong: data.result?.pnlLongs,
+    //               pnlShorts: data.result?.pnlShorts,
+    //               volumeLong: data.result?.volumeLong,
+    //               volumeShort: data.result?.volumeShort,
+    //               lpVolume: data.result?.lpVolume,
+    //               blockNumbers: data.result?.blockNumbers,
+    //           }
+    //         : {
+    //               pnlLong: [],
+    //               pnlShorts: [],
+    //               volumeLong: [],
+    //               volumeShort: [],
+    //               lpVolume: [],
+    //               blockNumbers: [],
+    //           }
+    // }
     return (
         <Dialog>
             <TooltipProvider>
@@ -82,8 +192,18 @@ export function DialogUserData({ user }: Props) {
                             Trading
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <PNLChart title={'PNL'} value={'25000'} />
-                            <VolumeChart title={'Volume'} value={'25000'} />
+                            <PNLChart
+                                title={'PNL'}
+                                value={'25000'}
+                                dataset={PNLTradingData ? PNLTradingData : []}
+                            />
+                            <VolumeChart
+                                title={'Volume'}
+                                value={'25000'}
+                                dataset={
+                                    VolumeTradingData ? VolumeTradingData : []
+                                }
+                            />
                             {/* <PNLChart title={'Volume'} value={'25000'} /> */}
                         </div>
                     </div>
@@ -92,8 +212,22 @@ export function DialogUserData({ user }: Props) {
                             Liquidity Providing
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <PNLChart title={'PNL'} value={'25000'} />
-                            <VolumeChart title={'Volume'} value={'25000'} />
+                            <LP_PNLChart
+                                title={'PNL'}
+                                value={'25000'}
+                                dataset={
+                                    LP_PNLTradingData ? LP_PNLTradingData : []
+                                }
+                            />
+                            <LP_VolumeChart
+                                title={'Volume'}
+                                value={'25000'}
+                                dataset={
+                                    LP_VolumeTradingData
+                                        ? LP_VolumeTradingData
+                                        : []
+                                }
+                            />
                             {/* <PNLChart title={'Volume'} value={'25000'} /> */}
                         </div>
                     </div>
