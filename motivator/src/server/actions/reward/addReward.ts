@@ -23,7 +23,7 @@ export async function addReward({
 }) {
     const isRewardAlreadyAssigned = await db.query.reward.findFirst({
         where: and(
-            eq(reward.assessor_slot_ID, assessorSlot),
+            eq(reward.assessor_slot_id, assessorSlot),
             eq(reward.user_address, userAddr)
         ),
     })
@@ -43,6 +43,6 @@ export async function addReward({
         amount: value,
         user_address: userAddr,
         date: new Date().toISOString(),
-        assessor_slot_ID: assessorSlot,
+        assessor_slot_id: assessorSlot,
     })
 }

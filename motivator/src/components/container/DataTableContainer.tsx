@@ -42,7 +42,7 @@ const DataTableContainer = () => {
                 user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
                 id: '1',
                 amount: 100,
-                assessor_slot_ID: '1',
+                assessor_slot_id: '1',
             },
         ],
         users: [

@@ -33,7 +33,7 @@ export async function getAssessorSlot(address: string) {
         await db.query.assessor_slot_user.findMany({
             columns: { user_address: true },
             where: eq(
-                assessor_slot_user.assessor_slot_ID,
+                assessor_slot_user.assessor_slot_id,
                 assessorSlotOfAssessor.id
             ),
         })
@@ -52,7 +52,7 @@ export async function getAssessorSlot(address: string) {
         .from(reward)
         .where(
             and(
-                eq(reward.assessor_slot_ID, assessorSlotOfAssessor.id),
+                eq(reward.assessor_slot_id, assessorSlotOfAssessor.id),
                 ne(reward.amount, 0)
             )
         )

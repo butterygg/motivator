@@ -95,7 +95,7 @@ export async function populateNeonDataset() {
     //     .insert(assessor_slot_user)
     //     .values({
     //         user_address: '0x8773DE1914c4AB01F845b05b7BC146Bc898850A6',
-    //         assessor_slot_ID: assessorSlot2.,
+    //         assessor_slot_id: assessorSlot2.,
     //     })
 
     const findAssessorSlotsIDs = await db.query.assessor_slot.findMany({
@@ -105,13 +105,13 @@ export async function populateNeonDataset() {
 
     const addUsersToAssessorSlot1 = await db.insert(assessor_slot_user).values({
         user_address: '0x8773DE1914c4AB01F845b05b7BC146Bc898850A6',
-        assessor_slot_ID: findAssessorSlotsIDs[0].id,
+        assessor_slot_id: findAssessorSlotsIDs[0].id,
     })
     console.log('addUsersToAssessorSlot1', addUsersToAssessorSlot1)
 
     const addUsersToAssessorSlot2 = await db.insert(assessor_slot_user).values({
         user_address: '0x2B091fD455F320527b70223A27436C6d0CDDf508',
-        assessor_slot_ID: findAssessorSlotsIDs[0].id,
+        assessor_slot_id: findAssessorSlotsIDs[0].id,
     })
     console.log('addUsersToAssessorSlot2', addUsersToAssessorSlot2)
 }
