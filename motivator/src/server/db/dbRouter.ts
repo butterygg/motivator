@@ -2,11 +2,11 @@ import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 
 import * as schema from './schema'
-import { config } from '../../../drizzle.config'
+import config from '../../../drizzle.config'
 // contains the connection string to the neon database
 
 // contains the drizzle object to send queries to the database
-export const db = drizzle(neon(config.dbCredentials.connectionString), {
+export const db = drizzle(neon(process.env.PG_CONNECT_STR || ''), {
     schema,
 })
 
