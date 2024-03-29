@@ -54,7 +54,7 @@
         "next-auth": "^4.24.7",
         "next-themes": "^0.3.0",
         "pg": "^8.11.3",
-        "prettier-plugin-tailwindcss": "^0.5.12",
+        "prettier-plugin-tailwindcss": "^0.5.13",
         "react": "^18",
         "react-dom": "^18",
         "siwe": "^2.1.4",
