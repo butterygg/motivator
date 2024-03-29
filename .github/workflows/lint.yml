@@ -16,19 +16,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install
-      run: npm ci --dev
+      run: yarn install --frozen-lockfile --dev
     - name: Typescript check
       run: npx tsc
     - name: Lint
-      run: npm run lint
+      run: yarn lint
     - name: Format check
-      run: npm run format:check
-
-  # test action works running from the graph
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ./
-      with:
-        milliseconds: 1000
+      run: yarn format:check
