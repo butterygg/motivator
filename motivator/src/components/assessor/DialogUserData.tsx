@@ -81,7 +81,7 @@ export function DialogUserData({ user }: Props) {
                         <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                             Trading
                         </Label>
-                        <div className="grid grid-cols-2 gap-2 grid-flow-col p-2">
+                        <div className="grid gap-2 lg:grid-flow-col p-2">
                             <PNLChart title={'PNL'} value={'25000'} />
                             <VolumeChart title={'Volume'} value={'25000'} />
                             {/* <PNLChart title={'Volume'} value={'25000'} /> */}
@@ -91,7 +91,7 @@ export function DialogUserData({ user }: Props) {
                         <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                             Liquidity Providing
                         </Label>
-                        <div className="grid gap-2 grid-flow-col p-2">
+                        <div className="grid gap-2 lg:grid-flow-col p-2">
                             <PNLChart title={'PNL'} value={'25000'} />
                             <VolumeChart title={'Volume'} value={'25000'} />
                             {/* <PNLChart title={'Volume'} value={'25000'} /> */}
