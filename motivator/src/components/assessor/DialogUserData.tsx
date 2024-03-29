@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import {
     Dialog,
     DialogContent,
+    DialogContentCustom,
     DialogDescription,
     DialogFooter,
     DialogHeader,
@@ -25,28 +26,15 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { PNLChart } from '../statistics/PNLChart'
+import { Separator } from '../ui/separator'
+import { VolumeChart } from '../statistics/VolumeChart'
 
 type Props = {
     user: User
-    assessorSlotId: string
 }
 
-export function DialogUserData({ user, assessorSlotId }: Props) {
-    const [points, setPoints] = useState(
-        user.reward?.amount ? user.reward.amount : 0
-    )
-    // const { mutate, error, data } = useAddRewardUsers({
-    //     assessorSlot: assessorSlotId,
-    //     userAddr: user.addressName,
-    //     value: points ? points : 0,
-    // })
-    // const handleSubmit = () => {
-    //     mutate()
-    //     console.log('error', error, 'data', data)
-    // }
-    // const handleOnChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setPoints(parseInt(e.target.value))
-    // }
+export function DialogUserData({ user }: Props) {
     return (
         <Dialog>
             <TooltipProvider>
@@ -63,7 +51,8 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <DialogContent className="sm:max-w-[625px] sm:w-fit">
+            {/* <DialogContent className="sm:max-w-[625px] sm:w-fit overflow-auto"> */}
+            <DialogContentCustom className="w-full overflow-auto">
                 <DialogHeader>
                     <DialogTitle>
                         <AddrAvatar addressName={user.addressName} />
@@ -87,6 +76,28 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
                         />
                     </div>
                 </div>
+                <>
+                    <div className="p-5 ">
+                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                            Trading
+                        </Label>
+                        <div className="grid grid-cols-2 gap-2 grid-flow-col p-2">
+                            <PNLChart title={'PNL'} value={'25000'} />
+                            <VolumeChart title={'Volume'} value={'25000'} />
+                            {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                        </div>
+                    </div>
+                    <div className="p-5 mt-3 ">
+                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                            Liquidity Providing
+                        </Label>
+                        <div className="grid gap-2 grid-flow-col p-2">
+                            <PNLChart title={'PNL'} value={'25000'} />
+                            <VolumeChart title={'Volume'} value={'25000'} />
+                            {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                        </div>
+                    </div>
+                </>
 
                 {/* <DialogFooter className="flex-row justify-between w-full">
                     <div className="align-top flex gap-2 w-fit">
@@ -101,7 +112,7 @@ export function DialogUserData({ user, assessorSlotId }: Props) {
                         <Button onClick={() => handleSubmit()}>Reward</Button>
                     </div>
                 </DialogFooter> */}
-            </DialogContent>
+            </DialogContentCustom>
         </Dialog>
     )
 }
