@@ -57,4 +57,5 @@ export const statistics = pgTable('statistics', {
     volume_long: integer('volume_long').default(0),
     volume_short: integer('volume_short').default(0),
     volume_lp: integer('volume_lp').default(0),
+    week: integer('week').default(0),
 })
