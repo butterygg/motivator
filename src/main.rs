@@ -155,6 +155,66 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Arc::new(provider);
     let hyperdrive_4626 = i_hyperdrive::IHyperdrive::new(HYPERDRIVE_4626_ADDR, client.clone());
     let current_block = client.get_block_number().await? - 1;
+
+    let longs_for_load = longs.clone();
+    let shorts_for_load = shorts.clone();
+    let lps_for_load = lps.clone();
+    read_hyperdrive_events(
+        longs_for_load,
+        shorts_for_load,
+        lps_for_load,
+        client,
+        hyperdrive_4626,
+        current_block,
+    )
+    .await?;
+
+    write_hyperdrive_events(longs, shorts, lps);
+
+    // for block_num in 0..=current_block.as_u64() {
+    //     // Fetch logs directly using the provider and the filter
+    //     let logs = provider.get_logs(&open_long_filter.into()).await?;
+    // }
+
+    // for block_num in 0..=current_block.as_u64() {
+    //     if let Ok(events) = hyperdrive_4626.
+    //         .query_filter(open_long_filter.clone(), block_num, block_num)
+    //         .await
+    //     {
+    //         for event in events {
+    //             on_open_long(client, longs, event, block_num);
+    //         }
+    //     }
+
+    //     if let Ok(events) = hyperdrive_4626
+    //         .query_filter(open_short_filter.clone(), block_num, block_num)
+    //         .await
+    //     {
+    //         for event in events {
+    //             on_open_short(client, longs, event, block_num);
+    //         }
+    //     }
+
+    //     if let Ok(events) = hyperdrive_4626
+    //         .query_filter(add_liquidity_filter.clone(), block_num, block_num)
+    //         .await
+    //     {
+    //         for event in events {
+    //             on_add_liquidity(client, longs, event, block_num);
+    //         }
+    //     }
+    // }
+    Ok(())
+}
+
+async fn read_hyperdrive_events(
+    longs: Arc<DashMap<LongKey, Long>>,
+    shorts: Arc<DashMap<ShortKey, Short>>,
+    lps: Arc<DashMap<LpKey, Lp>>,
+    client: Arc<Provider<Ws>>,
+    hyperdrive_4626: i_hyperdrive::IHyperdrive<Provider<Ws>>,
+    current_block: U64,
+) -> Result<(), Box<dyn std::error::Error>> {
     let events = hyperdrive_4626
         .events()
         .from_block(FROM_BLOCK)
@@ -193,7 +253,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             break;
         }
     }
+    Ok(())
+}
 
+fn write_hyperdrive_events(
+    longs: Arc<DashMap<LongKey, Long>>,
+    shorts: Arc<DashMap<ShortKey, Short>>,
+    lps: Arc<DashMap<LpKey, Lp>>,
+) {
     let longs_map: HashMap<String, Long> = Arc::try_unwrap(longs)
         .unwrap()
         .into_iter()
@@ -221,41 +288,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "-- START LPs --\n{}\n-- END LPs --",
         serde_json::to_string_pretty(&lps_map).unwrap()
     );
-
-    // for block_num in 0..=current_block.as_u64() {
-    //     // Fetch logs directly using the provider and the filter
-    //     let logs = provider.get_logs(&open_long_filter.into()).await?;
-    // }
-
-    // for block_num in 0..=current_block.as_u64() {
-    //     if let Ok(events) = hyperdrive_4626.
-    //         .query_filter(open_long_filter.clone(), block_num, block_num)
-    //         .await
-    //     {
-    //         for event in events {
-    //             on_open_long(client, longs, event, block_num);
-    //         }
-    //     }
-
-    //     if let Ok(events) = hyperdrive_4626
-    //         .query_filter(open_short_filter.clone(), block_num, block_num)
-    //         .await
-    //     {
-    //         for event in events {
-    //             on_open_short(client, longs, event, block_num);
-    //         }
-    //     }
-
-    //     if let Ok(events) = hyperdrive_4626
-    //         .query_filter(add_liquidity_filter.clone(), block_num, block_num)
-    //         .await
-    //     {
-    //         for event in events {
-    //             on_add_liquidity(client, longs, event, block_num);
-    //         }
-    //     }
-    // }
-    Ok(())
 }
 
 async fn on_open_long(
