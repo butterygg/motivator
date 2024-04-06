@@ -1,5 +1,7 @@
 use std::error::Error;
 // use std::fs::File;
+use std::collections::HashMap;
+use std::fmt::{self, Display, Formatter};
 use std::sync::Arc;
 
 use chrono::{TimeZone, Utc};
@@ -39,6 +41,8 @@ fn timestamp_to_string(timestamp: U256) -> String {
 /// Infra artifacts expected
 const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
 
+const FROM_BLOCK: u64 = 0;
+
 // [XXX] Are we bookeeping the right amounts?
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Long {
@@ -47,10 +51,16 @@ struct Long {
     openings: Vec<OpenLong>,
     closings: Vec<CloseLong>,
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 struct LongKey {
     trader: H160,
     maturity_time: U256,
+}
+impl Display for LongKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "0x{:x}-0x{:x}", self.trader, self.maturity_time)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -74,11 +84,16 @@ struct Short {
     openings: Vec<OpenShort>,
     closings: Vec<CloseShort>,
 }
-// [XXX] Are we bookeeping the right amounts?
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 struct ShortKey {
     trader: H160,
     maturity_time: U256,
+}
+impl Display for ShortKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "0x{:x}-0x{:x}", self.trader, self.maturity_time)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -101,10 +116,15 @@ struct Lp {
     addings: Vec<AddLiquidity>,
     removings: Vec<RemoveLiquidity>,
 }
-// [XXX] Are we bookeeping the right amounts?
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 struct LpKey {
     provider: H160,
+}
+impl Display for LpKey {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "0x{:x}", self.provider)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -133,171 +153,108 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
         .unwrap();
     let client = Arc::new(provider);
-
     let hyperdrive_4626 = i_hyperdrive::IHyperdrive::new(HYPERDRIVE_4626_ADDR, client.clone());
+    let current_block = client.get_block_number().await? - 1;
+    let events = hyperdrive_4626
+        .events()
+        .from_block(FROM_BLOCK)
+        .to_block(current_block);
 
-    let hyperdrive_4626_for_open_long = hyperdrive_4626.clone();
-    let client_for_open_long = client.clone();
-    let longs_for_open_long = longs.clone();
-    let open_long_task = tokio::spawn(async move {
-        let open_long_filter = hyperdrive_4626_for_open_long.open_long_filter();
-        let open_long_sub = open_long_filter.stream_with_meta().await.unwrap();
-        open_long_sub
-            .for_each_concurrent(None, move |item| {
-                let client = client_for_open_long.clone();
-                let longs = longs_for_open_long.clone();
-                async move {
-                    match item {
-                        Ok((event, meta)) => {
-                            if let Err(e) = on_open_long(client, longs, event, meta).await {
-                                eprintln!("Error writing event to file {:?}", e);
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("Error processing event: {:?}", e);
-                        }
-                    }
-                }
-            })
-            .await;
-    });
+    let mut stream = events.stream_with_meta().await?;
+    while let Some(Ok((evt, meta))) = stream.next().await {
+        let client = client.clone();
+        let longs = longs.clone();
+        let shorts = shorts.clone();
+        let lps = lps.clone();
+        let m = meta.clone();
+        match evt {
+            i_hyperdrive::IHyperdriveEvents::OpenLongFilter(event) => {
+                let _ = on_open_long(client, longs, event, m).await;
+            }
+            i_hyperdrive::IHyperdriveEvents::OpenShortFilter(event) => {
+                let _ = on_open_short(client, shorts, event, m).await;
+            }
+            i_hyperdrive::IHyperdriveEvents::AddLiquidityFilter(event) => {
+                let _ = on_add_liquidity(client, lps, event, m).await;
+            }
+            i_hyperdrive::IHyperdriveEvents::CloseLongFilter(event) => {
+                let _ = on_close_long(client, longs, event, m).await;
+            }
+            i_hyperdrive::IHyperdriveEvents::CloseShortFilter(event) => {
+                let _ = on_close_short(client, shorts, event, m).await;
+            }
+            i_hyperdrive::IHyperdriveEvents::RemoveLiquidityFilter(event) => {
+                let _ = on_remove_liquidity(client, lps, event, m).await;
+            }
+            _ => (),
+        }
 
-    let hyperdrive_4626_for_close_long = hyperdrive_4626.clone();
-    let client_for_close_long = client.clone();
-    let longs_for_close_long = longs.clone();
-    let close_long_task = tokio::spawn(async move {
-        let close_long_filter = hyperdrive_4626_for_close_long.close_long_filter();
-        let close_long_sub = close_long_filter.stream_with_meta().await.unwrap();
-        close_long_sub
-            .for_each_concurrent(None, move |item| {
-                let client = client_for_close_long.clone();
-                let longs = longs_for_close_long.clone();
-                async move {
-                    match item {
-                        Ok((event, meta)) => {
-                            if let Err(e) = on_close_long(client, longs, event, meta).await {
-                                eprintln!("Error writing event to file {:?}", e);
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("Error processing event: {:?}", e);
-                        }
-                    }
-                }
-            })
-            .await;
-    });
+        if meta.block_number >= current_block {
+            break;
+        }
+    }
 
-    let hyperdrive_4626_for_open_short = hyperdrive_4626.clone();
-    let client_for_open_short = client.clone();
-    let shorts_for_open_short = shorts.clone();
-    let open_short_task = tokio::spawn(async move {
-        let open_short_filter = hyperdrive_4626_for_open_short.open_short_filter();
-        let open_short_sub = open_short_filter.stream_with_meta().await.unwrap();
-        open_short_sub
-            .for_each_concurrent(None, move |item| {
-                let client = client_for_open_short.clone();
-                let shorts = shorts_for_open_short.clone();
-                async move {
-                    match item {
-                        Ok((event, meta)) => {
-                            if let Err(e) = on_open_short(client, shorts, event, meta).await {
-                                eprintln!("Error writing event to file: {:?}", e);
-                            }
-                        }
-                        Err(e) => eprintln!("Error processing event: {:?}", e),
-                    }
-                }
-            })
-            .await;
-    });
-
-    let hyperdrive_4626_for_close_short = hyperdrive_4626.clone();
-    let client_for_close_short = client.clone();
-    let shorts_for_close_short = shorts.clone();
-    let close_short_task = tokio::spawn(async move {
-        let close_short_filter = hyperdrive_4626_for_close_short.close_short_filter();
-        let close_short_sub = close_short_filter.stream_with_meta().await.unwrap();
-        close_short_sub
-            .for_each_concurrent(None, move |item| {
-                let client = client_for_close_short.clone();
-                let shorts = shorts_for_close_short.clone();
-                async move {
-                    match item {
-                        Ok((event, meta)) => {
-                            if let Err(e) = on_close_short(client, shorts, event, meta).await {
-                                eprintln!("Error writing event to file: {:?}", e);
-                            }
-                        }
-                        Err(e) => eprintln!("Error processing event: {:?}", e),
-                    }
-                }
-            })
-            .await;
-    });
-
-    let hyperdrive_4626_for_add_liquidity = hyperdrive_4626.clone();
-    let client_for_add_liqudity = client.clone();
-    let lps_for_add_liquidity = lps.clone();
-    let add_liquidity_task = tokio::spawn(async move {
-        let add_liquidity_filter = hyperdrive_4626_for_add_liquidity.add_liquidity_filter();
-        let add_liquidity_sub = add_liquidity_filter.stream_with_meta().await.unwrap();
-        add_liquidity_sub
-            .for_each_concurrent(None, move |item| {
-                let client = client_for_add_liqudity.clone();
-                let lps = lps_for_add_liquidity.clone();
-                async move {
-                    match item {
-                        Ok((event, meta)) => {
-                            if let Err(e) = on_add_liquidity(client, lps, event, meta).await {
-                                eprintln!("Error writing event to file {:?}", e);
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("Error processing event: {:?}", e);
-                        }
-                    }
-                }
-            })
-            .await;
-    });
-
-    let hyperdrive_4626_for_remove_liquidity = hyperdrive_4626.clone();
-    let client_for_remove_liqudity = client.clone();
-    let lps_for_remove_liquidity = lps.clone();
-    let remove_liquidity_task = tokio::spawn(async move {
-        let remove_liquidity_filter =
-            hyperdrive_4626_for_remove_liquidity.remove_liquidity_filter();
-        let remove_liquidity_sub = remove_liquidity_filter.stream_with_meta().await.unwrap();
-        remove_liquidity_sub
-            .for_each_concurrent(None, move |item| {
-                let client = client_for_remove_liqudity.clone();
-                let lps = lps_for_remove_liquidity.clone();
-                async move {
-                    match item {
-                        Ok((event, meta)) => {
-                            if let Err(e) = on_remove_liquidity(client, lps, event, meta).await {
-                                eprintln!("Error writing event to file {:?}", e);
-                            }
-                        }
-                        Err(e) => {
-                            eprintln!("Error processing event: {:?}", e);
-                        }
-                    }
-                }
-            })
-            .await;
-    });
-
-    let _ = tokio::join!(
-        open_long_task,
-        close_long_task,
-        open_short_task,
-        close_short_task,
-        add_liquidity_task,
-        remove_liquidity_task
+    let longs_map: HashMap<String, Long> = Arc::try_unwrap(longs)
+        .unwrap()
+        .into_iter()
+        .map(|(key, value)| (key.to_string(), value))
+        .collect();
+    println!(
+        "-- START LONGS --\n{}\n-- END LONGS --",
+        serde_json::to_string_pretty(&longs_map).unwrap()
+    );
+    let shorts_map: HashMap<String, Short> = Arc::try_unwrap(shorts)
+        .unwrap()
+        .into_iter()
+        .map(|(key, value)| (key.to_string(), value))
+        .collect();
+    println!(
+        "-- START SHORTS --\n{}\n-- END SHORTS --",
+        serde_json::to_string_pretty(&shorts_map).unwrap()
+    );
+    let lps_map: HashMap<String, Lp> = Arc::try_unwrap(lps)
+        .unwrap()
+        .into_iter()
+        .map(|(key, value)| (key.to_string(), value))
+        .collect();
+    println!(
+        "-- START LPs --\n{}\n-- END LPs --",
+        serde_json::to_string_pretty(&lps_map).unwrap()
     );
 
+    // for block_num in 0..=current_block.as_u64() {
+    //     // Fetch logs directly using the provider and the filter
+    //     let logs = provider.get_logs(&open_long_filter.into()).await?;
+    // }
+
+    // for block_num in 0..=current_block.as_u64() {
+    //     if let Ok(events) = hyperdrive_4626.
+    //         .query_filter(open_long_filter.clone(), block_num, block_num)
+    //         .await
+    //     {
+    //         for event in events {
+    //             on_open_long(client, longs, event, block_num);
+    //         }
+    //     }
+
+    //     if let Ok(events) = hyperdrive_4626
+    //         .query_filter(open_short_filter.clone(), block_num, block_num)
+    //         .await
+    //     {
+    //         for event in events {
+    //             on_open_short(client, longs, event, block_num);
+    //         }
+    //     }
+
+    //     if let Ok(events) = hyperdrive_4626
+    //         .query_filter(add_liquidity_filter.clone(), block_num, block_num)
+    //         .await
+    //     {
+    //         for event in events {
+    //             on_add_liquidity(client, longs, event, block_num);
+    //         }
+    //     }
+    // }
     Ok(())
 }
 
@@ -423,6 +380,7 @@ async fn on_open_short(
 
     Ok(())
 }
+
 async fn on_close_short(
     client: Arc<Provider<Ws>>,
     shorts: Arc<DashMap<ShortKey, Short>>,
