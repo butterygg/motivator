@@ -13,7 +13,6 @@ use ethers::{
 use futures::StreamExt;
 use hex_literal::hex;
 use serde::{Deserialize, Serialize};
-// use tokio::sync::Mutex;
 use tracing::info;
 
 // use hyperdrive_math::State;
@@ -39,14 +38,6 @@ fn timestamp_to_string(timestamp: U256) -> String {
 //const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("6949c3f59634E94B659486648848Cd3f112AD098"));
 /// Infra artifacts expected
 const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
-
-// #[derive(Serialize)]
-// struct EventRecord {
-//     block_number: String,
-//     address: H160,
-//     type_: String,
-//     data: String,
-// }
 
 // [XXX] Are we bookeeping the right amounts?
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -123,9 +114,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let shorts = Arc::new(DashMap::new());
     let lps = Arc::new(DashMap::new());
 
-    // let file = File::create("events.csv")?;
-    // let writer = Arc::new(Mutex::new(Writer::from_writer(file)));
-
     let provider = Provider::<Ws>::connect("ws://localhost:8545")
         .await
         .unwrap();
@@ -135,7 +123,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hyperdrive_4626_for_open_long = hyperdrive_4626.clone();
     let client_for_open_long = client.clone();
-    // let writer_for_open_long = writer.clone();
     let longs_for_open_long = longs.clone();
     let open_long_task = tokio::spawn(async move {
         let open_long_filter = hyperdrive_4626_for_open_long.open_long_filter();
@@ -143,7 +130,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         open_long_sub
             .for_each_concurrent(None, move |item| {
                 let client = client_for_open_long.clone();
-                // let writer = writer_for_open_long.clone();
                 let longs = longs_for_open_long.clone();
                 async move {
                     match item {
@@ -163,7 +149,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hyperdrive_4626_for_close_long = hyperdrive_4626.clone();
     let client_for_close_long = client.clone();
-    // let writer_for_close_long = writer.clone();
     let longs_for_close_long = longs.clone();
     let close_long_task = tokio::spawn(async move {
         let close_long_filter = hyperdrive_4626_for_close_long.close_long_filter();
@@ -171,7 +156,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         close_long_sub
             .for_each_concurrent(None, move |item| {
                 let client = client_for_close_long.clone();
-                // let writer = writer_for_close_long.clone();
                 let longs = longs_for_close_long.clone();
                 async move {
                     match item {
@@ -191,7 +175,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hyperdrive_4626_for_open_short = hyperdrive_4626.clone();
     let client_for_open_short = client.clone();
-    // let writer_for_open_short = writer.clone();
     let shorts_for_open_short = shorts.clone();
     let open_short_task = tokio::spawn(async move {
         let open_short_filter = hyperdrive_4626_for_open_short.open_short_filter();
@@ -199,7 +182,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         open_short_sub
             .for_each_concurrent(None, move |item| {
                 let client = client_for_open_short.clone();
-                // let writer = writer_for_open_short.clone();
                 let shorts = shorts_for_open_short.clone();
                 async move {
                     match item {
@@ -217,7 +199,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hyperdrive_4626_for_close_short = hyperdrive_4626.clone();
     let client_for_close_short = client.clone();
-    // let writer_for_close_short = writer.clone();
     let shorts_for_close_short = shorts.clone();
     let close_short_task = tokio::spawn(async move {
         let close_short_filter = hyperdrive_4626_for_close_short.close_short_filter();
@@ -225,7 +206,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         close_short_sub
             .for_each_concurrent(None, move |item| {
                 let client = client_for_close_short.clone();
-                // let writer = writer_for_close_short.clone();
                 let shorts = shorts_for_close_short.clone();
                 async move {
                     match item {
@@ -243,7 +223,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hyperdrive_4626_for_add_liquidity = hyperdrive_4626.clone();
     let client_for_add_liqudity = client.clone();
-    // let writer_for_add_liquidity = writer.clone();
     let lps_for_add_liquidity = lps.clone();
     let add_liquidity_task = tokio::spawn(async move {
         let add_liquidity_filter = hyperdrive_4626_for_add_liquidity.add_liquidity_filter();
@@ -251,7 +230,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         add_liquidity_sub
             .for_each_concurrent(None, move |item| {
                 let client = client_for_add_liqudity.clone();
-                // let writer = writer_for_add_liquidity.clone();
                 let lps = lps_for_add_liquidity.clone();
                 async move {
                     match item {
@@ -271,7 +249,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let hyperdrive_4626_for_remove_liquidity = hyperdrive_4626.clone();
     let client_for_remove_liqudity = client.clone();
-    // let writer_for_remove_liquidity = writer.clone();
     let lps_for_remove_liquidity = lps.clone();
     let remove_liquidity_task = tokio::spawn(async move {
         let remove_liquidity_filter =
@@ -280,7 +257,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         remove_liquidity_sub
             .for_each_concurrent(None, move |item| {
                 let client = client_for_remove_liqudity.clone();
-                // let writer = writer_for_remove_liquidity.clone();
                 let lps = lps_for_remove_liquidity.clone();
                 async move {
                     match item {
@@ -310,20 +286,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// async fn write_event(
-//     writer: Arc<Mutex<Writer<File>>>,
-//     event_record: EventRecord,
-// ) -> Result<(), Box<dyn Error>> {
-//     let mut wtr = writer.lock().await;
-//     wtr.serialize(event_record)?;
-//     wtr.flush()?;
-//     Ok(())
-// }
-
 async fn on_open_long(
     client: Arc<Provider<Ws>>,
     longs: Arc<DashMap<LongKey, Long>>,
-    // writer: Arc<Mutex<Writer<File>>>,
     event: i_hyperdrive::OpenLongFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
@@ -359,20 +324,11 @@ async fn on_open_long(
         .or_insert(pos);
 
     Ok(())
-
-    // let event_record = EventRecord {
-    //     block_number: meta.block_number.to_string(),
-    //     address: event.trader,
-    //     type_: "CloseLong".into(),
-    //     data: serde_json::to_string(&event)?,
-    // };
-    // write_event(writer, event_record).await
 }
 
 async fn on_close_long(
     client: Arc<Provider<Ws>>,
     longs: Arc<DashMap<LongKey, Long>>,
-    // writer: Arc<Mutex<Writer<File>>>,
     event: i_hyperdrive::CloseLongFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
@@ -383,13 +339,6 @@ async fn on_close_long(
         as_base=%event.as_base,
         "CloseLong"
     );
-
-    // let event_record = EventRecord {
-    //     block_number: meta.block_number.to_string(),
-    //     address: event.trader,
-    //     type_: "CloseLong".into(),
-    //     data: serde_json::to_string(&event)?,
-    // };
 
     let pos_key = LongKey {
         trader: event.trader,
@@ -415,13 +364,11 @@ async fn on_close_long(
         });
 
     Ok(())
-    // write_event(writer, event_record).await
 }
 
 async fn on_open_short(
     client: Arc<Provider<Ws>>,
     shorts: Arc<DashMap<ShortKey, Short>>,
-    // writer: Arc<Mutex<Writer<File>>>,
     event: i_hyperdrive::OpenShortFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
@@ -457,20 +404,10 @@ async fn on_open_short(
         .or_insert(pos);
 
     Ok(())
-
-    // let event_record = EventRecord {
-    //     block_number: meta.block_number.to_string(),
-    //     address: event.trader,
-    //     type_: "OpenShort".into(),
-    //     data: serde_json::to_string(&event)?,
-    // };
-
-    // write_event(writer, event_record).await
 }
 async fn on_close_short(
     client: Arc<Provider<Ws>>,
     shorts: Arc<DashMap<ShortKey, Short>>,
-    // writer: Arc<Mutex<Writer<File>>>,
     event: i_hyperdrive::CloseShortFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
@@ -506,20 +443,11 @@ async fn on_close_short(
         });
 
     Ok(())
-
-    // let event_record = EventRecord {
-    //     block_number: meta.block_number.to_string(),
-    //     address: event.trader,
-    //     type_: "CloseShort".into(),
-    //     data: serde_json::to_string(&event)?,
-    // };
-    // write_event(writer, event_record).await
 }
 
 async fn on_add_liquidity(
     client: Arc<Provider<Ws>>,
     lps: Arc<DashMap<LpKey, Lp>>,
-    // writer: Arc<Mutex<Writer<File>>>,
     event: i_hyperdrive::AddLiquidityFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
@@ -552,19 +480,11 @@ async fn on_add_liquidity(
         .or_insert(pos);
 
     Ok(())
-
-    // let event_record = EventRecord {
-    //     block_number: meta.block_number.to_string(),
-    //     address: event.provider,
-    //     type_: "AddLiquidity".into(),
-    //     data: serde_json::to_string(&event)?,
-    // };
-    // write_event(writer, event_record).await
 }
+
 async fn on_remove_liquidity(
     client: Arc<Provider<Ws>>,
     lps: Arc<DashMap<LpKey, Lp>>,
-    // writer: Arc<Mutex<Writer<File>>>,
     event: i_hyperdrive::RemoveLiquidityFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
@@ -598,12 +518,4 @@ async fn on_remove_liquidity(
         });
 
     Ok(())
-
-    // let event_record = EventRecord {
-    //     block_number: meta.block_number.to_string(),
-    //     address: event.provider,
-    //     type_: "RemoveLiquidity".into(),
-    //     data: serde_json::to_string(&event)?,
-    // };
-    // write_event(writer, event_record).await
 }
