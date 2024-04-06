@@ -43,10 +43,8 @@ const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca9
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Long {
     trader: H160,
-    block_number: U64,
-    time: U256,
     maturity_time: U256,
-    base_amount: U256,
+    openings: Vec<OpenLong>,
     closings: Vec<CloseLong>,
 }
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
@@ -55,7 +53,14 @@ struct LongKey {
     maturity_time: U256,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+struct OpenLong {
+    block_number: U64,
+    time: U256,
+    base_amount: U256,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct CloseLong {
     block_number: U64,
     time: U256,
@@ -65,10 +70,8 @@ struct CloseLong {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Short {
     trader: H160,
-    block_number: U64,
-    time: U256,
     maturity_time: U256,
-    base_amount: U256,
+    openings: Vec<OpenShort>,
     closings: Vec<CloseShort>,
 }
 // [XXX] Are we bookeeping the right amounts?
@@ -78,7 +81,14 @@ struct ShortKey {
     maturity_time: U256,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+struct OpenShort {
+    block_number: U64,
+    time: U256,
+    base_amount: U256,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct CloseShort {
     block_number: U64,
     time: U256,
@@ -88,9 +98,7 @@ struct CloseShort {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct Lp {
     provider: H160,
-    block_number: U64,
-    time: U256,
-    base_amount: U256,
+    addings: Vec<AddLiquidity>,
     removings: Vec<RemoveLiquidity>,
 }
 // [XXX] Are we bookeeping the right amounts?
@@ -99,7 +107,14 @@ struct LpKey {
     provider: H160,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+struct AddLiquidity {
+    block_number: U64,
+    time: U256,
+    base_amount: U256,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct RemoveLiquidity {
     block_number: U64,
     time: U256,
@@ -300,28 +315,30 @@ async fn on_open_long(
         "OpenLong",
     );
 
-    let pos = Long {
+    let key = LongKey {
         trader: event.trader,
-        block_number: meta.block_number,
-        time: client
-            .get_block(meta.block_number)
-            .await?
-            .unwrap()
-            .timestamp,
         maturity_time: event.maturity_time,
+    };
+    let block_time = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let opening = OpenLong {
+        block_number: meta.block_number,
+        time: block_time,
         base_amount: event.base_amount,
+    };
+    let long = Long {
+        trader: event.trader,
+        maturity_time: event.maturity_time,
+        openings: vec![opening],
         closings: vec![],
     };
-    let pos_key = LongKey {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-    };
     longs
-        .entry(pos_key)
-        .and_modify(|existing_pos| {
-            existing_pos.base_amount += event.base_amount;
-        })
-        .or_insert(pos);
+        .entry(key)
+        .and_modify(|existing| existing.openings.push(opening))
+        .or_insert(long);
 
     Ok(())
 }
@@ -340,27 +357,26 @@ async fn on_close_long(
         "CloseLong"
     );
 
-    let pos_key = LongKey {
+    let key = LongKey {
         trader: event.trader,
         maturity_time: event.maturity_time,
     };
+    let key_repr = serde_json::to_string(&key)?;
     let block_time = client
         .get_block(meta.block_number)
         .await?
         .unwrap()
         .timestamp;
-    let pos_key_repr = serde_json::to_string(&pos_key)?;
+    let closing = CloseLong {
+        block_number: meta.block_number,
+        time: block_time,
+        base_amount: event.base_amount,
+    };
     longs
-        .entry(pos_key)
-        .and_modify(|existing_pos| {
-            existing_pos.closings.push(CloseLong {
-                block_number: meta.block_number,
-                time: block_time,
-                base_amount: event.base_amount,
-            })
-        })
+        .entry(key)
+        .and_modify(|existing| existing.closings.push(closing))
         .or_insert_with(|| {
-            panic!("CloseLong position doesn't exist: {}", pos_key_repr);
+            panic!("CloseLong position doesn't exist: {}", key_repr);
         });
 
     Ok(())
@@ -380,28 +396,30 @@ async fn on_open_short(
         "OpenShort"
     );
 
-    let pos = Short {
+    let key = ShortKey {
         trader: event.trader,
-        block_number: meta.block_number,
-        time: client
-            .get_block(meta.block_number)
-            .await?
-            .unwrap()
-            .timestamp,
         maturity_time: event.maturity_time,
+    };
+    let block_time = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let opening = OpenShort {
+        block_number: meta.block_number,
+        time: block_time,
         base_amount: event.base_amount,
+    };
+    let short = Short {
+        trader: event.trader,
+        maturity_time: event.maturity_time,
+        openings: vec![opening],
         closings: vec![],
     };
-    let pos_key = ShortKey {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-    };
     shorts
-        .entry(pos_key)
-        .and_modify(|existing_pos| {
-            existing_pos.base_amount += event.base_amount;
-        })
-        .or_insert(pos);
+        .entry(key)
+        .and_modify(|existing| existing.openings.push(opening))
+        .or_insert(short);
 
     Ok(())
 }
@@ -419,27 +437,26 @@ async fn on_close_short(
         "CloseShort"
     );
 
-    let pos_key = ShortKey {
+    let key = ShortKey {
         trader: event.trader,
         maturity_time: event.maturity_time,
     };
+    let key_repr = serde_json::to_string(&key)?;
     let block_time = client
         .get_block(meta.block_number)
         .await?
         .unwrap()
         .timestamp;
-    let pos_key_repr = serde_json::to_string(&pos_key)?;
+    let closing = CloseShort {
+        block_number: meta.block_number,
+        time: block_time,
+        base_amount: event.base_amount,
+    };
     shorts
-        .entry(pos_key)
-        .and_modify(|existing_pos| {
-            existing_pos.closings.push(CloseShort {
-                block_number: meta.block_number,
-                time: block_time,
-                base_amount: event.base_amount,
-            })
-        })
+        .entry(key)
+        .and_modify(|existing| existing.closings.push(closing))
         .or_insert_with(|| {
-            panic!("CloseShort position doesn't exist: {}", pos_key_repr);
+            panic!("CloseShort position doesn't exist: {}", key_repr);
         });
 
     Ok(())
@@ -459,25 +476,27 @@ async fn on_add_liquidity(
         "AddLiquidity"
     );
 
-    let pos = Lp {
+    let key = LpKey {
         provider: event.provider,
+    };
+    let block_time = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let adding = AddLiquidity {
         block_number: meta.block_number,
-        time: client
-            .get_block(meta.block_number)
-            .await?
-            .unwrap()
-            .timestamp,
+        time: block_time,
         base_amount: event.base_amount,
+    };
+    let lp = Lp {
+        provider: event.provider,
+        addings: vec![adding],
         removings: vec![],
     };
-    let pos_key = LpKey {
-        provider: event.provider,
-    };
-    lps.entry(pos_key)
-        .and_modify(|existing_pos| {
-            existing_pos.base_amount += event.base_amount;
-        })
-        .or_insert(pos);
+    lps.entry(key)
+        .and_modify(|existing| existing.addings.push(adding))
+        .or_insert(lp);
 
     Ok(())
 }
@@ -496,25 +515,24 @@ async fn on_remove_liquidity(
         "RemoveLiquidity"
     );
 
-    let pos_key = LpKey {
+    let key = LpKey {
         provider: event.provider,
     };
+    let key_repr = serde_json::to_string(&key)?;
     let block_time = client
         .get_block(meta.block_number)
         .await?
         .unwrap()
         .timestamp;
-    let pos_key_repr = serde_json::to_string(&pos_key)?;
-    lps.entry(pos_key)
-        .and_modify(|existing_pos| {
-            existing_pos.removings.push(RemoveLiquidity {
-                block_number: meta.block_number,
-                time: block_time,
-                base_amount: event.base_amount,
-            })
-        })
+    let removing = RemoveLiquidity {
+        block_number: meta.block_number,
+        time: block_time,
+        base_amount: event.base_amount,
+    };
+    lps.entry(key)
+        .and_modify(|existing| existing.removings.push(removing))
         .or_insert_with(|| {
-            panic!("RemoveLiquidity position doesn't exist: {}", pos_key_repr);
+            panic!("RemoveLiquidity position doesn't exist: {}", key_repr);
         });
 
     Ok(())
