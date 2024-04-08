@@ -24,7 +24,11 @@ export async function randomizeAssessorSlot({
     const ratioVolume = 1.5
     const ratioActions = 3
 
-    const totalMultiplier = Number(process.env.TOTAL_MULTIPLIER)
+    const totalMultiplier = Number(
+        process.env.NEXT_PUBLIC_ASSESSOR_MULTIPLIER
+            ? process.env.NEXT_PUBLIC_ASSESSOR_MULTIPLIER
+            : 10
+    )
 
     type ScoreAndAddress = {
         score: number
