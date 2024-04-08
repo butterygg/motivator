@@ -49,7 +49,7 @@ export const assessor_slot_user = pgTable('assessor_slot_user', {
 })
 
 export const statistics = pgTable('statistics', {
-    id: uuid('id').unique().primaryKey(),
+    id: uuid('id').defaultRandom().unique().primaryKey(),
     timestamp: date('timestamp').default('now()'),
     user_address: text('user_address').references(() => user.address),
     pnl_long: integer('pnl_long').default(0),
