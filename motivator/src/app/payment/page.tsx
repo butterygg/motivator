@@ -2,10 +2,28 @@
 import React from 'react'
 import { Label } from '../../components/ui/label'
 import { Button } from '../../components/ui/button'
-
+import { useSendTransaction } from 'wagmi'
+import { Address, parseEther } from 'viem'
 type Props = {}
 
 const Payment = (props: Props) => {
+    const { sendTransactionAsync } = useSendTransaction({
+        mutation: {
+            onSuccess(data, variables, context) {
+                console.log('onSuccess')
+            },
+        },
+    })
+
+    const handleOnClick = async () => {
+        await sendTransactionAsync({
+            to: process.env.ADDRESS_RECEIVER
+                ? (process.env.ADDRESS_RECEIVER as Address)
+                : '0x',
+            value: parseEther('0.1'),
+        })
+    }
+
     const value = 0.1
     return (
         <section className="mx-auto w-fit p-12">
@@ -16,7 +34,11 @@ const Payment = (props: Props) => {
                         To acquire an assessor slots, you need to pay ${value}{' '}
                         $SETH
                     </Label>
-                    <Button variant={'submit'} className="w-1/2">
+                    <Button
+                        onClick={handleOnClick}
+                        variant={'submit'}
+                        className="w-1/2"
+                    >
                         Send ${value} $SETH
                     </Button>
                 </div>
