@@ -8,13 +8,18 @@ type Props = {}
 const Payment = (props: Props) => {
     const value = 0.1
     return (
-        <section className="lg-max:w-fit mx-auto lg:w-fit p-8">
-            <div className="rounded-md border">
-                <h2>Payment</h2>
-                <Label>
-                    To enable assessor slots, you need to pay ${value} $SETH
-                </Label>
-                <Button>Send ${value} $SETH</Button>
+        <section className="mx-auto w-fit p-12">
+            <div className="border rounded-md p-4">
+                <Label className="font-bold">Payment</Label>
+                <div className="mt-2 gap-4 items-center flex flex-col">
+                    <Label className="font-light">
+                        To acquire an assessor slots, you need to pay ${value}{' '}
+                        $SETH
+                    </Label>
+                    <Button variant={'submit'} className="w-1/2">
+                        Send ${value} $SETH
+                    </Button>
+                </div>
             </div>
         </section>
     )
