@@ -15,14 +15,7 @@ export async function randomizeAssessorSlot({
     /**
      * Get Number Actions and Total Volume for each Users
      * Use ponderation to get the total score of each user
-     * create pools of users with range of score
-     * use frequencies number assignated to each pools
-     * multiply the sum of all frequencies by the number of user and divide by 10 (the number of users by assessor slots)
-     * then use frequencies to fill the assessor slots with user regarding each frequency
-     * then define a composition of assessor slot model like 4 pool A 3 pool B 2 pool C 1 pool D
-     * then for each assessor slot use the pool composition to assign users to the assessor slot
-     * we will store the pool in an array and then parse the pool. When the pool will be parsed we will shuffle the pool to avoid same combination of users
-     *
+     * Normalize Score
      */
     // * Get Number Actions and Total Volume for each Users
     const numberAndActionsFromUsers = await db.query.stats.findMany()
