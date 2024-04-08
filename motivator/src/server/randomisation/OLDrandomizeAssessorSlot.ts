@@ -7,7 +7,7 @@ import { assessor_slot } from '@db/schema'
  * @param request Will contain an Array of [{assessorAddr: string}]
  * @param response Send the status of the transaction
  */
-export async function randomizeAssessorSlot({
+export async function OLDrandomizeAssessorSlot({
     assessorAddr,
 }: {
     assessorAddr: string
@@ -30,14 +30,10 @@ export async function randomizeAssessorSlot({
     // * Use ponderation to get the total score of each user
     const ratioVolume = 1.5
     const ratioActions = 3
-
-    const totalMultiplier = Number(process.env.TOTAL_MULTIPLIER)
-
     type ScoreAndAddress = {
         score: number
         address: string
     }
-    let sumOfScore = 0
     // * Assign Ponderation score to users and store them in an array
     const getScoreAndAddresseses: () => ScoreAndAddress[] = () => {
         const result: ScoreAndAddress[] = []
@@ -48,23 +44,61 @@ export async function randomizeAssessorSlot({
                     (element?.volume ? element.volume : 0 * ratioVolume),
                 address: element.user_address,
             })
-
-            sumOfScore += result[result.length - 1].score
-        })
-        // * Normalize the score
-        result.forEach((element) => {
-            element.score = (element.score / sumOfScore) * totalMultiplier
         })
         return result
     }
-    const generalPool: ScoreAndAddress[] = []
-    // append the pool to general pool foreach frequency
-    const cumulativeList = (list: ScoreAndAddress[]) => {
-        list.forEach((element) => {
-            for (let index = 0; index < element.score; index++) {
-                generalPool.push(element)
+
+    // * Define Range of Score
+
+    const rangeD = 100
+    const rangeC = 200
+    const rangeB = 300
+
+    type Pools = {
+        poolA: ScoreAndAddress[]
+        poolB: ScoreAndAddress[]
+        poolC: ScoreAndAddress[]
+        poolD: ScoreAndAddress[]
+    }
+
+    // * create pools of users with range of score
+    const poolA: ScoreAndAddress[] = []
+    const poolB: ScoreAndAddress[] = []
+    const poolC: ScoreAndAddress[] = []
+    const poolD: ScoreAndAddress[] = []
+    let pools: Pools = { poolA, poolB, poolC, poolD }
+
+    // * build pools
+    const getBuildPools = (scoreAndAddresses: ScoreAndAddress[]) => {
+        scoreAndAddresses.forEach((element) => {
+            if (element.score < rangeD) {
+                poolD.push(element)
+            } else if (element.score < rangeC) {
+                poolC.push(element)
+            } else if (element.score < rangeB) {
+                poolB.push(element)
+            } else {
+                poolA.push(element)
             }
         })
+        pools = { poolA, poolB, poolC, poolD }
+        return pools
+    }
+
+    // * use frequencies number assignated to each pools
+    const frequenciesPoolA = 4
+    const frequenciesPoolB = 3
+    const frequenciesPoolC = 2
+    const frequenciesPoolD = 1
+
+    const generalPool: ScoreAndAddress[] = []
+    // append the pool to general pool foreach frequency
+    const cumulativeList = (list: ScoreAndAddress[], frequency: number) => {
+        for (let index = 0; index < frequency; index++) {
+            list.forEach((element) => {
+                generalPool.push(element)
+            })
+        }
     }
 
     // Pick X users randomly from the pool and ensure that the same user is not picked twice
@@ -78,7 +112,6 @@ export async function randomizeAssessorSlot({
                     (element) => element.address === pool[randomIndex].address
                 )
             ) {
-                pool.splice(randomIndex, 1)
                 index--
                 continue
             }
@@ -91,7 +124,13 @@ export async function randomizeAssessorSlot({
     const randomizeAssessorSlot = async () => {
         // * Get the number of assessor slot
         const scoreAndAddresseses = getScoreAndAddresseses()
-        cumulativeList(scoreAndAddresseses)
+        const buildPools = getBuildPools(scoreAndAddresseses)
+        // * Use frequency to repeat the assignation of users the numbers needed
+        cumulativeList(buildPools.poolA, frequenciesPoolA)
+        cumulativeList(buildPools.poolB, frequenciesPoolB)
+        cumulativeList(buildPools.poolC, frequenciesPoolC)
+        cumulativeList(buildPools.poolD, frequenciesPoolD)
+
         return pickXUsersRandomly(generalPool, 10)
     }
 
