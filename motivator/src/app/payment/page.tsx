@@ -7,6 +7,7 @@ import { Address, parseEther } from 'viem'
 type Props = {}
 
 const Payment = (props: Props) => {
+    const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
     const { sendTransactionAsync } = useSendTransaction({
         mutation: {
             onSuccess(data, variables, context) {
@@ -20,11 +21,10 @@ const Payment = (props: Props) => {
             to: process.env.NEXT_PUBLIC_ADDRESS_RECEIVER
                 ? (process.env.NEXT_PUBLIC_ADDRESS_RECEIVER as Address)
                 : '0x0000000000000000000000000000000000000000',
-            value: parseEther('0.1'),
+            value: parseEther(value),
         })
     }
 
-    const value = 0.1
     return (
         <section className="mx-auto w-fit p-12">
             <div className="border rounded-md p-4">
