@@ -1,8 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import React from 'react'
-import { AssessorSlot } from '../../types/data/assessorSlot'
-import { getAssessorSlot } from '../../server/actions/assessor/getAssessorSlot'
-import { getPNLAndVolume } from '../../server/actions/statistics/getPNLAndVolume'
+import { getPNLAndVolume } from '@/server/actions/statistics/getPNLAndVolume'
 
 type Props = {
     userAddr: string

@@ -5,10 +5,8 @@ import { useSession } from 'next-auth/react'
 import { useAccount } from 'wagmi'
 import ConnectWalletCard from '@/components/signup/connectWalletCard'
 import StartAssessmentSlot from '@/components/signup/startAssessmentSlot'
-import { useGetAssessorSlotID } from '../hooks/assessorSlot/useGetAssessorSlotID'
-import { useGetNumberAssessorSlotAvailable } from '../hooks/assessorSlot/useGetNumberAssessorSlotAvailable'
 import { useRouter } from 'next/navigation'
-import { useGetAssessorSlot } from '../hooks/assessorSlot/useGetAssessorSlot'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 type Props = {}
 
 const Signup = (props: Props) => {
@@ -17,9 +15,6 @@ const Signup = (props: Props) => {
 
     // Using session hook to get status of user
     const { status: authenticationStatus } = useSession()
-
-    // Fetch slotsAvailable from API
-    const [slotsAvailable, setSlotsAvailable] = useState(0)
 
     const {
         data: assessorSlotID,
@@ -51,11 +46,7 @@ const Signup = (props: Props) => {
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
                 return (
-                    <StartAssessmentSlot
-                        week={weekNumber}
-                        slotsAvailable={0}
-                        weekmax={weekMax}
-                    />
+                    <StartAssessmentSlot week={weekNumber} weekmax={weekMax} />
                 )
         } else if (walletStatus === 'disconnected') {
             return <ConnectWalletCard />

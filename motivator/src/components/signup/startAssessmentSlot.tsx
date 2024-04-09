@@ -16,7 +16,6 @@ import { useRouter } from 'next/navigation'
 
 type Props = {
     week: number
-    slotsAvailable: number
     weekmax: number
 }
 
@@ -55,8 +54,7 @@ const StartAssessmentSlot = (props: Props) => {
                 Hyperdrive, or slashed if misaligned.
             </CardContent>
             <CardDescription className="p-4">
-                There are {props.slotsAvailable} slots still available. The more
-                assessments you do, the more rewards you accumulate.
+                The more assessments you do, the more rewards you accumulate.
             </CardDescription>
             <CardFooter className="p-4">
                 <Button
