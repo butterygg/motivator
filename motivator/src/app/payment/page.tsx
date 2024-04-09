@@ -1,16 +1,46 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { useAccount, useSendTransaction } from 'wagmi'
 import { Address, parseEther } from 'viem'
 import { handlePayment } from '@/server/actions/payment/handlePayment'
 import { useRouter } from 'next/navigation'
+import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
+import { useSession } from 'next-auth/react'
+import { RoundSpinner } from '@/components/ui/spinner'
 type Props = {}
 
 const Payment = (props: Props) => {
+    // Using wagmi hook to get status of user
     const { address } = useAccount()
+
+    // Using session hook to get status of user
+    const [assessorSlotFinded, setAssessorSlotFinded] = useState(false)
+    const {
+        data: assessorSlotID,
+        refetch,
+        status,
+    } = useGetAssessorSlot({
+        assessorAddr: address ? address : '',
+    })
     const { push } = useRouter()
+    useEffect(() => {
+        if (refetch) {
+            refetch()
+        }
+    }, [address, status])
+
+    useEffect(() => {
+        if (assessorSlotID?.res?.id) {
+            setAssessorSlotFinded(true)
+            setTimeout(() => {
+                push(`/assessor/slot/${assessorSlotID?.res?.id}`)
+            }, 2000)
+        }
+    }, [assessorSlotID])
+
     const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
     const { sendTransactionAsync } = useSendTransaction({
         mutation: {
@@ -40,8 +70,18 @@ const Payment = (props: Props) => {
         })
     }
 
-    return (
-        <section className="mx-auto w-fit p-12">
+    const handleDisplay = () => {
+        if (assessorSlotFinded) {
+            return (
+                <div>
+                    <RoundSpinner size="triplexl" />
+                    <Label className="font-bold">
+                        Assessor slot found, you will be redirected in 2 seconds
+                    </Label>
+                </div>
+            )
+        }
+        return (
             <div className="border rounded-md p-4">
                 <Label className="font-bold">Payment</Label>
                 <div className="mt-2 gap-4 items-center flex flex-col">
@@ -58,8 +98,10 @@ const Payment = (props: Props) => {
                     </Button>
                 </div>
             </div>
-        </section>
-    )
+        )
+    }
+
+    return <section className="mx-auto w-fit p-12">{handleDisplay()}</section>
 }
 
 export default Payment

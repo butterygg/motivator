@@ -32,9 +32,10 @@ const StartAssessmentSlot = (props: Props) => {
         })
 
     const handleStartAssessmentSlot = async () => {
-        await mutateSignAssessor()
-        const { res } = await mutateAssignAssessorSlot()
-        push(`/assessor/slot/${res?.id}`)
+        // await mutateSignAssessor()
+        // const { res } = await mutateAssignAssessorSlot()
+        push(`/payment`)
+        // push(`/assessor/slot/${res?.id}`)
         // setAssessorId(res?.id as string)
     }
 
