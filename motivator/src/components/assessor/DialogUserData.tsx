@@ -37,18 +37,18 @@ type Props = {
 }
 
 export type DataSetChartTrading = {
-    blockNumber: number | null
+    date: string | null
     Short: number | null
     Long: number | null
 }
 
 export type DataSetChartVolumeLP = {
-    blockNumber: number | null
+    date: string | null
     volume: number | null
 }
 
 export type DataSetChartPnlLP = {
-    blockNumber: number | null
+    date: string | null
     pnl: number | null
 }
 
@@ -82,7 +82,7 @@ export function DialogUserData({ user }: Props) {
         if (!data || !data.stats) return
         const result: DataSetChartTrading[] = data.stats.map((element) => {
             return {
-                blockNumber: element.block_number,
+                date: element.timestamp,
                 Short: element.pnl_short,
                 Long: element.pnl_long,
             }
@@ -94,7 +94,7 @@ export function DialogUserData({ user }: Props) {
         if (!data || !data.stats) return
         const result: DataSetChartTrading[] = data.stats.map((element) => {
             return {
-                blockNumber: element.block_number,
+                date: element.timestamp,
                 Short: element.volume_short,
                 Long: element.volume_long,
             }
@@ -106,7 +106,7 @@ export function DialogUserData({ user }: Props) {
         if (!data || !data.stats) return
         const result: DataSetChartPnlLP[] = data.stats.map((element) => {
             return {
-                blockNumber: element.block_number,
+                date: element.timestamp,
                 pnl: element.pnl_lp,
             }
         })
@@ -117,7 +117,7 @@ export function DialogUserData({ user }: Props) {
         if (!data || !data.stats) return
         const result: DataSetChartVolumeLP[] = data.stats.map((element) => {
             return {
-                blockNumber: element.block_number,
+                date: element.timestamp,
                 volume: element.volume_lp,
             }
         })
@@ -134,7 +134,7 @@ export function DialogUserData({ user }: Props) {
     //               volumeLong: data.result?.volumeLong,
     //               volumeShort: data.result?.volumeShort,
     //               lpVolume: data.result?.lpVolume,
-    //               blockNumbers: data.result?.blockNumbers,
+    //               dates: data.result?.dates,
     //           }
     //         : {
     //               pnlLong: [],
@@ -142,7 +142,7 @@ export function DialogUserData({ user }: Props) {
     //               volumeLong: [],
     //               volumeShort: [],
     //               lpVolume: [],
-    //               blockNumbers: [],
+    //               dates: [],
     //           }
     // }
     return (
