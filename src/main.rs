@@ -10,14 +10,15 @@ use dashmap::DashMap;
 use ethers::{
     contract::LogMeta,
     providers::{Middleware, Provider, Ws},
-    types::{H160, U256, U64},
+    types::{H160, I256, U256, U64},
 };
 use futures::StreamExt;
 use hex_literal::hex;
 use serde::{Deserialize, Serialize};
-use tracing::info;
+use tracing::{debug, info};
 
-// use hyperdrive_math::State;
+use fixed_point::FixedPoint;
+use hyperdrive_math::State;
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
 fn timestamp_to_string(timestamp: U256) -> String {
@@ -41,16 +42,8 @@ fn timestamp_to_string(timestamp: U256) -> String {
 /// Infra artifacts expected
 const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
 
-const FROM_BLOCK: u64 = 0;
-
-// [XXX] Are we bookeeping the right amounts?
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Long {
-    trader: H160,
-    maturity_time: U256,
-    openings: Vec<OpenLong>,
-    closings: Vec<CloseLong>,
-}
+const FROM_BLOCK: u64 = 41;
+const BLOCK_STEP: usize = 4;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 struct LongKey {
@@ -63,26 +56,15 @@ impl Display for LongKey {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct OpenLong {
-    block_number: U64,
-    time: U256,
-    base_amount: U256,
-}
+type Long = Vec<LongDebit>;
 
+///Closes are negative, Opens are positive.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct CloseLong {
+struct LongDebit {
     block_number: U64,
-    time: U256,
-    base_amount: U256,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Short {
-    trader: H160,
-    maturity_time: U256,
-    openings: Vec<OpenShort>,
-    closings: Vec<CloseShort>,
+    timestamp: U256,
+    base_amount: I256,
+    bond_amount: I256,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
@@ -96,25 +78,14 @@ impl Display for ShortKey {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct OpenShort {
-    block_number: U64,
-    time: U256,
-    base_amount: U256,
-}
+type Short = Vec<ShortDebit>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct CloseShort {
+struct ShortDebit {
     block_number: U64,
-    time: U256,
-    base_amount: U256,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-struct Lp {
-    provider: H160,
-    addings: Vec<AddLiquidity>,
-    removings: Vec<RemoveLiquidity>,
+    timestamp: U256,
+    base_amount: I256,
+    bond_amount: I256,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
@@ -127,83 +98,251 @@ impl Display for LpKey {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct AddLiquidity {
-    block_number: U64,
-    time: U256,
-    base_amount: U256,
-}
+type Lp = Vec<LpDebit>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct RemoveLiquidity {
+struct LpDebit {
     block_number: U64,
-    time: U256,
-    base_amount: U256,
+    timestamp: U256,
+    base_amount: I256,
 }
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt::init();
+///Bond balances should never be negative.
+#[derive(Serialize, Deserialize, Debug)]
+struct Balance {
+    base_balance: I256,
+    bond_balance: U256,
+}
 
-    let longs = Arc::new(DashMap::new());
-    let shorts = Arc::new(DashMap::new());
-    let lps = Arc::new(DashMap::new());
+async fn on_open_long(
+    client: Arc<Provider<Ws>>,
+    longs: Arc<DashMap<LongKey, Long>>,
+    event: i_hyperdrive::OpenLongFilter,
+    meta: LogMeta,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        block_num=%meta.block_number,
+        trader=%event.trader,
+        maturity_time=%timestamp_to_string(event.maturity_time),
+        base_amount=%event.base_amount/U256::exp10(18),
+        bond_amount=%event.bond_amount/U256::exp10(18),
+        "OpenLong",
+    );
 
-    let provider = Provider::<Ws>::connect("ws://localhost:8545")
-        .await
-        .unwrap();
-    let client = Arc::new(provider);
-    let hyperdrive_4626 = i_hyperdrive::IHyperdrive::new(HYPERDRIVE_4626_ADDR, client.clone());
-    let current_block = client.get_block_number().await? - 1;
+    let key = LongKey {
+        trader: event.trader,
+        maturity_time: event.maturity_time,
+    };
+    let block_timestamp = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let opening = LongDebit {
+        block_number: meta.block_number,
+        timestamp: block_timestamp,
+        base_amount: I256::from_raw(event.base_amount),
+        bond_amount: I256::from_raw(event.bond_amount),
+    };
+    let long: Long = vec![opening];
+    longs
+        .entry(key)
+        .and_modify(|existing| existing.push(opening))
+        .or_insert(long);
 
-    let longs_for_load = longs.clone();
-    let shorts_for_load = shorts.clone();
-    let lps_for_load = lps.clone();
-    read_hyperdrive_events(
-        longs_for_load,
-        shorts_for_load,
-        lps_for_load,
-        client,
-        hyperdrive_4626,
-        current_block,
-    )
-    .await?;
+    Ok(())
+}
 
-    write_hyperdrive_events(longs, shorts, lps);
+async fn on_close_long(
+    client: Arc<Provider<Ws>>,
+    longs: Arc<DashMap<LongKey, Long>>,
+    event: i_hyperdrive::CloseLongFilter,
+    meta: LogMeta,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        block_num=%meta.block_number,
+        trader=%event.trader,
+        maturity_time=%timestamp_to_string(event.maturity_time),
+        base_amount=%event.base_amount/U256::exp10(18),
+        bond_amount=%event.bond_amount/U256::exp10(18),
+        "CloseLong"
+    );
 
-    // for block_num in 0..=current_block.as_u64() {
-    //     // Fetch logs directly using the provider and the filter
-    //     let logs = provider.get_logs(&open_long_filter.into()).await?;
-    // }
+    let key = LongKey {
+        trader: event.trader,
+        maturity_time: event.maturity_time,
+    };
+    let key_repr = serde_json::to_string(&key)?;
+    let block_timestamp = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let closing = LongDebit {
+        block_number: meta.block_number,
+        timestamp: block_timestamp,
+        base_amount: -I256::from_raw(event.base_amount),
+        bond_amount: -I256::from_raw(event.bond_amount),
+    };
+    longs
+        .entry(key)
+        .and_modify(|existing| existing.push(closing))
+        .or_insert_with(|| {
+            panic!("CloseLong position doesn't exist: {}", key_repr);
+        });
 
-    // for block_num in 0..=current_block.as_u64() {
-    //     if let Ok(events) = hyperdrive_4626.
-    //         .query_filter(open_long_filter.clone(), block_num, block_num)
-    //         .await
-    //     {
-    //         for event in events {
-    //             on_open_long(client, longs, event, block_num);
-    //         }
-    //     }
+    Ok(())
+}
 
-    //     if let Ok(events) = hyperdrive_4626
-    //         .query_filter(open_short_filter.clone(), block_num, block_num)
-    //         .await
-    //     {
-    //         for event in events {
-    //             on_open_short(client, longs, event, block_num);
-    //         }
-    //     }
+async fn on_open_short(
+    client: Arc<Provider<Ws>>,
+    shorts: Arc<DashMap<ShortKey, Short>>,
+    event: i_hyperdrive::OpenShortFilter,
+    meta: LogMeta,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        block_num=%meta.block_number,
+        trader=%event.trader,
+        maturity_time=%timestamp_to_string(event.maturity_time),
+        base_amount=%event.base_amount/U256::exp10(18),
+        bond_amount=%event.bond_amount/U256::exp10(18),
+        "OpenShort"
+    );
 
-    //     if let Ok(events) = hyperdrive_4626
-    //         .query_filter(add_liquidity_filter.clone(), block_num, block_num)
-    //         .await
-    //     {
-    //         for event in events {
-    //             on_add_liquidity(client, longs, event, block_num);
-    //         }
-    //     }
-    // }
+    let key = ShortKey {
+        trader: event.trader,
+        maturity_time: event.maturity_time,
+    };
+    let block_timestamp = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let opening = ShortDebit {
+        block_number: meta.block_number,
+        timestamp: block_timestamp,
+        base_amount: I256::from_raw(event.base_amount),
+        bond_amount: I256::from_raw(event.bond_amount),
+    };
+    let short: Short = vec![opening];
+    shorts
+        .entry(key)
+        .and_modify(|existing| existing.push(opening))
+        .or_insert(short);
+
+    Ok(())
+}
+
+async fn on_close_short(
+    client: Arc<Provider<Ws>>,
+    shorts: Arc<DashMap<ShortKey, Short>>,
+    event: i_hyperdrive::CloseShortFilter,
+    meta: LogMeta,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        block_num=%meta.block_number,
+        trader=%event.trader,
+        maturity_time=%timestamp_to_string(event.maturity_time),
+        base_amount=%event.base_amount/U256::exp10(18),
+        bond_amount=%event.bond_amount/U256::exp10(18),
+        "CloseShort"
+    );
+
+    let key = ShortKey {
+        trader: event.trader,
+        maturity_time: event.maturity_time,
+    };
+    let key_repr = serde_json::to_string(&key)?;
+    let block_timestamp = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let closing = ShortDebit {
+        block_number: meta.block_number,
+        timestamp: block_timestamp,
+        base_amount: -I256::from_raw(event.base_amount),
+        bond_amount: -I256::from_raw(event.bond_amount),
+    };
+    shorts
+        .entry(key)
+        .and_modify(|existing| existing.push(closing))
+        .or_insert_with(|| {
+            panic!("CloseShort position doesn't exist: {}", key_repr);
+        });
+
+    Ok(())
+}
+
+async fn on_add_liquidity(
+    client: Arc<Provider<Ws>>,
+    lps: Arc<DashMap<LpKey, Lp>>,
+    event: i_hyperdrive::AddLiquidityFilter,
+    meta: LogMeta,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        block_num=%meta.block_number,
+        provider=%event.provider,
+        lp_amount=%event.lp_amount/U256::exp10(18),
+        base_amount=%event.base_amount/U256::exp10(18),
+        "AddLiquidity"
+    );
+
+    let key = LpKey {
+        provider: event.provider,
+    };
+    let block_timestamp = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let adding = LpDebit {
+        block_number: meta.block_number,
+        timestamp: block_timestamp,
+        base_amount: I256::from_raw(event.base_amount),
+    };
+    let lp: Lp = vec![adding];
+    lps.entry(key)
+        .and_modify(|existing| existing.push(adding))
+        .or_insert(lp);
+
+    Ok(())
+}
+
+async fn on_remove_liquidity(
+    client: Arc<Provider<Ws>>,
+    lps: Arc<DashMap<LpKey, Lp>>,
+    event: i_hyperdrive::RemoveLiquidityFilter,
+    meta: LogMeta,
+) -> Result<(), Box<dyn Error>> {
+    debug!(
+        block_num=%meta.block_number,
+        provider=%event.provider,
+        lp_amount=%event.lp_amount/U256::exp10(18),
+        base_amount=%event.base_amount/U256::exp10(18),
+        "RemoveLiquidity"
+    );
+
+    let key = LpKey {
+        provider: event.provider,
+    };
+    let key_repr = serde_json::to_string(&key)?;
+    let block_timestamp = client
+        .get_block(meta.block_number)
+        .await?
+        .unwrap()
+        .timestamp;
+    let removing = LpDebit {
+        block_number: meta.block_number,
+        timestamp: block_timestamp,
+        base_amount: -I256::from_raw(event.base_amount),
+    };
+    lps.entry(key)
+        .and_modify(|existing| existing.push(removing))
+        .or_insert_with(|| {
+            panic!("RemoveLiquidity position doesn't exist: {}", key_repr);
+        });
+
     Ok(())
 }
 
@@ -212,13 +351,14 @@ async fn read_hyperdrive_events(
     shorts: Arc<DashMap<ShortKey, Short>>,
     lps: Arc<DashMap<LpKey, Lp>>,
     client: Arc<Provider<Ws>>,
-    hyperdrive_4626: i_hyperdrive::IHyperdrive<Provider<Ws>>,
-    current_block: U64,
+    hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
+    from_block: u64,
+    end_block: U64,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let events = hyperdrive_4626
+    let events = hyperdrive_contract
         .events()
-        .from_block(FROM_BLOCK)
-        .to_block(current_block);
+        .from_block(from_block)
+        .to_block(end_block);
 
     let mut stream = events.stream_with_meta().await?;
     while let Some(Ok((evt, meta))) = stream.next().await {
@@ -249,7 +389,7 @@ async fn read_hyperdrive_events(
             _ => (),
         }
 
-        if meta.block_number >= current_block {
+        if meta.block_number >= end_block {
             break;
         }
     }
@@ -257,12 +397,11 @@ async fn read_hyperdrive_events(
 }
 
 fn write_hyperdrive_events(
-    longs: Arc<DashMap<LongKey, Long>>,
-    shorts: Arc<DashMap<ShortKey, Short>>,
-    lps: Arc<DashMap<LpKey, Lp>>,
+    longs: DashMap<LongKey, Long>,
+    shorts: DashMap<ShortKey, Short>,
+    lps: DashMap<LpKey, Lp>,
 ) {
-    let longs_map: HashMap<String, Long> = Arc::try_unwrap(longs)
-        .unwrap()
+    let longs_map: HashMap<String, Long> = longs
         .into_iter()
         .map(|(key, value)| (key.to_string(), value))
         .collect();
@@ -270,8 +409,7 @@ fn write_hyperdrive_events(
         "-- START LONGS --\n{}\n-- END LONGS --",
         serde_json::to_string_pretty(&longs_map).unwrap()
     );
-    let shorts_map: HashMap<String, Short> = Arc::try_unwrap(shorts)
-        .unwrap()
+    let shorts_map: HashMap<String, Short> = shorts
         .into_iter()
         .map(|(key, value)| (key.to_string(), value))
         .collect();
@@ -279,8 +417,7 @@ fn write_hyperdrive_events(
         "-- START SHORTS --\n{}\n-- END SHORTS --",
         serde_json::to_string_pretty(&shorts_map).unwrap()
     );
-    let lps_map: HashMap<String, Lp> = Arc::try_unwrap(lps)
-        .unwrap()
+    let lps_map: HashMap<String, Lp> = lps
         .into_iter()
         .map(|(key, value)| (key.to_string(), value))
         .collect();
@@ -290,240 +427,187 @@ fn write_hyperdrive_events(
     );
 }
 
-async fn on_open_long(
-    client: Arc<Provider<Ws>>,
+async fn read_pnls(
     longs: Arc<DashMap<LongKey, Long>>,
-    event: i_hyperdrive::OpenLongFilter,
-    meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
-    info!(
-        trader=%event.trader,
-        maturity_time=%timestamp_to_string(event.maturity_time),
-        base_amount=%event.base_amount/U256::exp10(18),
-        as_base=%event.as_base,
-        "OpenLong",
-    );
-
-    let key = LongKey {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-    };
-    let block_time = client
-        .get_block(meta.block_number)
-        .await?
-        .unwrap()
-        .timestamp;
-    let opening = OpenLong {
-        block_number: meta.block_number,
-        time: block_time,
-        base_amount: event.base_amount,
-    };
-    let long = Long {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-        openings: vec![opening],
-        closings: vec![],
-    };
-    longs
-        .entry(key)
-        .and_modify(|existing| existing.openings.push(opening))
-        .or_insert(long);
-
-    Ok(())
-}
-
-async fn on_close_long(
-    client: Arc<Provider<Ws>>,
-    longs: Arc<DashMap<LongKey, Long>>,
-    event: i_hyperdrive::CloseLongFilter,
-    meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
-    info!(
-        trader=%event.trader,
-        maturity_time=%timestamp_to_string(event.maturity_time),
-        base_amount=%event.base_amount/U256::exp10(18),
-        as_base=%event.as_base,
-        "CloseLong"
-    );
-
-    let key = LongKey {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-    };
-    let key_repr = serde_json::to_string(&key)?;
-    let block_time = client
-        .get_block(meta.block_number)
-        .await?
-        .unwrap()
-        .timestamp;
-    let closing = CloseLong {
-        block_number: meta.block_number,
-        time: block_time,
-        base_amount: event.base_amount,
-    };
-    longs
-        .entry(key)
-        .and_modify(|existing| existing.closings.push(closing))
-        .or_insert_with(|| {
-            panic!("CloseLong position doesn't exist: {}", key_repr);
-        });
-
-    Ok(())
-}
-
-async fn on_open_short(
-    client: Arc<Provider<Ws>>,
     shorts: Arc<DashMap<ShortKey, Short>>,
-    event: i_hyperdrive::OpenShortFilter,
-    meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
-    info!(
-        trader=%event.trader,
-        maturity_time=%timestamp_to_string(event.maturity_time),
-        base_amount=%event.base_amount/U256::exp10(18),
-        as_base=%event.as_base,
-        "OpenShort"
-    );
-
-    let key = ShortKey {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-    };
-    let block_time = client
-        .get_block(meta.block_number)
-        .await?
-        .unwrap()
-        .timestamp;
-    let opening = OpenShort {
-        block_number: meta.block_number,
-        time: block_time,
-        base_amount: event.base_amount,
-    };
-    let short = Short {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-        openings: vec![opening],
-        closings: vec![],
-    };
-    shorts
-        .entry(key)
-        .and_modify(|existing| existing.openings.push(opening))
-        .or_insert(short);
-
-    Ok(())
-}
-
-async fn on_close_short(
-    client: Arc<Provider<Ws>>,
-    shorts: Arc<DashMap<ShortKey, Short>>,
-    event: i_hyperdrive::CloseShortFilter,
-    meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
-    info!(
-        trader=%event.trader,
-        maturity_time=%timestamp_to_string(event.maturity_time),
-        amount=%event.base_amount/U256::exp10(18),
-        as_base=%event.as_base,
-        "CloseShort"
-    );
-
-    let key = ShortKey {
-        trader: event.trader,
-        maturity_time: event.maturity_time,
-    };
-    let key_repr = serde_json::to_string(&key)?;
-    let block_time = client
-        .get_block(meta.block_number)
-        .await?
-        .unwrap()
-        .timestamp;
-    let closing = CloseShort {
-        block_number: meta.block_number,
-        time: block_time,
-        base_amount: event.base_amount,
-    };
-    shorts
-        .entry(key)
-        .and_modify(|existing| existing.closings.push(closing))
-        .or_insert_with(|| {
-            panic!("CloseShort position doesn't exist: {}", key_repr);
-        });
-
-    Ok(())
-}
-
-async fn on_add_liquidity(
-    client: Arc<Provider<Ws>>,
     lps: Arc<DashMap<LpKey, Lp>>,
-    event: i_hyperdrive::AddLiquidityFilter,
-    meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
-    info!(
-        provider=%event.provider,
-        lp_amount=%event.lp_amount/U256::exp10(18),
-        base_amount=%event.base_amount/U256::exp10(18),
-        as_base=%event.as_base,
-        "AddLiquidity"
-    );
+    client: Arc<Provider<Ws>>,
+    hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
+    from_block: u64,
+    end_block: U64,
+    block_step: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
+    for block_num in (from_block..end_block.as_u64() + 1).step_by(block_step) {
+        let block_timestamp = client.get_block(block_num).await?.unwrap().timestamp;
+        let pool_config = hyperdrive_contract
+            .get_pool_config()
+            .block(block_num)
+            .call()
+            .await?;
+        let pool_info = hyperdrive_contract
+            .get_pool_info()
+            .block(block_num)
+            .call()
+            .await?;
 
-    let key = LpKey {
-        provider: event.provider,
-    };
-    let block_time = client
-        .get_block(meta.block_number)
-        .await?
-        .unwrap()
-        .timestamp;
-    let adding = AddLiquidity {
-        block_number: meta.block_number,
-        time: block_time,
-        base_amount: event.base_amount,
-    };
-    let lp = Lp {
-        provider: event.provider,
-        addings: vec![adding],
-        removings: vec![],
-    };
-    lps.entry(key)
-        .and_modify(|existing| existing.addings.push(adding))
-        .or_insert(lp);
+        let state = State::new(pool_config, pool_info);
+
+        // Base-asset accounting, per position.
+        let longs_balances: DashMap<LongKey, Balance> = (longs.iter())
+            .map(|entry| {
+                let key = entry.key().clone();
+                let long = entry.value().clone();
+                let balance_tuple = long.iter().fold(
+                    (I256::zero(), I256::zero()),
+                    |(acc_base, acc_bond), debit| {
+                        if debit.block_number.as_u64() <= block_num {
+                            (acc_base + debit.base_amount, acc_bond + debit.bond_amount)
+                        } else {
+                            (acc_base, acc_bond)
+                        }
+                    },
+                );
+                (key, balance_tuple)
+            })
+            .map(|(key, (base_balance, bond_balance))| {
+                (
+                    key,
+                    Balance {
+                        base_balance,
+                        bond_balance: U256::try_from(bond_balance).expect("Negative bond balance"),
+                    },
+                )
+            })
+            .collect();
+        let shorts_balances: DashMap<ShortKey, Balance> = (shorts.iter())
+            .map(|entry| {
+                let key = entry.key().clone();
+                let short = entry.value().clone();
+                let balance_tuple = short.iter().fold(
+                    (I256::zero(), I256::zero()),
+                    |(acc_base, acc_bond), debit| {
+                        if debit.block_number.as_u64() <= block_num {
+                            (acc_base + debit.base_amount, acc_bond + debit.bond_amount)
+                        } else {
+                            (acc_base, acc_bond)
+                        }
+                    },
+                );
+                (key, balance_tuple)
+            })
+            .map(|(key, (base_balance, bond_balance))| {
+                (
+                    key,
+                    Balance {
+                        base_balance,
+                        bond_balance: U256::try_from(bond_balance).expect("Negative bond balance"),
+                    },
+                )
+            })
+            .collect();
+        let lps_balances: DashMap<LpKey, I256> = (lps.iter())
+            .map(|entry| {
+                let key = entry.key().clone();
+                let lp = entry.value().clone();
+                let balance = lp.iter().fold(I256::zero(), |acc, debit| {
+                    if debit.block_number.as_u64() <= block_num {
+                        acc + debit.base_amount
+                    } else {
+                        acc
+                    }
+                });
+                (key, balance)
+            })
+            .collect();
+
+        //let longs_pnls: DashMap<LongKey, FixedPoint> = (longs.iter())
+        //    .map(|entry| {
+        //        let long_key = entry.key().clone();
+        //        let long = entry.value().clone();
+
+        //        let total_debit_base_amount =
+        //            FixedPoint::from(long.iter().map(|debit| debit.base_amount).sum::<I256>());
+
+        //        let normalized_time_remaining =
+        //            state.time_remaining_scaled(block_timestamp, long_key.maturity_time);
+        //        let bond_amount =
+        //            FixedPoint::from((long.iter()).map(|debit| debit.bond_amount).sum::<I256>());
+        //        // [XXX] Are we calling this fn correctly?
+        //        let calculated_close_shares =
+        //            state.calculate_close_long(bond_amount, normalized_time_remaining);
+        //        let calculated_close_base_amount =
+        //            calculated_close_shares * FixedPoint::from(state.info.vault_share_price);
+
+        //        (
+        //            long_key,
+        //            calculated_close_base_amount - total_debit_base_amount,
+        //        )
+        //    })
+        //    .collect();
+
+        // [TODO] Check that initial debit == calculate_close_long at open.
+        // [TODO] Check calculate_close after = calculate_close before + debit
+
+        info!(
+            "PnL block_num={} block_timestamp={} longs_at_block={:#?} longs_balances={:#?}", /*poolconfig={:#?} poolinfo={:#?}"*/
+            block_num,
+            timestamp_to_string(block_timestamp),
+            longs,
+            longs_balances //pool_config,
+                           //pool_info,
+        );
+    }
 
     Ok(())
 }
 
-async fn on_remove_liquidity(
-    client: Arc<Provider<Ws>>,
-    lps: Arc<DashMap<LpKey, Lp>>,
-    event: i_hyperdrive::RemoveLiquidityFilter,
-    meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
-    info!(
-        provider=%event.provider,
-        lp_amount=%event.lp_amount/U256::exp10(18),
-        base_amount=%event.base_amount/U256::exp10(18),
-        as_base=%event.as_base,
-        "RemoveLiquidity"
-    );
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt::init();
 
-    let key = LpKey {
-        provider: event.provider,
-    };
-    let key_repr = serde_json::to_string(&key)?;
-    let block_time = client
-        .get_block(meta.block_number)
-        .await?
-        .unwrap()
-        .timestamp;
-    let removing = RemoveLiquidity {
-        block_number: meta.block_number,
-        time: block_time,
-        base_amount: event.base_amount,
-    };
-    lps.entry(key)
-        .and_modify(|existing| existing.removings.push(removing))
-        .or_insert_with(|| {
-            panic!("RemoveLiquidity position doesn't exist: {}", key_repr);
-        });
+    let longs = Arc::new(DashMap::new());
+    let shorts = Arc::new(DashMap::new());
+    let lps = Arc::new(DashMap::new());
+
+    // [XXX] Check how many blocks behind can the archive node produce.
+    let provider = Provider::<Ws>::connect("ws://localhost:8545")
+        .await
+        .unwrap();
+    let client = Arc::new(provider);
+    let hyperdrive_4626 = i_hyperdrive::IHyperdrive::new(HYPERDRIVE_4626_ADDR, client.clone());
+    let current_block = client.get_block_number().await? - 1; // -1 prevents stalling.
+
+    read_hyperdrive_events(
+        longs.clone(),
+        shorts.clone(),
+        lps.clone(),
+        client.clone(),
+        hyperdrive_4626.clone(),
+        FROM_BLOCK,
+        current_block,
+    )
+    .await?;
+
+    read_pnls(
+        longs.clone(),
+        shorts.clone(),
+        lps.clone(),
+        client.clone(),
+        hyperdrive_4626.clone(),
+        FROM_BLOCK,
+        current_block,
+        BLOCK_STEP,
+    )
+    .await?;
+
+    // [TODO] write_aggregates
+
+    // [TODO] write_pnls
+
+    let longs_value = Arc::try_unwrap(longs).unwrap();
+    let shorts_value = Arc::try_unwrap(shorts).unwrap();
+    let lps_value = Arc::try_unwrap(lps).unwrap();
+    write_hyperdrive_events(longs_value, shorts_value, lps_value);
 
     Ok(())
 }
