@@ -49,11 +49,11 @@ export async function generateAssessorSlot({
         return {
             status: 'ok',
             message: `Assessor slot assigned to ${assessorAddr}`,
+            assessorSlot: registerAssessorSlot[0],
         }
     }
-    /**
-     * Get Number Actions and Total Volume for each Users
-     * Use ponderation to get the total score of each user
-     * Normalize Score
-     */
+    return {
+        status: 'ko',
+        message: `Assessor slot assignation failed`,
+    }
 }

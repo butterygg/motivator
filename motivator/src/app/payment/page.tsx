@@ -1,23 +1,32 @@
 'use client'
 import React from 'react'
-import { Label } from '../../components/ui/label'
-import { Button } from '../../components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
 import { useAccount, useSendTransaction } from 'wagmi'
 import { Address, parseEther } from 'viem'
-import { handlePayment } from '../../server/actions/payment/handlePayment'
+import { handlePayment } from '@/server/actions/payment/handlePayment'
+import { useRouter } from 'next/navigation'
 type Props = {}
 
 const Payment = (props: Props) => {
     const { address } = useAccount()
+    const { push } = useRouter()
     const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
     const { sendTransactionAsync } = useSendTransaction({
         mutation: {
-            onSuccess(data, variables, context) {
-                handlePayment({
+            async onSuccess(data, variables, context) {
+                const assessorSlot = await handlePayment({
                     assessorAddr: address ? (address as Address) : '0x0',
                     hash: data,
-                    value: value,
                 })
+                if (
+                    assessorSlot?.status === 'ok' &&
+                    assessorSlot.assessorSlot
+                ) {
+                    push(
+                        `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
+                    )
+                }
             },
         },
     })

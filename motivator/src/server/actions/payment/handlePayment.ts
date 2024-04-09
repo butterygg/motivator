@@ -6,7 +6,8 @@ import {
     getTransaction,
 } from '@wagmi/core'
 import { Address, parseEther } from 'viem'
-import { randomizeAssessorSlot } from '../randomisation/randomizeAssessorSlot'
+import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
+import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
 /** handle Payment coming from front end
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -15,18 +16,15 @@ import { randomizeAssessorSlot } from '../randomisation/randomizeAssessorSlot'
 export async function handlePayment({
     assessorAddr,
     hash,
-    value,
 }: {
     assessorAddr: string
     hash: Address
-    value: string
 }) {
-    const { address } = getAccount(config)
     const transaction = await getTransaction(config, {
         hash: hash,
     })
 
-    if (transaction.from !== address) {
+    if (transaction.from !== assessorAddr) {
         return {
             status: 'failed',
             message: 'Transaction is not from the right address',
@@ -54,7 +52,20 @@ export async function handlePayment({
         }
     }
 
-    return await randomizeAssessorSlot({ assessorAddr })
+    const listToInsertInAssessor = await randomizeAssessorSlot({ assessorAddr })
+
+    const assessorSlot = await generateAssessorSlot({
+        assessorAddr,
+        userList: listToInsertInAssessor,
+    })
+
+    if (assessorSlot.status === 'ok') {
+        return {
+            status: 'ok',
+            message: 'Assessor Slot generated',
+            assessorSlot: assessorSlot.assessorSlot,
+        }
+    }
 
     /**
      * Get Number Actions and Total Volume for each Users
