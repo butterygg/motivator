@@ -2,6 +2,7 @@
 import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot } from '@db/schema'
+import { Address } from 'viem'
 /** Assign an Assessor Slot to an Assessor
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -66,20 +67,18 @@ export async function randomizeAssessorSlot({
 
     // Pick X users randomly from the pool and ensure that the same user is not picked twice
     const pickXUsersRandomly = (pool: ScoreAndAddress[], x: number) => {
-        const result: ScoreAndAddress[] = []
+        const result: Address[] = []
         for (let index = 0; index < x; index++) {
             const randomIndex = Math.floor(Math.random() * pool.length)
             // * Check if the user is already in the result, if yes pick another one
             if (
-                result.find(
-                    (element) => element.address === pool[randomIndex].address
-                )
+                result.find((element) => element === pool[randomIndex].address)
             ) {
                 pool.splice(randomIndex, 1)
                 index--
                 continue
             }
-            result.push(pool[randomIndex])
+            result.push(pool[randomIndex].address as Address)
             pool.splice(randomIndex, 1)
         }
         return result
