@@ -2,16 +2,22 @@
 import React from 'react'
 import { Label } from '../../components/ui/label'
 import { Button } from '../../components/ui/button'
-import { useSendTransaction } from 'wagmi'
+import { useAccount, useSendTransaction } from 'wagmi'
 import { Address, parseEther } from 'viem'
+import { handlePayment } from '../../server/actions/payment/handlePayment'
 type Props = {}
 
 const Payment = (props: Props) => {
+    const { address } = useAccount()
     const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
     const { sendTransactionAsync } = useSendTransaction({
         mutation: {
             onSuccess(data, variables, context) {
-                console.log('onSuccess')
+                handlePayment({
+                    assessorAddr: address ? (address as Address) : '0x0',
+                    hash: data,
+                    value: value,
+                })
             },
         },
     })
