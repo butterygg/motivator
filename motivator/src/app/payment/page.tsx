@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 import { useSession } from 'next-auth/react'
 import { RoundSpinner } from '@/components/ui/spinner'
+import { ethers } from 'ethers'
 type Props = {}
 
 const Payment = (props: Props) => {
@@ -42,24 +43,28 @@ const Payment = (props: Props) => {
     }, [assessorSlotID])
 
     const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
-    const { sendTransactionAsync } = useSendTransaction({
-        mutation: {
-            async onSuccess(data, variables, context) {
-                const assessorSlot = await handlePayment({
-                    assessorAddr: address ? (address as Address) : '0x0',
-                    hash: data,
-                })
-                if (
-                    assessorSlot?.status === 'ok' &&
-                    assessorSlot.assessorSlot
-                ) {
-                    push(
-                        `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
-                    )
-                }
+    const { sendTransactionAsync, status: statusTransaction } =
+        useSendTransaction({
+            mutation: {
+                async onSuccess(data, variables, context) {
+                    // const transaction = await ethers.providers
+                    //     .getDefaultProvider()
+                    //     .getTransactionReceipt(data)
+                    const assessorSlot = await handlePayment({
+                        assessorAddr: address ? (address as Address) : '0x0',
+                        hash: data,
+                    })
+                    // if (
+                    //     assessorSlot?.status === 'ok' &&
+                    //     assessorSlot.assessorSlot
+                    // ) {
+                    //     push(
+                    //         `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
+                    //     )
+                    // }
+                },
             },
-        },
-    })
+        })
 
     const handleOnClick = async () => {
         await sendTransactionAsync({
@@ -73,11 +78,19 @@ const Payment = (props: Props) => {
     const handleDisplay = () => {
         if (assessorSlotFinded) {
             return (
-                <div>
+                <div className="justify-center">
                     <RoundSpinner size="triplexl" />
                     <Label className="font-bold">
                         Assessor slot found, you will be redirected in 2 seconds
                     </Label>
+                </div>
+            )
+        }
+        if (statusTransaction === 'pending') {
+            return (
+                <div className="flex flex-col gap-4 items-center">
+                    <RoundSpinner size="triplexl" />
+                    <Label className="font-bold">Transaction in progress</Label>
                 </div>
             )
         }
@@ -96,6 +109,15 @@ const Payment = (props: Props) => {
                     >
                         Send ${value} $SETH
                     </Button>
+                    {statusTransaction === 'error' && (
+                        <Label className="text-orange-500">
+                            {' '}
+                            Transaction Error ... <br />
+                            <Label className="text-black">
+                                Retry or contact support on Discord
+                            </Label>
+                        </Label>
+                    )}
                 </div>
             </div>
         )

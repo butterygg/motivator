@@ -1,9 +1,9 @@
 'use client'
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import React from 'react'
-import { WagmiProvider, http } from 'wagmi'
+import { WagmiProvider } from 'wagmi'
 import '@rainbow-me/rainbowkit/styles.css'
-import { mainnet, sepolia } from '@wagmi/core/chains'
+
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from 'next-auth/react'
 // import type { Session } from 'next-auth'
@@ -13,7 +13,14 @@ import {
     GetSiweMessageOptions,
 } from '@rainbow-me/rainbowkit-siwe-next-auth'
 import { createConfig } from '@wagmi/core'
+import { createPublicClient, http } from 'viem'
+import { mainnet, sepolia } from 'viem/chains'
 type Props = {}
+
+export const publicClient = createPublicClient({
+    chain: sepolia,
+    transport: http(),
+})
 
 export const defaultConfig = getDefaultConfig({
     appName: 'Motivator',

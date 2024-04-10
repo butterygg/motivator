@@ -1,5 +1,5 @@
 'use server'
-import { config } from '@/utils/Web3Provider'
+import { config, publicClient } from '@/utils/Web3Provider'
 import {
     getAccount,
     getTransactionConfirmations,
@@ -8,6 +8,7 @@ import {
 import { Address, parseEther } from 'viem'
 import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
 import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
+import { ethers } from 'ethers'
 /** handle Payment coming from front end
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -20,9 +21,23 @@ export async function handlePayment({
     assessorAddr: string
     hash: Address
 }) {
-    const transaction = await getTransaction(config, {
-        hash: hash,
-    })
+    const transaction = await ethers.providers
+        .getDefaultProvider()
+        .getTransactionReceipt(hash)
+
+    // const provider = new AlchemyProvider();
+    // const provider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb');
+    console.log(transaction)
+    // const transaction = await provider.getTransaction(hash)
+    // tx.
+
+    // const transaction = await publicClient.getTransaction({
+    //     blockHash: hash,
+    //     index: 0,
+    // })
+    // const transaction = await getTransaction(config, {
+    //     hash: hash,
+    // })
 
     if (transaction.from !== assessorAddr) {
         return {
@@ -32,7 +47,7 @@ export async function handlePayment({
     }
 
     if (
-        transaction.value !==
+        transaction.value.toBigInt() !==
         parseEther(process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string)
     ) {
         return {
