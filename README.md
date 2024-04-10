@@ -5,6 +5,9 @@
 `hyperdrive-wrappers` and `hyperdrive-math` need to be updated to the version
 that corresponds to the testnetlaunch.
 
+`calculate_close_long` and `…_short` will need updating as their signatures will
+have changed.
+
 ## Gather script inputs
 
 - Get the contracts addresses.
