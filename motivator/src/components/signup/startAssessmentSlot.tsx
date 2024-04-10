@@ -29,27 +29,34 @@ const StartAssessmentSlot = (props: Props) => {
     return (
         <Card className="w-96 items-center p-4 rounded-lg mx-auto">
             <CardHeader className="font-bold p-4  flex flex-wrap">
-                <h2 className="text-xl">Start an assessment slot</h2>
-                <p className="text-md font-semibold">
-                    {' '}
-                    on week - {props.week} / {props.weekmax}
-                </p>
+                <h2 className="text-xl">
+                    Purchase a Motivator Slot: Week {props.week}/{props.weekmax}
+                </h2>
+                <p className="text-md font-semibold"> The Rules</p>
             </CardHeader>
             <CardContent className="p-4">
-                Allocate rewards to testnet players and get rewarded for
-                that!Remember: you can get audited by the council and your
-                rewards will be either doubled if deemed aligned with
-                Hyperdrive, or slashed if misaligned.
+                <ol style={{ listStyleType: 'decimal' }}>
+                    <li>Each slot contains a random selection of players</li>
+                    <li>
+                        Allocate the points you’ve been assigned based on player
+                        participation and performance
+                    </li>
+                    <li>
+                        Identify top performers and participants with innovative
+                        strategies and avoid rewarding fraudulent behavior to
+                        receive extra points
+                    </li>
+                </ol>
             </CardContent>
             <CardDescription className="p-4">
-                The more assessments you do, the more rewards you accumulate.
+                The more　slots you complete, the more points you earn.
             </CardDescription>
             <CardFooter className="p-4">
                 <Button
                     className="m-auto"
                     onClick={() => handleStartAssessmentSlot()}
                 >
-                    Start assessment slot
+                    Purchase Motivator Slot
                 </Button>
             </CardFooter>
         </Card>
