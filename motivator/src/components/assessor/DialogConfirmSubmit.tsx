@@ -75,8 +75,8 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                     </DialogTrigger>
                     <TooltipContent>
                         <p>
-                            Submit your rewards when you finished your
-                            assessment
+                            Press Submit when you're finished allocating your 
+                            points
                         </p>
                     </TooltipContent>
                 </Tooltip>
@@ -84,31 +84,30 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
             <DialogContent className="sm:max-w-[625px] sm:w-fit">
                 <DialogHeader>
                     <DialogTitle>
-                        <h3>Confirm Assessment Submit</h3>
+                        <h3>Are you sure?</h3>
                     </DialogTitle>
                     <DialogDescription>
-                        Pressing the confirm button, will lock the amount you
-                        selected and distribute rewards to the users. You
-                        won&apos;t have access to this assessment and this will
-                        be definitive .
+                        Once you press confirm, you won’t be able to change 
+                        your allocation and your points will be distributed. 
+                        Feel free to double-check—we’ll wait.
                     </DialogDescription>
                 </DialogHeader>
                 <Label htmlFor="name" className="">
                     {(points ? getPointsAvailable(points) : 0) > 0 ? (
                         <p className="font-semibold gap">
-                            You still have points to assess. <br /> If you want
-                            press the Cancel button and keep assessing
+                            It looks like you haven’t allocated all your points. 
+                            <br /> Press cancel if you want to go back.
                         </p>
                     ) : null}
                 </Label>
                 <div className="grid gap-4 py-2">
                     <div className="grid grid-cols-3 items-center gap-2">
                         <DataCard
-                            title="Available"
+                            title="Remaining Balance"
                             value={points ? getPointsAvailable(points) : 0}
                         />
                         <DataCard
-                            title="Distributed"
+                            title="Allocated"
                             value={points ? points : 0}
                         />
 
