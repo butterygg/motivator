@@ -15,12 +15,18 @@ import {
 import { createConfig } from '@wagmi/core'
 import { createPublicClient, http } from 'viem'
 import { mainnet, sepolia } from 'viem/chains'
+import { Network, Alchemy } from 'alchemy-sdk'
 type Props = {}
 
 export const publicClient = createPublicClient({
     chain: sepolia,
     transport: http(),
 })
+
+export const alchemySettings = {
+    apiKey: 'A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
+    network: Network.ETH_SEPOLIA,
+}
 
 export const defaultConfig = getDefaultConfig({
     appName: 'Motivator',

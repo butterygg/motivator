@@ -1,5 +1,5 @@
 'use server'
-import { config, publicClient } from '@/utils/Web3Provider'
+import { config, publicClient, alchemySettings } from '@/utils/Web3Provider'
 import {
     getAccount,
     getTransactionConfirmations,
@@ -9,6 +9,8 @@ import { Address, parseEther } from 'viem'
 import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
 import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
 import { ethers } from 'ethers'
+import { Network, Alchemy } from 'alchemy-sdk'
+
 /** handle Payment coming from front end
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -21,9 +23,18 @@ export async function handlePayment({
     assessorAddr: string
     hash: Address
 }) {
-    const transaction = await ethers.providers
-        .getDefaultProvider()
-        .getTransactionReceipt(hash)
+    const alchemySettings = {
+        apiKey: 'A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
+        network: Network.ETH_SEPOLIA,
+    }
+    console.log('STILL NOT WORKING ')
+    const alchemy = new Alchemy(alchemySettings)
+
+    // Get the latest block
+    const transaction = await alchemy.core.getTransaction(hash)
+    // const transaction = await ethers.providers
+    //     .getDefaultProvider()
+    //     .getTransactionReceipt(hash)
 
     // const provider = new AlchemyProvider();
     // const provider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb');
@@ -39,7 +50,7 @@ export async function handlePayment({
     //     hash: hash,
     // })
 
-    if (transaction.from !== assessorAddr) {
+    if (transaction?.from !== assessorAddr) {
         return {
             status: 'failed',
             message: 'Transaction is not from the right address',
@@ -47,7 +58,7 @@ export async function handlePayment({
     }
 
     if (
-        transaction.value.toBigInt() !==
+        transaction?.value.toBigInt() !==
         parseEther(process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string)
     ) {
         return {

@@ -50,6 +50,7 @@
         "@uidotdev/usehooks": "^2.4.1",
         "@wagmi/connectors": "^4.1.25",
         "@wagmi/core": "^2.6.16",
+        "alchemy-sdk": "^3.2.1",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.0",
         "cypress": "^13.6.6",

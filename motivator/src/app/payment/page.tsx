@@ -11,6 +11,8 @@ import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 import { useSession } from 'next-auth/react'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { ethers } from 'ethers'
+import { waitForTransactionReceipt } from '@wagmi/core'
+import { useWaitForTransactionReceipt } from 'wagmi'
 type Props = {}
 
 const Payment = (props: Props) => {
@@ -41,30 +43,39 @@ const Payment = (props: Props) => {
             }, 2000)
         }
     }, [assessorSlotID])
-
     const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
-    const { sendTransactionAsync, status: statusTransaction } =
-        useSendTransaction({
-            mutation: {
-                async onSuccess(data, variables, context) {
-                    // const transaction = await ethers.providers
-                    //     .getDefaultProvider()
-                    //     .getTransactionReceipt(data)
-                    const assessorSlot = await handlePayment({
-                        assessorAddr: address ? (address as Address) : '0x0',
-                        hash: data,
-                    })
-                    // if (
-                    //     assessorSlot?.status === 'ok' &&
-                    //     assessorSlot.assessorSlot
-                    // ) {
-                    //     push(
-                    //         `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
-                    //     )
-                    // }
-                },
-            },
-        })
+    const {
+        sendTransactionAsync,
+        status: statusTransaction,
+        data,
+    } = useSendTransaction({
+        // mutation: {
+        //     async onSuccess(data, variables, context) {
+        //         // const transaction = await ethers.providers
+        //         //     .getDefaultProvider()
+        //         //     .getTransactionReceipt(data)
+        //         const assessorSlot = await handlePayment({
+        //             assessorAddr: address ? (address as Address) : '0x0',
+        //             hash: data,
+        //         })
+        //         // if (
+        //         //     assessorSlot?.status === 'ok' &&
+        //         //     assessorSlot.assessorSlot
+        //         // ) {
+        //         //     push(
+        //         //         `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
+        //         //     )
+        //         // }
+        //     },
+        // },
+    })
+    const {
+        refetch: refetchReceipt,
+        data: transactionReceipt,
+        status: statusReceipt,
+    } = useWaitForTransactionReceipt({
+        hash: data ? (data as Address) : '0x0',
+    })
 
     const handleOnClick = async () => {
         await sendTransactionAsync({
@@ -73,7 +84,42 @@ const Payment = (props: Props) => {
                 : '0x0000000000000000000000000000000000000000',
             value: parseEther(value),
         })
+
+        await refetchReceipt()
+        // // const transactionReceipt = waitForTransactionReceipt(config, {
+        // //     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+        // // })
+
+        // if (transactionReceipt?.status === 'success') {
+        //     // console.log('Transaction success')
+        //     // const assessorSlot = await handlePayment({
+        //     //     assessorAddr: address ? (address as Address) : '0x0',
+        //     //     hash: data ? (data as Address) : '0x0',
+        //     // })
+        //     // if (assessorSlot?.status === 'ok' && assessorSlot.assessorSlot) {
+        //     //     push(
+        //     //         `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
+        //     //     )
+        //     // }
+        // }
     }
+
+    const managePayment = async () => {
+        const assessorSlot = await handlePayment({
+            assessorAddr: address ? (address as Address) : '0x0',
+            hash: data ? (data as Address) : '0x0',
+        })
+        if (assessorSlot?.status === 'ok' && assessorSlot.assessorSlot) {
+            push(`/assessor/slot/${assessorSlot.assessorSlot?.id as string}`)
+        }
+    }
+    useEffect(() => {
+        console.log(transactionReceipt, 'transactionReceipt')
+        console.log(statusTransaction, 'statusTransaction')
+        if (transactionReceipt?.status === 'success') {
+            managePayment()
+        }
+    }, [transactionReceipt, refetchReceipt, statusTransaction])
 
     const handleDisplay = () => {
         if (assessorSlotFinded) {

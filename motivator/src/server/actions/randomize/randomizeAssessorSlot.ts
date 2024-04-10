@@ -22,8 +22,8 @@ export async function randomizeAssessorSlot({
     const numberAndActionsFromUsers = await db.query.stats.findMany()
 
     // * Use ponderation to get the total score of each user
-    const ratioVolume = 1.5
-    const ratioActions = 3
+    const ratioVolume = 0
+    const ratioActions = 1
 
     const totalMultiplier = Number(
         process.env.NEXT_PUBLIC_ASSESSOR_MULTIPLIER
