@@ -8,7 +8,7 @@ const ConnectWalletCard = (props: Props) => {
     return (
         <Card className="items-center p-4 rounded-lg mx-auto">
             <CardHeader>Welcome to Motivator</CardHeader>
-            <CardContent>Sign in to participate as an Assessor</CardContent>
+            <CardContent>Connect the same wallet you're using on testnet to start Motivating</CardContent>
             <div className="flex m-auto">
                 <ConnectButton />
             </div>
