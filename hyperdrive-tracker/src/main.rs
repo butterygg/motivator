@@ -44,7 +44,8 @@ const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca9
 const START_BLOCK: u64 = 41;
 const BLOCK_STEP: usize = 4;
 
-const WEEKLY_CSV: &str = "weekly-4626.csv";
+const SEVEN_DAYS: usize = 7 * 24 * 60 * 60;
+const CSV_FILEPATH_BASE: &str = "4626";
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct LongKey {
@@ -628,45 +629,6 @@ async fn load_hyperdrive_events(
     Ok(())
 }
 
-//fn dump_hyperdrive_events(events: Arc<Events>) {
-//    let longs_map: HashMap<String, Long> = events
-//        .longs
-//        .clone()
-//        .into_iter()
-//        .map(|(key, value)| (key.to_string(), value))
-//        .collect();
-//    println!(
-//        "-- START LONGS --\n{}\n-- END LONGS --",
-//        serde_json::to_string_pretty(&longs_map).unwrap()
-//    );
-//    let shorts_map: HashMap<String, Short> = events
-//        .shorts
-//        .clone()
-//        .into_iter()
-//        .map(|(key, value)| (key.to_string(), value))
-//        .collect();
-//    println!(
-//        "-- START SHORTS --\n{}\n-- END SHORTS --",
-//        serde_json::to_string_pretty(&shorts_map).unwrap()
-//    );
-//    let lps_map: HashMap<String, Lp> = events
-//        .lps
-//        .clone()
-//        .into_iter()
-//        .map(|(key, value)| (key.to_string(), value))
-//        .collect();
-//    println!(
-//        "-- START LPS --\n{}\n-- END LPS --",
-//        serde_json::to_string_pretty(&lps_map).unwrap()
-//    );
-//    let share_prices_map: HashMap<U256, SharePrice> =
-//        events.share_prices.clone().into_iter().collect();
-//    println!(
-//        "-- START SHARE_PRICES --\n{}\n-- END SHARE_PRICES --",
-//        serde_json::to_string_pretty(&share_prices_map).unwrap()
-//    );
-//}
-
 fn calc_pnls(
     events: Arc<Events>,
     block_num: u64,
@@ -914,16 +876,15 @@ async fn load_pnls(
     Ok(series)
 }
 
-fn compute_users_aggregates(events: Arc<Events>, series_ref: &Series) -> UsersAggs {
+fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, start_timestamp: U256 , end_timestamp: U256) -> UsersAggs {
     let mut users_aggs: UsersAggs = HashMap::new();
 
     for entry in events.longs.iter() {
         let long_key = entry.key();
+        let filtered_entries: Vec<_>= entry.value().iter().filter(|debit| {start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp}).collect();
         let agg = users_aggs.entry(long_key.trader).or_default();
-        agg.action_count += entry.value().len();
-        agg.volume += entry
-            .value()
-            .iter()
+        agg.action_count += filtered_entries.len();
+        agg.volume += filtered_entries.iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
                     -debit.base_amount
@@ -935,11 +896,10 @@ fn compute_users_aggregates(events: Arc<Events>, series_ref: &Series) -> UsersAg
     }
     for entry in events.shorts.iter() {
         let short_key = entry.key();
+        let filtered_entries: Vec<_>= entry.value().iter().filter(|debit| {start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp}).collect();
         let agg = users_aggs.entry(short_key.trader).or_default();
-        agg.action_count += entry.value().len();
-        agg.volume += entry
-            .value()
-            .iter()
+        agg.action_count += filtered_entries.len();
+        agg.volume += filtered_entries            .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
                     -debit.base_amount
@@ -951,11 +911,10 @@ fn compute_users_aggregates(events: Arc<Events>, series_ref: &Series) -> UsersAg
     }
     for entry in events.lps.iter() {
         let lp_key = entry.key();
+        let filtered_entries: Vec<_>= entry.value().iter().filter(|debit| {start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp}).collect();
         let agg = users_aggs.entry(lp_key.provider).or_default();
-        agg.action_count += entry.value().len();
-        agg.volume += entry
-            .value()
-            .iter()
+        agg.action_count += filtered_entries.len();
+        agg.volume += filtered_entries            .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
                     -debit.base_amount
@@ -966,7 +925,7 @@ fn compute_users_aggregates(events: Arc<Events>, series_ref: &Series) -> UsersAg
             .sum::<I256>();
     }
 
-    let (_, last_time_data) = series_ref.iter().max_by_key(|&(block, _)| block).unwrap();
+    let (_, last_time_data) = series_ref.iter().filter(|(_, time_data_ref)| {start_timestamp<=time_data_ref.timestamp && time_data_ref.timestamp < end_timestamp}).max_by_key(|&(block, _)| block).unwrap();
 
     for (long_key_ref, position_stmt_ref) in last_time_data.longs.iter() {
         let agg = users_aggs.entry(long_key_ref.trader).or_default();
@@ -984,28 +943,40 @@ fn compute_users_aggregates(events: Arc<Events>, series_ref: &Series) -> UsersAg
     users_aggs
 }
 
-async fn dump_total_period_aggregates(
+async fn dump_weekly_aggregates(
     events: Arc<Events>,
     series_ref: &Series,
-    csv_file_path: &str,
+    csv_filepath_base: &str,
+    start_timestamp: U256,
+    end_timestamp: U256
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut writer = Writer::from_path(csv_file_path)?;
+    let mut week_start = start_timestamp;
+    let mut week_end = start_timestamp + SEVEN_DAYS;
 
-    let users_aggs = compute_users_aggregates(events, series_ref);
+    while week_end < end_timestamp {
+        let mut writer = Writer::from_path(format!("{}-weekstart-{}.csv", csv_filepath_base, timestamp_to_string(week_start)))?;
 
-    for (address, agg) in users_aggs {
-        let record = CsvRecordWeeklyAggs {
-            address: address.to_string(),
-            action_count: agg.action_count,
-            volume: agg.volume.to_string(),
-            pnl_longs: agg.pnl.long.to_string(),
-            pnl_shorts: agg.pnl.short.to_string(),
-            pnl_lps: agg.pnl.lp.to_string(),
-        };
-        writer.serialize(record)?;
+        let users_aggs = aggregate_per_user_over_period(events.clone(), series_ref, week_start, week_end);
+
+        for (address, agg) in users_aggs {
+            let record = CsvRecordWeeklyAggs {
+                address: address.to_string(),
+                action_count: agg.action_count,
+                volume: agg.volume.to_string(),
+                pnl_longs: agg.pnl.long.to_string(),
+                pnl_shorts: agg.pnl.short.to_string(),
+                pnl_lps: agg.pnl.lp.to_string(),
+            };
+            writer.serialize(record)?;
+        }
+
+        writer.flush()?;
+
+        info!("WeekDumped week_start={} week_end={}", timestamp_to_string(week_start), timestamp_to_string(week_end));
+
+        week_start += week_end;
+        week_end += SEVEN_DAYS.into();
     }
-
-    writer.flush()?;
 
     Ok(())
 }
@@ -1057,7 +1028,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .await?;
 
-    dump_total_period_aggregates(events.clone(), &series, WEEKLY_CSV).await?;
+    let start_block_timestamp = client.clone()
+        .get_block(START_BLOCK)
+        .await?
+        .unwrap()
+        .timestamp;
+    //let current_timestamp = U256::from(Utc::now().timestamp() as u64);
+    let a_week_after = start_block_timestamp + SEVEN_DAYS + 1;
+    dump_weekly_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after).await?;
 
     Ok(())
 }
