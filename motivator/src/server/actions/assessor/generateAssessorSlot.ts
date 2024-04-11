@@ -30,12 +30,12 @@ export async function generateAssessorSlot({
     const values = () => {
         const result: {
             user_address: `0x${string}`
-            assessor_slot_ID: { id: string }[]
+            assessor_slot_id: string
         }[] = []
         userList.forEach((element) => {
             result.push({
                 user_address: element,
-                assessor_slot_ID: registerAssessorSlot,
+                assessor_slot_id: registerAssessorSlot[0].id as string,
             })
         })
         return result
