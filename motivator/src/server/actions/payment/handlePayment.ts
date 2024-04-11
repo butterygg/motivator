@@ -1,14 +1,10 @@
 'use server'
 import { config, publicClient, alchemySettings } from '@/utils/Web3Provider'
-import {
-    getAccount,
-    getTransactionConfirmations,
-    getTransaction,
-} from '@wagmi/core'
+
 import { Address, parseEther } from 'viem'
 import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
 import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
-import { ethers } from 'ethers'
+import { InfuraProvider, ethers } from 'ethers'
 // import { Network, Alchemy } from 'alchemy-sdk'
 
 /** handle Payment coming from front end
@@ -39,7 +35,7 @@ export async function handlePayment({
     // Get the latest block
     // const transaction = await alchemy.core.getTransaction(hash)
 
-    const provider = new ethers.providers.InfuraProvider('sepolia')
+    // const provider = new ethers.providers.InfuraProvider('sepolia')
 
     // Connect to mainnet with a Project ID (these are equivalent)
     // const provider = new ethers.providers.InfuraProvider(
@@ -48,10 +44,11 @@ export async function handlePayment({
     // )
 
     // Connect to mainnet with a Project ID and Project Secret
-    // const provider = new InfuraProvider("sepolia", {
-    //     projectId: projectId,
-    //     projectSecret: projectSecret
-    // });
+    const provider = new InfuraProvider(
+        'sepolia',
+        'e210bca124a44fa881d3242e3394ada6',
+        'ILWXBT5yyWXGOHmR0o5UNc2EF/xjLnDHQ3pkE9bpVyyRGxO68Jx3qA'
+    )
 
     // // Connect to the INFURA WebSocket endpoints with a WebSocketProvider
     // provider = InfuraProvider.getWebSocketProvider()
@@ -63,9 +60,7 @@ export async function handlePayment({
     // const provider = new ethers.JsonRpcProvider(
     //     process.env.NEXT_PUBLIC_RPC_PROVIDER
     //   );
-    const tx = await provider.getTransaction(
-        '0xd30b94322cd2d598ac3d5f689f9501f208362af444effb5c24ffa7e38c715f91'
-    )
+    const tx = await provider.getTransaction(hash)
     console.log('XXX', tx)
     // const transaction = await provider.getTransactionReceipt(hash)
     // console.log(transaction)
@@ -90,7 +85,7 @@ export async function handlePayment({
     }
 
     if (
-        tx?.value.toBigInt() !==
+        tx?.value !==
         parseEther(process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string)
     ) {
         return {
@@ -99,11 +94,11 @@ export async function handlePayment({
         }
     }
 
-    const isTransactionConfirmed = await getTransactionConfirmations(config, {
-        hash: hash,
-    })
+    // const isTransactionConfirmed = await getTransactionConfirmations(config, {
+    //     hash: hash,
+    // })
 
-    if (Number(isTransactionConfirmed) == 0) {
+    if (tx?.blockNumber == null) {
         return {
             status: 'failed',
             message: 'Transaction is not confirmed',
@@ -116,7 +111,6 @@ export async function handlePayment({
         assessorAddr,
         userList: listToInsertInAssessor,
     })
-
     if (assessorSlot.status === 'ok') {
         return {
             status: 'ok',
