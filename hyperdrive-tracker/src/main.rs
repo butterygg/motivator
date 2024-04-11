@@ -206,6 +206,7 @@ type UsersAggs = HashMap<H160, UserAgg>;
 
 #[derive(Serialize)]
 struct CsvRecordWeeklyAggs {
+    week: String,
     address: String,
     action_count: usize,
     volume: String,
@@ -215,12 +216,14 @@ struct CsvRecordWeeklyAggs {
 }
 #[derive(Serialize)]
 struct CsvRecordDailyAggs {
+    day: String,
     address: String,
     action_count: usize,
     volume: String,
 }
 #[derive(Serialize)]
 struct CsvRecordHourlyAggs {
+    hour: String,
     address: String,
     pnl_longs: String,
     pnl_shorts: String,
@@ -786,24 +789,26 @@ fn calc_pnls(
 
             let open_checkpoint_time =
                 short_key.maturity_time - hyperdrive_state.config.position_duration;
-            let open_share = events
-                .share_prices
-                .get(&open_checkpoint_time)
-                .expect(&format!(
+            let open_share_errmsg = &format!(
                 "Expected short open checkpoint SharePrice to be recorded but did not: {:?} {:#?}",
                 open_checkpoint_time, events.share_prices
-            ));
-            let open_share_price = open_share.price;
+            );
+            let open_share_price = events
+                .share_prices
+                .get(&open_checkpoint_time)
+                .expect(open_share_errmsg)
+                .price;
 
             let close_checkpoint_time = short_key.maturity_time;
-            let close_share = events
-                .share_prices
-                .get(&close_checkpoint_time)
-                .expect(&format!(
+            let close_share_errmsg = &format!(
                 "Expected short close checkpoint SharePrice to be recorded but did not: {:?} {:#?}",
                 open_checkpoint_time, events.share_prices
-            ));
-            let close_share_price = close_share.price;
+            );
+            let close_share_price = events
+                .share_prices
+                .get(&close_checkpoint_time)
+                .expect(close_share_errmsg)
+                .price;
 
             // [XXX] Are we calling this fn correctly?
             let calculated_close_shares = hyperdrive_state.calculate_close_short(
@@ -1019,6 +1024,13 @@ async fn dump_period_aggregates(
     let mut period_start = start_timestamp;
     let mut period_end = start_timestamp + period;
 
+    let mut writer = Writer::from_path(format!(
+        "{}--period-{:?}--start-{}.csv",
+        csv_filepath_base,
+        period_name,
+        timestamp_to_string(period_start)
+    ))?;
+
     info!(
         "Periods period_name={:?} start={} end={}",
         period_name,
@@ -1027,19 +1039,13 @@ async fn dump_period_aggregates(
     );
 
     while period_end < end_timestamp {
-        let mut writer = Writer::from_path(format!(
-            "{}--period-{:?}--start-{}.csv",
-            csv_filepath_base,
-            period_name,
-            timestamp_to_string(period_start)
-        ))?;
-
         let users_aggs =
             aggregate_per_user_over_period(events.clone(), series_ref, period_start, period_end);
 
         for (address, agg) in users_aggs {
             match period_name {
                 PeriodName::Weekly => writer.serialize(CsvRecordWeeklyAggs {
+                    week: timestamp_to_string(period_start),
                     address: address.to_string(),
                     action_count: agg.action_count,
                     volume: agg.volume.to_string(),
@@ -1048,11 +1054,13 @@ async fn dump_period_aggregates(
                     pnl_lps: agg.pnl.lp.to_string(),
                 })?,
                 PeriodName::Daily => writer.serialize(CsvRecordDailyAggs {
+                    day: timestamp_to_string(period_start),
                     address: address.to_string(),
                     action_count: agg.action_count,
                     volume: agg.volume.to_string(),
                 })?,
                 PeriodName::Hourly => writer.serialize(CsvRecordHourlyAggs {
+                    hour: timestamp_to_string(period_start),
                     address: address.to_string(),
                     pnl_longs: agg.pnl.long.to_string(),
                     pnl_shorts: agg.pnl.short.to_string(),
@@ -1061,8 +1069,6 @@ async fn dump_period_aggregates(
             }
         }
 
-        writer.flush()?;
-
         info!(
             "PeriodDumped period_name={:?} period_start={} period_end={}",
             period_name,
@@ -1070,9 +1076,11 @@ async fn dump_period_aggregates(
             timestamp_to_string(period_end)
         );
 
-        period_start += period_end;
+        period_start += period;
         period_end += period;
     }
+
+    writer.flush()?;
 
     Ok(())
 }
