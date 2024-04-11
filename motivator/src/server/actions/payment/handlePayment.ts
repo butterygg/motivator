@@ -9,7 +9,7 @@ import { Address, parseEther } from 'viem'
 import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
 import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
 import { ethers } from 'ethers'
-import { Network, Alchemy } from 'alchemy-sdk'
+// import { Network, Alchemy } from 'alchemy-sdk'
 
 /** handle Payment coming from front end
  *
@@ -23,22 +23,54 @@ export async function handlePayment({
     assessorAddr: string
     hash: Address
 }) {
-    const alchemySettings = {
-        apiKey: 'A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
-        network: Network.ETH_SEPOLIA,
-    }
-    console.log('STILL NOT WORKING ')
-    const alchemy = new Alchemy(alchemySettings)
+    // const alchemySettings = {
+    //     apiKey: 'A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
+    //     network: Network.ETH_SEPOLIA,
+    // }
+
+    // const wsProvider = new ethers.providers.WebSocketProvider(
+    //     'wss://eth-sepolia.g.alchemy.com/v2/A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
+    //     Network.ETH_SEPOLIA
+    // )
+    // wsProvider.perform('alchemy_getTransactionByHash', [hash])
+    // console.log('STILL NOT WORKING ')
+    // const alchemy = new Alchemy(alchemySettings)
 
     // Get the latest block
-    const transaction = await alchemy.core.getTransaction(hash)
-    // const transaction = await ethers.providers
-    //     .getDefaultProvider()
-    //     .getTransactionReceipt(hash)
+    // const transaction = await alchemy.core.getTransaction(hash)
 
+    const provider = new ethers.providers.InfuraProvider('sepolia')
+
+    // Connect to mainnet with a Project ID (these are equivalent)
+    // const provider = new ethers.providers.InfuraProvider(
+    //     'sepolia',
+    //     'e210bca124a44fa881d3242e3394ada6'
+    // )
+
+    // Connect to mainnet with a Project ID and Project Secret
+    // const provider = new InfuraProvider("sepolia", {
+    //     projectId: projectId,
+    //     projectSecret: projectSecret
+    // });
+
+    // // Connect to the INFURA WebSocket endpoints with a WebSocketProvider
+    // provider = InfuraProvider.getWebSocketProvider()
+    // console.log('provider', provider)
+    // const providerX = new ethers.providers.JsonRpcProvider(
+    //     'https://sepolia.infura.io/v3/e210bca124a44fa881d3242e3394ada6',
+    //     ethers.providers.getNetwork('sepolia')
+    // )
+    // const provider = new ethers.JsonRpcProvider(
+    //     process.env.NEXT_PUBLIC_RPC_PROVIDER
+    //   );
+    const tx = await provider.getTransaction(
+        '0xd30b94322cd2d598ac3d5f689f9501f208362af444effb5c24ffa7e38c715f91'
+    )
+    console.log('XXX', tx)
+    // const transaction = await provider.getTransactionReceipt(hash)
+    // console.log(transaction)
     // const provider = new AlchemyProvider();
-    // const provider = new ethers.providers.JsonRpcProvider('https://mainnet.infura.io/v3/A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb');
-    console.log(transaction)
+    // console.log(transaction)
     // const transaction = await provider.getTransaction(hash)
     // tx.
 
@@ -50,7 +82,7 @@ export async function handlePayment({
     //     hash: hash,
     // })
 
-    if (transaction?.from !== assessorAddr) {
+    if (tx?.from !== assessorAddr) {
         return {
             status: 'failed',
             message: 'Transaction is not from the right address',
@@ -58,7 +90,7 @@ export async function handlePayment({
     }
 
     if (
-        transaction?.value.toBigInt() !==
+        tx?.value.toBigInt() !==
         parseEther(process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string)
     ) {
         return {

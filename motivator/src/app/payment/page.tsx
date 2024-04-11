@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { useAccount, useSendTransaction } from 'wagmi'
+import { useAccount, useSendTransaction, useTransaction } from 'wagmi'
 import { Address, parseEther } from 'viem'
 import { handlePayment } from '@/server/actions/payment/handlePayment'
 import { useRouter } from 'next/navigation'
@@ -75,17 +75,28 @@ const Payment = (props: Props) => {
         status: statusReceipt,
     } = useWaitForTransactionReceipt({
         hash: data ? (data as Address) : '0x0',
+        pollingInterval: 1000,
     })
 
+    const {
+        data: DataTransaction,
+        refetch: RefetchTransaction,
+        status: statusGetTransaction,
+    } = useTransaction({
+        hash: data ? (data as Address) : '0x0',
+    })
     const handleOnClick = async () => {
         await sendTransactionAsync({
-            to: process.env.NEXT_PUBLIC_ADDRESS_RECEIVER
-                ? (process.env.NEXT_PUBLIC_ADDRESS_RECEIVER as Address)
-                : '0x0000000000000000000000000000000000000000',
+            // to: process.env.NEXT_PUBLIC_ADDRESS_RECEIVER
+            //     ? (process.env.NEXT_PUBLIC_ADDRESS_RECEIVER as Address)
+            //     : '0x0000000000000000000000000000000000000000',
+            to: '0x3Eb92eBE3e1f226b14E78Af49646aFEA61Fb016C',
             value: parseEther(value),
         })
-
-        await refetchReceipt()
+        console.log('Transaction sent')
+        await RefetchTransaction()
+        console.log('Transaction refetched')
+        // await refetchReceipt()
         // // const transactionReceipt = waitForTransactionReceipt(config, {
         // //     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
         // // })
@@ -109,17 +120,33 @@ const Payment = (props: Props) => {
             assessorAddr: address ? (address as Address) : '0x0',
             hash: data ? (data as Address) : '0x0',
         })
+        console.log(assessorSlot, 'assessorSlot')
         if (assessorSlot?.status === 'ok' && assessorSlot.assessorSlot) {
             push(`/assessor/slot/${assessorSlot.assessorSlot?.id as string}`)
         }
     }
+
     useEffect(() => {
         console.log(transactionReceipt, 'transactionReceipt')
         console.log(statusTransaction, 'statusTransaction')
-        if (transactionReceipt?.status === 'success') {
+        console.log(DataTransaction, 'DataTransaction')
+        if (DataTransaction?.blockNumber) {
             managePayment()
+            console.log('Launch Manage Payment')
         }
-    }, [transactionReceipt, refetchReceipt, statusTransaction])
+        if (data && !DataTransaction) {
+            managePayment()
+            console.log('2EME IF Launch Manage Payment')
+        }
+        // if (transactionReceipt?.status === 'success') {
+        //     managePayment()
+        // }
+    }, [
+        transactionReceipt?.status,
+        refetchReceipt,
+        statusTransaction,
+        DataTransaction,
+    ])
 
     const handleDisplay = () => {
         if (assessorSlotFinded) {
