@@ -28,6 +28,7 @@ const corsOptions: {
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
     // Response
+    // const response = NextResponse.redirect(new URL('/', request.url))
     const response = NextResponse.redirect(new URL('/', request.url))
     // Allowed origins check
     const origin = request.headers.get('origin') ?? ''
