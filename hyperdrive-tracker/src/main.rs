@@ -70,7 +70,7 @@ const START_BLOCK: u64 = 41;
 const BLOCK_STEP: usize = 4;
 
 const SEVEN_DAYS: u64 = 7 * 24 * 60 * 60;
-const DAY: u64 =  24 * 60 * 60;
+const DAY: u64 = 24 * 60 * 60;
 const HOUR: u64 = 60 * 60;
 const CSV_FILEPATH_BASE: &str = "4626";
 
@@ -228,8 +228,11 @@ struct CsvRecordHourlyAggs {
 }
 
 #[derive(Debug)]
-enum PeriodName { Weekly, Daily, Hourly}
-
+enum PeriodName {
+    Weekly,
+    Daily,
+    Hourly,
+}
 
 // LOAD EVENTS ///////////////////////////////////////////////////
 
@@ -770,53 +773,56 @@ fn calc_pnls(
         })
         .collect();
 
-    let shorts_pnls: HashMap<ShortKey, PositionStatement> = events.shorts
-            .iter()
-            .map(|entry| {
-                let short_key = *entry.key();
+    let shorts_pnls: HashMap<ShortKey, PositionStatement> = events
+        .shorts
+        .iter()
+        .map(|entry| {
+            let short_key = *entry.key();
 
-                let balance = shorts_balances.get(&short_key).unwrap();
+            let balance = shorts_balances.get(&short_key).unwrap();
 
-                let normalized_time_remaining =
-                    hyperdrive_state.time_remaining_scaled(block_timestamp, short_key.maturity_time);
+            let normalized_time_remaining =
+                hyperdrive_state.time_remaining_scaled(block_timestamp, short_key.maturity_time);
 
-                let open_checkpoint_time = short_key.maturity_time - hyperdrive_state.config.position_duration;
-                let open_share_price = events.share_prices
-                    .get(&open_checkpoint_time)
-                    .unwrap_or_else(||
-                        panic!("Expected short open checkpoint SharePrice to be recorded but did not: {:?} {:#?}", open_checkpoint_time, events.share_prices)
-                    )
-                    .price;
+            let open_checkpoint_time =
+                short_key.maturity_time - hyperdrive_state.config.position_duration;
+            let open_share = events
+                .share_prices
+                .get(&open_checkpoint_time)
+                .expect(&format!(
+                "Expected short open checkpoint SharePrice to be recorded but did not: {:?} {:#?}",
+                open_checkpoint_time, events.share_prices
+            ));
+            let open_share_price = open_share.price;
 
-                let close_checkpoint_time = short_key.maturity_time;
-                let close_share_price = events.share_prices
-                    .get(&close_checkpoint_time)
-                    .unwrap_or_else(|| 
-                        panic!("Expected short close checkpoint SharePrice to be recorded but did not: {:?} {:#?}", open_checkpoint_time, events.share_prices)
-                    )
-                    .price;
+            let close_checkpoint_time = short_key.maturity_time;
+            let close_share = events
+                .share_prices
+                .get(&close_checkpoint_time)
+                .expect(&format!(
+                "Expected short close checkpoint SharePrice to be recorded but did not: {:?} {:#?}",
+                open_checkpoint_time, events.share_prices
+            ));
+            let close_share_price = close_share.price;
 
-                // [XXX] Are we calling this fn correctly?
-                let calculated_close_shares = hyperdrive_state.calculate_close_short(
-                    balance.bond_balance,
-                    open_share_price,
-                    close_share_price,
-                    normalized_time_remaining.into(),
-                );
-                let calculated_close_base_amount =
-                    calculated_close_shares * hyperdrive_state.info.vault_share_price.into();
+            // [XXX] Are we calling this fn correctly?
+            let calculated_close_shares = hyperdrive_state.calculate_close_short(
+                balance.bond_balance,
+                open_share_price,
+                close_share_price,
+                normalized_time_remaining.into(),
+            );
+            let calculated_close_base_amount =
+                calculated_close_shares * hyperdrive_state.info.vault_share_price.into();
 
-                let pos_statement = PositionStatement{
-                    balance: *balance,
-                    pnl:
-                    I256::try_from(calculated_close_base_amount).unwrap() - balance.base_balance};
+            let pos_statement = PositionStatement {
+                balance: *balance,
+                pnl: I256::try_from(calculated_close_base_amount).unwrap() - balance.base_balance,
+            };
 
-                (
-                    short_key,
-                    pos_statement
-                )
-            })
-            .collect();
+            (short_key, pos_statement)
+        })
+        .collect();
 
     let lps_pnls: HashMap<LpKey, LpStatement> = events
         .lps
@@ -856,14 +862,13 @@ async fn load_pnls(
     let mut series: Series = HashMap::new();
 
     info!(
-            "LoadPnL start_block={} start={} end_block={} end={} block_step={}", start_block, timestamp_to_string(client
-        .get_block(start_block)
-        .await?
-        .unwrap()
-        .timestamp), end_block,  timestamp_to_string(client .get_block(end_block)
-        .await?
-        .unwrap()
-        .timestamp), block_step);
+        "LoadPnL start_block={} start={} end_block={} end={} block_step={}",
+        start_block,
+        timestamp_to_string(client.get_block(start_block).await?.unwrap().timestamp),
+        end_block,
+        timestamp_to_string(client.get_block(end_block).await?.unwrap().timestamp),
+        block_step
+    );
 
     for block_num in (start_block..end_block.as_u64() + 1).step_by(block_step) {
         let block_timestamp = client.get_block(block_num).await?.unwrap().timestamp;
@@ -904,15 +909,25 @@ async fn load_pnls(
 
 // AGGREGATES //////////////////////////////////////////////
 
-fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, start_timestamp: U256 , end_timestamp: U256) -> UsersAggs {
+fn aggregate_per_user_over_period(
+    events: Arc<Events>,
+    series_ref: &Series,
+    start_timestamp: U256,
+    end_timestamp: U256,
+) -> UsersAggs {
     let mut users_aggs: UsersAggs = HashMap::new();
 
     for entry in events.longs.iter() {
         let long_key = entry.key();
-        let filtered_entries: Vec<_>= entry.value().iter().filter(|debit| {start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp}).collect();
+        let filtered_entries: Vec<_> = entry
+            .value()
+            .iter()
+            .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
+            .collect();
         let agg = users_aggs.entry(long_key.trader).or_default();
         agg.action_count += filtered_entries.len();
-        agg.volume += filtered_entries.iter()
+        agg.volume += filtered_entries
+            .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
                     -debit.base_amount
@@ -924,10 +939,15 @@ fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, star
     }
     for entry in events.shorts.iter() {
         let short_key = entry.key();
-        let filtered_entries: Vec<_>= entry.value().iter().filter(|debit| {start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp}).collect();
+        let filtered_entries: Vec<_> = entry
+            .value()
+            .iter()
+            .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
+            .collect();
         let agg = users_aggs.entry(short_key.trader).or_default();
         agg.action_count += filtered_entries.len();
-        agg.volume += filtered_entries            .iter()
+        agg.volume += filtered_entries
+            .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
                     -debit.base_amount
@@ -939,10 +959,15 @@ fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, star
     }
     for entry in events.lps.iter() {
         let lp_key = entry.key();
-        let filtered_entries: Vec<_>= entry.value().iter().filter(|debit| {start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp}).collect();
+        let filtered_entries: Vec<_> = entry
+            .value()
+            .iter()
+            .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
+            .collect();
         let agg = users_aggs.entry(lp_key.provider).or_default();
         agg.action_count += filtered_entries.len();
-        agg.volume += filtered_entries            .iter()
+        agg.volume += filtered_entries
+            .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
                     -debit.base_amount
@@ -954,7 +979,13 @@ fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, star
     }
 
     let default_time_data = TimeData::default();
-    let (_, last_time_data) = series_ref.iter().filter(|(_, time_data_ref)| {start_timestamp<=time_data_ref.timestamp && time_data_ref.timestamp < end_timestamp}).max_by_key(|&(block, _)| block).unwrap_or((&0, &default_time_data));
+    let (_, last_time_data) = series_ref
+        .iter()
+        .filter(|(_, time_data_ref)| {
+            start_timestamp <= time_data_ref.timestamp && time_data_ref.timestamp < end_timestamp
+        })
+        .max_by_key(|&(block, _)| block)
+        .unwrap_or((&0, &default_time_data));
 
     for (long_key_ref, position_stmt_ref) in last_time_data.longs.iter() {
         let agg = users_aggs.entry(long_key_ref.trader).or_default();
@@ -968,7 +999,7 @@ fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, star
         let agg = users_aggs.entry(lp_key_ref.provider).or_default();
         agg.pnl.lp += position_stmt_ref.pnl;
     }
-    
+
     users_aggs
 }
 
@@ -978,49 +1009,66 @@ async fn dump_period_aggregates(
     csv_filepath_base: &str,
     start_timestamp: U256,
     end_timestamp: U256,
-    period_name: PeriodName
+    period_name: PeriodName,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let period: U256= match period_name {PeriodName::Weekly => SEVEN_DAYS.into(),
-    PeriodName::Daily => DAY.into(),
-    PeriodName::Hourly => HOUR.into()};
+    let period: U256 = match period_name {
+        PeriodName::Weekly => SEVEN_DAYS.into(),
+        PeriodName::Daily => DAY.into(),
+        PeriodName::Hourly => HOUR.into(),
+    };
     let mut period_start = start_timestamp;
     let mut period_end = start_timestamp + period;
 
-    info!("Periods period_name={:?} start={} end={}", period_name, timestamp_to_string(start_timestamp), timestamp_to_string(end_timestamp));
+    info!(
+        "Periods period_name={:?} start={} end={}",
+        period_name,
+        timestamp_to_string(start_timestamp),
+        timestamp_to_string(end_timestamp)
+    );
 
     while period_end < end_timestamp {
-        let mut writer = Writer::from_path(format!("{}--period-{:?}--start-{}.csv", csv_filepath_base, period_name, timestamp_to_string(period_start)))?;
+        let mut writer = Writer::from_path(format!(
+            "{}--period-{:?}--start-{}.csv",
+            csv_filepath_base,
+            period_name,
+            timestamp_to_string(period_start)
+        ))?;
 
-        let users_aggs = aggregate_per_user_over_period(events.clone(), series_ref, period_start, period_end);
+        let users_aggs =
+            aggregate_per_user_over_period(events.clone(), series_ref, period_start, period_end);
 
         for (address, agg) in users_aggs {
             match period_name {
-
-           PeriodName::Weekly => writer.serialize(CsvRecordWeeklyAggs {
-                address: address.to_string(),
-                action_count: agg.action_count,
-                volume: agg.volume.to_string(),
-                pnl_longs: agg.pnl.long.to_string(),
-                pnl_shorts: agg.pnl.short.to_string(),
-                pnl_lps: agg.pnl.lp.to_string(),
-            })?,
-           PeriodName::Daily => writer.serialize(CsvRecordDailyAggs {
-                address: address.to_string(),
-                action_count: agg.action_count,
-                volume: agg.volume.to_string(),
-            })?,
-           PeriodName::Hourly => writer.serialize(CsvRecordHourlyAggs{
-                address: address.to_string(),
-                pnl_longs: agg.pnl.long.to_string(),
-                pnl_shorts: agg.pnl.short.to_string(),
-                pnl_lps: agg.pnl.lp.to_string(),
-            })?,
+                PeriodName::Weekly => writer.serialize(CsvRecordWeeklyAggs {
+                    address: address.to_string(),
+                    action_count: agg.action_count,
+                    volume: agg.volume.to_string(),
+                    pnl_longs: agg.pnl.long.to_string(),
+                    pnl_shorts: agg.pnl.short.to_string(),
+                    pnl_lps: agg.pnl.lp.to_string(),
+                })?,
+                PeriodName::Daily => writer.serialize(CsvRecordDailyAggs {
+                    address: address.to_string(),
+                    action_count: agg.action_count,
+                    volume: agg.volume.to_string(),
+                })?,
+                PeriodName::Hourly => writer.serialize(CsvRecordHourlyAggs {
+                    address: address.to_string(),
+                    pnl_longs: agg.pnl.long.to_string(),
+                    pnl_shorts: agg.pnl.short.to_string(),
+                    pnl_lps: agg.pnl.lp.to_string(),
+                })?,
             }
         }
 
         writer.flush()?;
 
-        info!("PeriodDumped period_name={:?} period_start={} period_end={}", period_name, timestamp_to_string(period_start), timestamp_to_string(period_end));
+        info!(
+            "PeriodDumped period_name={:?} period_start={} period_end={}",
+            period_name,
+            timestamp_to_string(period_start),
+            timestamp_to_string(period_end)
+        );
 
         period_start += period_end;
         period_end += period;
@@ -1078,18 +1126,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .await?;
 
-    let start_block_timestamp = client.clone()
+    let start_block_timestamp = client
+        .clone()
         .get_block(START_BLOCK)
         .await?
         .unwrap()
         .timestamp;
     //let current_timestamp = U256::from(Utc::now().timestamp() as u64);
     let a_week_after = start_block_timestamp + SEVEN_DAYS + 1;
-    dump_period_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after, PeriodName::Weekly).await?;
+    dump_period_aggregates(
+        events.clone(),
+        &series,
+        CSV_FILEPATH_BASE,
+        start_block_timestamp,
+        /*current_timestamp*/ a_week_after,
+        PeriodName::Weekly,
+    )
+    .await?;
 
-    dump_period_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after, PeriodName::Daily).await?;
+    dump_period_aggregates(
+        events.clone(),
+        &series,
+        CSV_FILEPATH_BASE,
+        start_block_timestamp,
+        /*current_timestamp*/ a_week_after,
+        PeriodName::Daily,
+    )
+    .await?;
 
-    dump_period_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after, PeriodName::Hourly).await?;
+    dump_period_aggregates(
+        events.clone(),
+        &series,
+        CSV_FILEPATH_BASE,
+        start_block_timestamp,
+        /*current_timestamp*/ a_week_after,
+        PeriodName::Hourly,
+    )
+    .await?;
 
     Ok(())
 }
