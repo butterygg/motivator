@@ -19,6 +19,8 @@ use tracing::{debug, info};
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
+// UTILS ///////////////////////////////////////////////////
+
 fn timestamp_to_string(timestamp: U256) -> String {
     let datetime = Utc
         .timestamp_opt(timestamp.as_u64() as i64, 0)
@@ -30,7 +32,30 @@ fn timestamp_to_string(timestamp: U256) -> String {
     }
 }
 
+async fn find_block_by_timestamp(
+    client: Arc<Provider<Ws>>,
+    desired_timestamp: u64,
+    start_block: u64,
+    end_block: U64,
+) -> Result<U64, Box<dyn std::error::Error>> {
+    let mut low = start_block;
+    let mut high = end_block.as_u64();
+
+    while low <= high {
+        let mid = low + (high - low) / 2;
+        let mid_block = client.get_block::<u64>(mid).await?.unwrap();
+        match mid_block.timestamp.as_u64().cmp(&desired_timestamp) {
+            std::cmp::Ordering::Less => low = mid + 1,
+            std::cmp::Ordering::Greater => high = mid - 1,
+            std::cmp::Ordering::Equal => return Ok(mid.into()),
+        }
+    }
+    Ok(high.into())
+}
+
 // [TODO] Handle multiple contracts and add Aggregates at the end.
+
+// CONFIG ///////////////////////////////////////////////////
 
 /// Rust tests deployment
 // const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("8d4928532f2dd0e2f31f447d7902197e54db2302"));
@@ -44,8 +69,12 @@ const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca9
 const START_BLOCK: u64 = 41;
 const BLOCK_STEP: usize = 4;
 
-const SEVEN_DAYS: usize = 7 * 24 * 60 * 60;
+const SEVEN_DAYS: u64 = 7 * 24 * 60 * 60;
+const DAY: u64 =  24 * 60 * 60;
+const HOUR: u64 = 60 * 60;
 const CSV_FILEPATH_BASE: &str = "4626";
+
+// TYPES ///////////////////////////////////////////////////
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct LongKey {
@@ -148,7 +177,7 @@ struct LpStatement {
     pnl: I256,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct TimeData {
     timestamp: U256,
     longs: HashMap<LongKey, PositionStatement>,
@@ -197,6 +226,12 @@ struct CsvRecordHourlyAggs {
     pnl_shorts: String,
     pnl_lps: String,
 }
+
+#[derive(Debug)]
+enum PeriodName { Weekly, Daily, Hourly}
+
+
+// LOAD EVENTS ///////////////////////////////////////////////////
 
 async fn write_open_long(
     client: Arc<Provider<Ws>>,
@@ -318,27 +353,6 @@ async fn write_open_short(
         .or_insert(short);
 
     Ok(())
-}
-
-async fn find_block_by_timestamp(
-    client: Arc<Provider<Ws>>,
-    desired_timestamp: u64,
-    start_block: u64,
-    end_block: U64,
-) -> Result<U64, Box<dyn std::error::Error>> {
-    let mut low = start_block;
-    let mut high = end_block.as_u64();
-
-    while low <= high {
-        let mid = low + (high - low) / 2;
-        let mid_block = client.get_block::<u64>(mid).await?.unwrap();
-        match mid_block.timestamp.as_u64().cmp(&desired_timestamp) {
-            std::cmp::Ordering::Less => low = mid + 1,
-            std::cmp::Ordering::Greater => high = mid - 1,
-            std::cmp::Ordering::Equal => return Ok(mid.into()),
-        }
-    }
-    Ok(high.into())
 }
 
 async fn write_share_price(
@@ -629,6 +643,8 @@ async fn load_hyperdrive_events(
     Ok(())
 }
 
+// PNLS ///////////////////////////////////////////////////
+
 fn calc_pnls(
     events: Arc<Events>,
     block_num: u64,
@@ -839,6 +855,16 @@ async fn load_pnls(
 ) -> Result<Series, Box<dyn std::error::Error>> {
     let mut series: Series = HashMap::new();
 
+    info!(
+            "LoadPnL start_block={} start={} end_block={} end={} block_step={}", start_block, timestamp_to_string(client
+        .get_block(start_block)
+        .await?
+        .unwrap()
+        .timestamp), end_block,  timestamp_to_string(client .get_block(end_block)
+        .await?
+        .unwrap()
+        .timestamp), block_step);
+
     for block_num in (start_block..end_block.as_u64() + 1).step_by(block_step) {
         let block_timestamp = client.get_block(block_num).await?.unwrap().timestamp;
 
@@ -854,7 +880,7 @@ async fn load_pnls(
 
         // [TODO] Check that initial debit == calculate_close_long at open.
         // [TODO] Check calculate_close after = calculate_close before + debit
-        info!(
+        debug!(
             "PnL block_num={} block_timestamp={} longs_stmts={:#?} shorts_stmts={:#?} lps_stmts={:#?}",
             block_num,
             timestamp_to_string(block_timestamp),
@@ -875,6 +901,8 @@ async fn load_pnls(
 
     Ok(series)
 }
+
+// AGGREGATES //////////////////////////////////////////////
 
 fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, start_timestamp: U256 , end_timestamp: U256) -> UsersAggs {
     let mut users_aggs: UsersAggs = HashMap::new();
@@ -925,7 +953,8 @@ fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, star
             .sum::<I256>();
     }
 
-    let (_, last_time_data) = series_ref.iter().filter(|(_, time_data_ref)| {start_timestamp<=time_data_ref.timestamp && time_data_ref.timestamp < end_timestamp}).max_by_key(|&(block, _)| block).unwrap();
+    let default_time_data = TimeData::default();
+    let (_, last_time_data) = series_ref.iter().filter(|(_, time_data_ref)| {start_timestamp<=time_data_ref.timestamp && time_data_ref.timestamp < end_timestamp}).max_by_key(|&(block, _)| block).unwrap_or((&0, &default_time_data));
 
     for (long_key_ref, position_stmt_ref) in last_time_data.longs.iter() {
         let agg = users_aggs.entry(long_key_ref.trader).or_default();
@@ -943,43 +972,64 @@ fn aggregate_per_user_over_period(events: Arc<Events>, series_ref: &Series, star
     users_aggs
 }
 
-async fn dump_weekly_aggregates(
+async fn dump_period_aggregates(
     events: Arc<Events>,
     series_ref: &Series,
     csv_filepath_base: &str,
     start_timestamp: U256,
-    end_timestamp: U256
+    end_timestamp: U256,
+    period_name: PeriodName
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut week_start = start_timestamp;
-    let mut week_end = start_timestamp + SEVEN_DAYS;
+    let period: U256= match period_name {PeriodName::Weekly => SEVEN_DAYS.into(),
+    PeriodName::Daily => DAY.into(),
+    PeriodName::Hourly => HOUR.into()};
+    let mut period_start = start_timestamp;
+    let mut period_end = start_timestamp + period;
 
-    while week_end < end_timestamp {
-        let mut writer = Writer::from_path(format!("{}-weekstart-{}.csv", csv_filepath_base, timestamp_to_string(week_start)))?;
+    info!("Periods period_name={:?} start={} end={}", period_name, timestamp_to_string(start_timestamp), timestamp_to_string(end_timestamp));
 
-        let users_aggs = aggregate_per_user_over_period(events.clone(), series_ref, week_start, week_end);
+    while period_end < end_timestamp {
+        let mut writer = Writer::from_path(format!("{}--period-{:?}--start-{}.csv", csv_filepath_base, period_name, timestamp_to_string(period_start)))?;
+
+        let users_aggs = aggregate_per_user_over_period(events.clone(), series_ref, period_start, period_end);
 
         for (address, agg) in users_aggs {
-            let record = CsvRecordWeeklyAggs {
+            match period_name {
+
+           PeriodName::Weekly => writer.serialize(CsvRecordWeeklyAggs {
                 address: address.to_string(),
                 action_count: agg.action_count,
                 volume: agg.volume.to_string(),
                 pnl_longs: agg.pnl.long.to_string(),
                 pnl_shorts: agg.pnl.short.to_string(),
                 pnl_lps: agg.pnl.lp.to_string(),
-            };
-            writer.serialize(record)?;
+            })?,
+           PeriodName::Daily => writer.serialize(CsvRecordDailyAggs {
+                address: address.to_string(),
+                action_count: agg.action_count,
+                volume: agg.volume.to_string(),
+            })?,
+           PeriodName::Hourly => writer.serialize(CsvRecordHourlyAggs{
+                address: address.to_string(),
+                pnl_longs: agg.pnl.long.to_string(),
+                pnl_shorts: agg.pnl.short.to_string(),
+                pnl_lps: agg.pnl.lp.to_string(),
+            })?,
+            }
         }
 
         writer.flush()?;
 
-        info!("WeekDumped week_start={} week_end={}", timestamp_to_string(week_start), timestamp_to_string(week_end));
+        info!("PeriodDumped period_name={:?} period_start={} period_end={}", period_name, timestamp_to_string(period_start), timestamp_to_string(period_end));
 
-        week_start += week_end;
-        week_end += SEVEN_DAYS.into();
+        period_start += period_end;
+        period_end += period;
     }
 
     Ok(())
 }
+
+// MAIN ////////////////////////////////////////////////
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -1012,7 +1062,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .await?;
 
-    info!(
+    debug!(
         "Events longs={:#?} shorts={:#?} lps={:#?} share_prices={:#?}",
         events.longs, events.shorts, events.lps, events.share_prices
     );
@@ -1035,7 +1085,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .timestamp;
     //let current_timestamp = U256::from(Utc::now().timestamp() as u64);
     let a_week_after = start_block_timestamp + SEVEN_DAYS + 1;
-    dump_weekly_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after).await?;
+    dump_period_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after, PeriodName::Weekly).await?;
+
+    dump_period_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after, PeriodName::Daily).await?;
+
+    dump_period_aggregates(events.clone(), &series, CSV_FILEPATH_BASE, start_block_timestamp, /*current_timestamp*/a_week_after, PeriodName::Hourly).await?;
 
     Ok(())
 }
