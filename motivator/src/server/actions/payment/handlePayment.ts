@@ -1,16 +1,15 @@
 'use server'
-import { config, publicClient, alchemySettings } from '@/utils/Web3Provider'
 
 import { Address, parseEther } from 'viem'
 import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
 import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
-import { InfuraProvider, ethers } from 'ethers'
-// import { Network, Alchemy } from 'alchemy-sdk'
+import { InfuraProvider } from 'ethers'
 
 /** handle Payment coming from front end
+ * @param {string} assessorAddr
+ * @param {Address} hash
+ * @returns {Promise<{status: string, message: string, assessorSlot: AssessorSlot}>}
  *
- * @param request Will contain an Array of [{assessorAddr: string}]
- * @param response Send the status of the transaction
  */
 export async function handlePayment({
     assessorAddr,
@@ -45,10 +44,6 @@ export async function handlePayment({
         }
     }
 
-    // const isTransactionConfirmed = await getTransactionConfirmations(config, {
-    //     hash: hash,
-    // })
-
     if (tx?.blockNumber == null) {
         return {
             status: 'failed',
@@ -62,6 +57,7 @@ export async function handlePayment({
         assessorAddr,
         userList: listToInsertInAssessor,
     })
+
     if (assessorSlot.status === 'ok') {
         return {
             status: 'ok',
@@ -69,10 +65,4 @@ export async function handlePayment({
             assessorSlot: assessorSlot.assessorSlot,
         }
     }
-
-    /**
-     * Get Number Actions and Total Volume for each Users
-     * Use ponderation to get the total score of each user
-     * Normalize Score
-     */
 }
