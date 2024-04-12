@@ -25,7 +25,7 @@ export const assessor = pgTable('assessor', {
 
 export const assessor_slot = pgTable('assessor_slot', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
-    assessor_ID: text('assessor_ID').references(() => assessor.address),
+    assessor_ID: text('assessor_id').references(() => assessor.address),
     done: boolean('done').default(false),
     week: integer('week').default(0),
 })
@@ -49,7 +49,8 @@ export const assessor_slot_user = pgTable('assessor_slot_user', {
 })
 
 export const statistics = pgTable('statistics', {
-    block_number: integer('block_number').unique().primaryKey(),
+    id: uuid('id').defaultRandom().unique().primaryKey(),
+    timestamp: date('timestamp').default('now()'),
     user_address: text('user_address').references(() => user.address),
     pnl_long: integer('pnl_long').default(0),
     pnl_short: integer('pnl_short').default(0),

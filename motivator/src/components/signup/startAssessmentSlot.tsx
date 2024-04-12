@@ -16,7 +16,6 @@ import { useRouter } from 'next/navigation'
 
 type Props = {
     week: number
-    slotsAvailable: number
     weekmax: number
 }
 
@@ -33,9 +32,10 @@ const StartAssessmentSlot = (props: Props) => {
         })
 
     const handleStartAssessmentSlot = async () => {
-        await mutateSignAssessor()
-        const { res } = await mutateAssignAssessorSlot()
-        push(`/assessor/slot/${res?.id}`)
+        // await mutateSignAssessor()
+        // const { res } = await mutateAssignAssessorSlot()
+        push(`/payment`)
+        // push(`/assessor/slot/${res?.id}`)
         // setAssessorId(res?.id as string)
     }
 
@@ -55,8 +55,7 @@ const StartAssessmentSlot = (props: Props) => {
                 Hyperdrive, or slashed if misaligned.
             </CardContent>
             <CardDescription className="p-4">
-                There are {props.slotsAvailable} slots still available. The more
-                assessments you do, the more rewards you accumulate.
+                The more assessments you do, the more rewards you accumulate.
             </CardDescription>
             <CardFooter className="p-4">
                 <Button
