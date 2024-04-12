@@ -13,6 +13,68 @@ export type Props = {
 }
 
 export function PNLChart({ title, value, dataset }: Props) {
+    const chartdata = [
+        {
+            date: 'Jan 22',
+            Short: 2890,
+            Long: 2338,
+        },
+        {
+            date: 'Feb 22',
+            Short: 2756,
+            Long: 2103,
+        },
+        {
+            date: 'Mar 22',
+            Short: 3322,
+            Long: 2194,
+        },
+        {
+            date: 'Apr 22',
+            Short: 3470,
+            Long: 2108,
+        },
+        {
+            date: 'May 22',
+            Short: 3475,
+            Long: 1812,
+        },
+        {
+            date: 'Jun 22',
+            Short: 3129,
+            Long: 1726,
+        },
+        {
+            date: 'Jul 22',
+            Short: 3490,
+            Long: 1982,
+        },
+        {
+            date: 'Aug 22',
+            Short: 2903,
+            Long: 2012,
+        },
+        {
+            date: 'Sep 22',
+            Short: 2643,
+            Long: 2342,
+        },
+        {
+            date: 'Oct 22',
+            Short: 2837,
+            Long: 2473,
+        },
+        {
+            date: 'Nov 22',
+            Short: 2954,
+            Long: 3848,
+        },
+        {
+            date: 'Dec 22',
+            Short: 3239,
+            Long: 3736,
+        },
+    ]
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
@@ -23,7 +85,7 @@ export function PNLChart({ title, value, dataset }: Props) {
             </p>
             <AreaChart
                 className="h-80"
-                data={dataset}
+                data={chartdata}
                 index="date"
                 categories={['Short', 'Long']}
                 colors={['red', 'blue']}

@@ -13,6 +13,56 @@ export type Props = {
 }
 
 export function LP_PNLChart({ title, value, dataset }: Props) {
+    const chartdata = [
+        {
+            date: 'Jan 22',
+            pnl: 2890,
+        },
+        {
+            date: 'Feb 22',
+            pnl: 2756,
+        },
+        {
+            date: 'Mar 22',
+            pnl: 3322,
+        },
+        {
+            date: 'Apr 22',
+            pnl: 3470,
+        },
+        {
+            date: 'May 22',
+            pnl: 3475,
+        },
+        {
+            date: 'Jun 22',
+            pnl: 3129,
+        },
+        {
+            date: 'Jul 22',
+            pnl: 3490,
+        },
+        {
+            date: 'Aug 22',
+            pnl: 2903,
+        },
+        {
+            date: 'Sep 22',
+            pnl: 2643,
+        },
+        {
+            date: 'Oct 22',
+            pnl: 2837,
+        },
+        {
+            date: 'Nov 22',
+            pnl: 2954,
+        },
+        {
+            date: 'Dec 22',
+            pnl: 3239,
+        },
+    ]
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
@@ -23,7 +73,7 @@ export function LP_PNLChart({ title, value, dataset }: Props) {
             </p>
             <AreaChart
                 className="h-80 rounded-lg"
-                data={dataset}
+                data={chartdata}
                 index="date"
                 categories={['pnl']}
                 colors={['red']}
