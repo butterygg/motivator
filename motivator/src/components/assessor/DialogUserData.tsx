@@ -170,7 +170,7 @@ export function DialogUserData({ user }: Props) {
                     </DialogTitle>
                     <DialogDescription>Historical data</DialogDescription>
                 </DialogHeader>
-                <div className="flex justify-between gap-4 py-2">
+                <div className="flex flex-col items-center lg:flex-row justify-between gap-4 py-2">
                     <div>
                         <Label htmlFor="name" className="">
                             Statistics
