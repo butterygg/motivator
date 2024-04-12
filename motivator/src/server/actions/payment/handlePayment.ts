@@ -19,63 +19,14 @@ export async function handlePayment({
     assessorAddr: string
     hash: Address
 }) {
-    // const alchemySettings = {
-    //     apiKey: 'A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
-    //     network: Network.ETH_SEPOLIA,
-    // }
-
-    // const wsProvider = new ethers.providers.WebSocketProvider(
-    //     'wss://eth-sepolia.g.alchemy.com/v2/A23FM2MPsnG3CCpDqiDetU2HyIFtIwpb',
-    //     Network.ETH_SEPOLIA
-    // )
-    // wsProvider.perform('alchemy_getTransactionByHash', [hash])
-    // console.log('STILL NOT WORKING ')
-    // const alchemy = new Alchemy(alchemySettings)
-
-    // Get the latest block
-    // const transaction = await alchemy.core.getTransaction(hash)
-
-    // const provider = new ethers.providers.InfuraProvider('sepolia')
-
-    // Connect to mainnet with a Project ID (these are equivalent)
-    // const provider = new ethers.providers.InfuraProvider(
-    //     'sepolia',
-    //     'e210bca124a44fa881d3242e3394ada6'
-    // )
-
     // Connect to mainnet with a Project ID and Project Secret
     const provider = new InfuraProvider(
         'sepolia',
-        'e210bca124a44fa881d3242e3394ada6',
-        'ILWXBT5yyWXGOHmR0o5UNc2EF/xjLnDHQ3pkE9bpVyyRGxO68Jx3qA'
+        process.env.INFURA_PROJECT_ID,
+        process.env.INFURA_SECRET
     )
 
-    // // Connect to the INFURA WebSocket endpoints with a WebSocketProvider
-    // provider = InfuraProvider.getWebSocketProvider()
-    // console.log('provider', provider)
-    // const providerX = new ethers.providers.JsonRpcProvider(
-    //     'https://sepolia.infura.io/v3/e210bca124a44fa881d3242e3394ada6',
-    //     ethers.providers.getNetwork('sepolia')
-    // )
-    // const provider = new ethers.JsonRpcProvider(
-    //     process.env.NEXT_PUBLIC_RPC_PROVIDER
-    //   );
     const tx = await provider.getTransaction(hash)
-    console.log('XXX', tx)
-    // const transaction = await provider.getTransactionReceipt(hash)
-    // console.log(transaction)
-    // const provider = new AlchemyProvider();
-    // console.log(transaction)
-    // const transaction = await provider.getTransaction(hash)
-    // tx.
-
-    // const transaction = await publicClient.getTransaction({
-    //     blockHash: hash,
-    //     index: 0,
-    // })
-    // const transaction = await getTransaction(config, {
-    //     hash: hash,
-    // })
 
     if (tx?.from !== assessorAddr) {
         return {
