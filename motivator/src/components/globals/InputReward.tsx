@@ -39,12 +39,13 @@ const InputReward = ({ val, assessorSlot, userAddr }: Props) => {
                 Rewards
             </Label>
             <Input
-                placeholder="Points"
+                placeholder="pts"
                 type="number"
-                className="w-24 appearance-none text-center"
+                className="w-20 text-center"
                 min={0}
                 onChange={(e) => setValue(parseInt(e.target.value))}
                 value={value}
+                step={5}
             />
             {/* <Button onClick={() => handleSubmit()}>Reward</Button> */}
         </div>
