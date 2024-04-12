@@ -32,6 +32,12 @@ export const defaultConfig = getDefaultConfig({
     appName: 'Motivator',
     projectId: 'b23989a1ad4b5577b68f70805a34eef6',
     chains: [sepolia],
+    transports: {
+        [sepolia.id]: http(
+            // 'https://sepolia.infura.io/v3/e210bca124a44fa881d3242e3394ada6'
+            process.env.NEXT_PUBLIC_INFURA_URL
+        ),
+    },
     ssr: true, // If your dApp uses server side rendering (SSR)
 })
 

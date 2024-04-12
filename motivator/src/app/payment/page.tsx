@@ -9,10 +9,11 @@ import { handlePayment } from '@/server/actions/payment/handlePayment'
 import { useRouter } from 'next/navigation'
 import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
 import { useSession } from 'next-auth/react'
-import { RoundSpinner } from '@/components/ui/spinner'
+import { RoundSpinner, SpokeSpinner } from '@/components/ui/spinner'
 import { ethers } from 'ethers'
 import { waitForTransactionReceipt } from '@wagmi/core'
 import { useWaitForTransactionReceipt } from 'wagmi'
+import { SpokeCheck } from '../../components/ui/check'
 type Props = {}
 
 const Payment = (props: Props) => {
@@ -21,8 +22,9 @@ const Payment = (props: Props) => {
 
     // Using session hook to get status of user
     const [assessorSlotFinded, setAssessorSlotFinded] = useState(false)
+
     const {
-        data: assessorSlotID,
+        data: assessorSlot,
         refetch,
         status,
     } = useGetAssessorSlot({
@@ -36,46 +38,26 @@ const Payment = (props: Props) => {
     }, [address, status])
 
     useEffect(() => {
-        if (assessorSlotID?.res?.id) {
+        if (assessorSlot?.res?.id) {
             setAssessorSlotFinded(true)
             setTimeout(() => {
-                push(`/assessor/slot/${assessorSlotID?.res?.id}`)
+                push(`/assessor/slot/${assessorSlot?.res?.id}`)
             }, 2000)
         }
-    }, [assessorSlotID])
+    }, [assessorSlot])
     const value = process.env.NEXT_PUBLIC_ASSESSOR_VALUE as string
     const {
         sendTransactionAsync,
         status: statusTransaction,
-        data,
-    } = useSendTransaction({
-        // mutation: {
-        //     async onSuccess(data, variables, context) {
-        //         // const transaction = await ethers.providers
-        //         //     .getDefaultProvider()
-        //         //     .getTransactionReceipt(data)
-        //         const assessorSlot = await handlePayment({
-        //             assessorAddr: address ? (address as Address) : '0x0',
-        //             hash: data,
-        //         })
-        //         // if (
-        //         //     assessorSlot?.status === 'ok' &&
-        //         //     assessorSlot.assessorSlot
-        //         // ) {
-        //         //     push(
-        //         //         `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
-        //         //     )
-        //         // }
-        //     },
-        // },
-    })
+        data: hashTransaction,
+    } = useSendTransaction()
     const {
         refetch: refetchReceipt,
         data: transactionReceipt,
         status: statusReceipt,
     } = useWaitForTransactionReceipt({
-        hash: data ? (data as Address) : '0x0',
-        pollingInterval: 1000,
+        hash: hashTransaction,
+        pollingInterval: 3000,
     })
 
     const {
@@ -83,7 +65,7 @@ const Payment = (props: Props) => {
         refetch: RefetchTransaction,
         status: statusGetTransaction,
     } = useTransaction({
-        hash: data ? (data as Address) : '0x0',
+        hash: hashTransaction,
     })
     const handleOnClick = async () => {
         await sendTransactionAsync({
@@ -93,59 +75,31 @@ const Payment = (props: Props) => {
             to: '0x3Eb92eBE3e1f226b14E78Af49646aFEA61Fb016C',
             value: parseEther(value),
         })
-        console.log('Transaction sent')
-        await RefetchTransaction()
-        console.log('Transaction refetched')
-        // await refetchReceipt()
-        // // const transactionReceipt = waitForTransactionReceipt(config, {
-        // //     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-        // // })
-
-        // if (transactionReceipt?.status === 'success') {
-        //     // console.log('Transaction success')
-        //     // const assessorSlot = await handlePayment({
-        //     //     assessorAddr: address ? (address as Address) : '0x0',
-        //     //     hash: data ? (data as Address) : '0x0',
-        //     // })
-        //     // if (assessorSlot?.status === 'ok' && assessorSlot.assessorSlot) {
-        //     //     push(
-        //     //         `/assessor/slot/${assessorSlot.assessorSlot?.id as string}`
-        //     //     )
-        //     // }
-        // }
     }
 
     const managePayment = async () => {
         const assessorSlot = await handlePayment({
             assessorAddr: address ? (address as Address) : '0x0',
-            hash: data ? (data as Address) : '0x0',
+            hash: hashTransaction ? (hashTransaction as Address) : '0x0',
         })
-        console.log(assessorSlot, 'assessorSlot')
         if (assessorSlot?.status === 'ok' && assessorSlot.assessorSlot) {
             push(`/assessor/slot/${assessorSlot.assessorSlot?.id as string}`)
         }
     }
 
     useEffect(() => {
-        console.log(transactionReceipt, 'transactionReceipt')
-        console.log(statusTransaction, 'statusTransaction')
-        console.log(DataTransaction, 'DataTransaction')
-        if (DataTransaction?.blockNumber) {
+        if (transactionReceipt?.status === 'success') {
+            console.log('Transaction Receipt success', transactionReceipt)
             managePayment()
-            console.log('Launch Manage Payment')
         }
-        if (data && !DataTransaction) {
-            managePayment()
-            console.log('2EME IF Launch Manage Payment')
-        }
-        // if (transactionReceipt?.status === 'success') {
-        //     managePayment()
-        // }
+        refetchReceipt()
     }, [
-        transactionReceipt?.status,
+        transactionReceipt,
         refetchReceipt,
         statusTransaction,
+        statusReceipt,
         DataTransaction,
+        hashTransaction,
     ])
 
     const handleDisplay = () => {
@@ -159,11 +113,52 @@ const Payment = (props: Props) => {
                 </div>
             )
         }
-        if (statusTransaction === 'pending') {
+        if (
+            statusTransaction === 'pending' ||
+            statusTransaction === 'success'
+        ) {
             return (
                 <div className="flex flex-col gap-4 items-center">
-                    <RoundSpinner size="triplexl" />
-                    <Label className="font-bold">Transaction in progress</Label>
+                    <div className="flex gap-2 items-center">
+                        {statusTransaction === 'pending' ? (
+                            <>
+                                <Label className="font-bold">
+                                    Waiting Validation
+                                </Label>
+                                <RoundSpinner size="xl" />
+                            </>
+                        ) : (
+                            <>
+                                <Label className="font-bold">
+                                    Transaction sent
+                                </Label>
+                                <SpokeCheck color="green" size="xl" />
+                            </>
+                        )}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                        {transactionReceipt?.status != 'success' ? (
+                            <>
+                                <Label className="font-bold">
+                                    Transaction sent waiting for confirmation
+                                </Label>
+                                <RoundSpinner size="xl" />
+                            </>
+                        ) : (
+                            <>
+                                <Label className="font-bold">
+                                    Transaction confirmed
+                                </Label>
+                                <SpokeCheck size="xl" />
+                            </>
+                        )}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                        <Label className="font-bold">
+                            Redirection incoming ...
+                        </Label>
+                        <RoundSpinner size="xl" />
+                    </div>
                 </div>
             )
         }
