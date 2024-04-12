@@ -69,10 +69,9 @@ const Payment = (props: Props) => {
     })
     const handleOnClick = async () => {
         await sendTransactionAsync({
-            // to: process.env.NEXT_PUBLIC_ADDRESS_RECEIVER
-            //     ? (process.env.NEXT_PUBLIC_ADDRESS_RECEIVER as Address)
-            //     : '0x0000000000000000000000000000000000000000',
-            to: '0x3Eb92eBE3e1f226b14E78Af49646aFEA61Fb016C',
+            to: process.env.NEXT_PUBLIC_ADDRESS_RECEIVER
+                ? (process.env.NEXT_PUBLIC_ADDRESS_RECEIVER as Address)
+                : '0x0000000000000000000000000000000000000000',
             value: parseEther(value),
         })
     }
