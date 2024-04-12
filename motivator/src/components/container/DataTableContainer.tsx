@@ -33,43 +33,7 @@ const DataTableContainer = () => {
 
         return res
     }
-    const dummyAssessorSlot: AssessorSlot = {
-        id: '1',
-        assessorID: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-        rewards: [
-            {
-                date: '2021-09-10',
-                user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-                id: '1',
-                amount: 100,
-                assessor_slot_id: '1',
-            },
-        ],
-        users: [
-            '0x8753DE1914c4AB01F845b05b7BC146Bc898850A2',
-            '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-            '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-        ],
-        done: false,
-        week: 0,
-        stats: [
-            {
-                user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A2',
-                actions: 40,
-                volume: 500,
-            },
-            {
-                user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-                actions: 40,
-                volume: 500,
-            },
-            {
-                user_address: '0x8753DE1914c4AB01F845b05b7BC146Bc898850A6',
-                actions: 40,
-                volume: 500,
-            },
-        ],
-    }
+
     const { address, status: statusAccount } = useAccount()
     const { data, error, status, refetch } = useGetAssessorSlot({
         assessorAddr: address as string,

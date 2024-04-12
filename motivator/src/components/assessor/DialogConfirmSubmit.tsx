@@ -17,7 +17,7 @@ import { User } from '@/types/data/user'
 import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import {
@@ -30,6 +30,7 @@ import { useGetTotalPointsDistributed } from '../../hooks/dataComponents/useGetT
 import { cn } from '../../utils/utils'
 import { useSubmitAssessorSlot } from '../../hooks/assessorSlot/useSubmitAssessorSlot'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 type Props = {
     assessorSlotId: string
@@ -49,11 +50,17 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     }
 
     async function handleSubmit() {
-        await mutateAsync()
+        toast('Submitting assessment')
+        setTimeout(async () => {
+            await mutateAsync()
+        }, 2000)
+    }
+
+    useEffect(() => {
         if (status === 'success') {
             push(`/`)
         }
-    }
+    }, [status])
 
     return (
         <Dialog>

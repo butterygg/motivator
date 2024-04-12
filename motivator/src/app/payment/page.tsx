@@ -148,7 +148,7 @@ const Payment = (props: Props) => {
                                 <Label className="font-bold">
                                     Transaction confirmed
                                 </Label>
-                                <SpokeCheck size="xl" />
+                                <SpokeCheck color="green" size="xl" />
                             </>
                         )}
                     </div>
