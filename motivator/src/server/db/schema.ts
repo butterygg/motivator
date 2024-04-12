@@ -1,4 +1,6 @@
+import { relations } from 'drizzle-orm'
 import {
+    PgTableWithColumns,
     boolean,
     date,
     integer,
@@ -9,7 +11,16 @@ import {
 
 export const user = pgTable('users', {
     address: text('address').unique().primaryKey(),
+    isBot: boolean('is_bot').default(false),
+    owner: text('owner'),
 })
+
+export const usersRelations = relations(user, ({ one }) => ({
+    invitee: one(user, {
+        fields: [user.owner],
+        references: [user.address],
+    }),
+}))
 
 export const stats = pgTable('stats', {
     user_address: text('user_address')
@@ -58,4 +69,12 @@ export const statistics = pgTable('statistics', {
     volume_long: integer('volume_long').default(0),
     volume_short: integer('volume_short').default(0),
     volume_lp: integer('volume_lp').default(0),
+})
+
+export const offChainActions = pgTable('off_chain_actions', {
+    id: uuid('id').defaultRandom().unique().primaryKey(),
+    user_address: text('user_address').references(() => user.address),
+    feedback: boolean('feedback').default(false),
+    strategyWriteUp: boolean('strategy_write_up').default(false),
+    communityEngagement: boolean('community_engagement').default(false),
 })

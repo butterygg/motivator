@@ -7,6 +7,56 @@ export type Props = {
     dataset: DataSetChartVolumeLP[]
 }
 export function LP_VolumeChart({ title, value, dataset }: Props) {
+    const chartdata = [
+        {
+            date: 'Jan 23',
+            Volume: 45,
+        },
+        {
+            date: 'Feb 23',
+            Volume: 52,
+        },
+        {
+            date: 'Mar 23',
+            Volume: 48,
+        },
+        {
+            date: 'Apr 23',
+            Volume: 61,
+        },
+        {
+            date: 'May 23',
+            Volume: 55,
+        },
+        {
+            date: 'Jun 23',
+            Volume: 67,
+        },
+        {
+            date: 'Jul 23',
+            Volume: 60,
+        },
+        {
+            date: 'Aug 23',
+            Volume: 72,
+        },
+        {
+            date: 'Sep 23',
+            Volume: 65,
+        },
+        {
+            date: 'Oct 23',
+            Volume: 68,
+        },
+        {
+            date: 'Nov 23',
+            Volume: 74,
+        },
+        {
+            date: 'Dec 23',
+            Volume: 71,
+        },
+    ]
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
@@ -17,10 +67,10 @@ export function LP_VolumeChart({ title, value, dataset }: Props) {
             </p>
             <BarChart
                 className="h-80"
-                data={dataset}
+                data={chartdata}
                 index="date"
-                categories={['lp']}
-                colors={['red']}
+                categories={['Volume']}
+                colors={['blue']}
                 yAxisWidth={80}
             />
         </div>

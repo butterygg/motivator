@@ -170,21 +170,44 @@ export function DialogUserData({ user }: Props) {
                     </DialogTitle>
                     <DialogDescription>Historical data</DialogDescription>
                 </DialogHeader>
-                <Label htmlFor="name" className="">
-                    Statistics
-                </Label>
-                <div className="grid gap-4 py-2">
-                    <div className="grid grid-cols-3 items-center gap-2">
-                        <DataCard
-                            title="Volume"
-                            value={user.stat.volume ? user.stat.volume : 0}
-                            icon={<EthLogo className="h-4 w-4" />}
-                        />
-                        <DataCard title="Pnl" value={user.pnl + 'K$'} />
-                        <DataCard
-                            title="Actions"
-                            value={user.stat.actions ? user.stat.actions : 0}
-                        />
+                <div className="flex justify-between gap-4 py-2">
+                    <div>
+                        <Label htmlFor="name" className="">
+                            Statistics
+                        </Label>
+                        <div className="grid grid-cols-3 items-center gap-2">
+                            <DataCard
+                                title="Volume"
+                                value={user.stat.volume ? user.stat.volume : 0}
+                                icon={<EthLogo className="h-4 w-4" />}
+                            />
+                            <DataCard title="Pnl" value={user.pnl + 'K$'} />
+                            <DataCard
+                                title="Actions"
+                                value={
+                                    user.stat.actions ? user.stat.actions : 0
+                                }
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <Label htmlFor="name" className="">
+                            Badges
+                        </Label>
+                        <div className="grid grid-cols-3 items-center gap-2">
+                            <DataCard
+                                title="Bot"
+                                value={user.stat.volume ? user.stat.volume : 0}
+                                icon={<EthLogo className="h-4 w-4" />}
+                            />
+                            <DataCard title="Pnl" value={user.pnl + 'K$'} />
+                            <DataCard
+                                title="Actions"
+                                value={
+                                    user.stat.actions ? user.stat.actions : 0
+                                }
+                            />
+                        </div>
                     </div>
                 </div>
                 <>
