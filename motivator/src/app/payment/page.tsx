@@ -151,10 +151,10 @@ const Payment = (props: Props) => {
     const handleDisplay = () => {
         if (assessorSlotFinded) {
             return (
-                <div className="justify-center">
+                <div className=" flex flex-col gap-4 items-center justify-center">
                     <RoundSpinner size="triplexl" />
                     <Label className="font-bold">
-                        Assessor slot found, you will be redirected in 2 seconds
+                        Assessor slot found, you will be redirected quickly.
                     </Label>
                 </div>
             )
