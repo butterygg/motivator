@@ -16,51 +16,51 @@ export function LP_PNLChart({ title, value, dataset }: Props) {
     const chartdata = [
         {
             date: 'Jan 22',
-            pnl: 2890,
+            Pnl: 2890,
         },
         {
             date: 'Feb 22',
-            pnl: 2756,
+            Pnl: 2756,
         },
         {
             date: 'Mar 22',
-            pnl: 3322,
+            Pnl: 3322,
         },
         {
             date: 'Apr 22',
-            pnl: 3470,
+            Pnl: 3470,
         },
         {
             date: 'May 22',
-            pnl: 3475,
+            Pnl: 3475,
         },
         {
             date: 'Jun 22',
-            pnl: 3129,
+            Pnl: 3129,
         },
         {
             date: 'Jul 22',
-            pnl: 3490,
+            Pnl: 3490,
         },
         {
             date: 'Aug 22',
-            pnl: 2903,
+            Pnl: 2903,
         },
         {
             date: 'Sep 22',
-            pnl: 2643,
+            Pnl: 2643,
         },
         {
             date: 'Oct 22',
-            pnl: 2837,
+            Pnl: 2837,
         },
         {
             date: 'Nov 22',
-            pnl: 2954,
+            Pnl: 2954,
         },
         {
             date: 'Dec 22',
-            pnl: 3239,
+            Pnl: 3239,
         },
     ]
     return (
@@ -75,7 +75,7 @@ export function LP_PNLChart({ title, value, dataset }: Props) {
                 className="h-80 rounded-lg"
                 data={chartdata}
                 index="date"
-                categories={['pnl']}
+                categories={['Pnl']}
                 colors={['red']}
                 valueFormatter={valueFormatter}
                 yAxisWidth={70}
