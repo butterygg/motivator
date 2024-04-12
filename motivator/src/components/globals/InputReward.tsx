@@ -45,6 +45,7 @@ const InputReward = ({ val, assessorSlot, userAddr }: Props) => {
                 min={0}
                 onChange={(e) => setValue(parseInt(e.target.value))}
                 value={value}
+                step={5}
             />
             {/* <Button onClick={() => handleSubmit()}>Reward</Button> */}
         </div>
