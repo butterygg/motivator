@@ -7,6 +7,9 @@ import ConnectWalletCard from '@/components/signup/connectWalletCard'
 import StartAssessmentSlot from '@/components/signup/startAssessmentSlot'
 import { useRouter } from 'next/navigation'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
+import { RoundSpinner } from '@/components/ui/spinner'
+import { Label } from '@/components/ui/label'
+import { Card } from '../components/ui/card'
 type Props = {}
 
 const Signup = (props: Props) => {
@@ -31,9 +34,11 @@ const Signup = (props: Props) => {
     }, [address, status])
 
     useEffect(() => {
-        if (assessorSlotID?.res?.id) {
-            push(`/assessor/slot/${assessorSlotID?.res?.id}`)
-        }
+        setTimeout(() => {
+            if (assessorSlotID?.res?.id) {
+                push(`/assessor/slot/${assessorSlotID?.res?.id}`)
+            }
+        }, 2000)
     }, [assessorSlotID])
 
     const weekNumber = Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)
@@ -43,6 +48,18 @@ const Signup = (props: Props) => {
     // const { data: assessorSlotsAvailable } = useGetNumberAssessorSlotAvailable()
 
     const ComponentToDisplay = () => {
+        if (assessorSlotID?.res?.id) {
+            return (
+                <Card className="w-96 items-center p-4 rounded-lg mx-auto">
+                    <div className=" flex flex-col gap-4 items-center justify-center">
+                        <RoundSpinner size="triplexl" />
+                        <Label className="font-bold">
+                            Assessor slot found, you will be redirected quickly.
+                        </Label>
+                    </div>
+                </Card>
+            )
+        }
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
                 return (
