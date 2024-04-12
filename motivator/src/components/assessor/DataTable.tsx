@@ -29,6 +29,7 @@ import { DialogConfirmSubmit } from './DialogConfirmSubmit'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
 import TotalPoints from './TotalPoints'
+import { useRouter } from 'next/navigation'
 
 // const data: User[] = [
 //     {
@@ -235,6 +236,12 @@ export function DataTable({ users }: Props) {
         },
     })
     const assessorSlotID = useGetAssessorSlotIDFromURL()
+    const { push } = useRouter()
+    // Prevent loading of the page if the user come to an assessor slot already done using url
+    // console.log('users', users)
+    // if (users.length === 0) {
+    //     push(`/`)
+    // }
     return (
         <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
             <div className="flex p-4 w-full justify-between">

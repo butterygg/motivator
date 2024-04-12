@@ -23,7 +23,7 @@ export default function RootLayout({
                 <Web3Provider>
                     <NavBar />
                     {children}
-                    <Toaster />
+                    <Toaster richColors />
                 </Web3Provider>
             </body>
         </html>
