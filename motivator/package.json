@@ -14,7 +14,7 @@
         "format:check": "prettier --check .",
         "db-generate": " yarn drizzle-kit generate:pg",
         "db-migrate": "yarn drizzle-kit migrate:pg",
-        "db-push": "yarn run drizzle-kit push:pg"
+        "db-push": "yarn drizzle-kit push:pg"
     },
     "lint-staged": {
         "*.{js,jsx,ts,tsx,json,css,scss,md}": [
