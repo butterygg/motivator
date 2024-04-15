@@ -16,6 +16,7 @@ use futures::StreamExt;
 use hex_literal::hex;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
+use uuid::Uuid;
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
@@ -229,7 +230,8 @@ type UsersAggs = HashMap<H160, UserAgg>;
 
 #[derive(Serialize)]
 struct CsvRecord {
-    week: String,
+    id: Uuid,
+    timestamp: String,
     address: H160,
     action_count_longs: usize,
     action_count_shorts: usize,
@@ -1083,7 +1085,8 @@ async fn dump_hourly_aggregates(
 
         for (address, agg) in users_aggs {
             writer.serialize(CsvRecord {
-                week: timestamp_to_string(period_start),
+                id: Uuid::new_v4(),
+                timestamp: timestamp_to_string(period_start),
                 address,
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,
