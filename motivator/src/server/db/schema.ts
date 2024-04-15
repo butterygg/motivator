@@ -3,6 +3,7 @@ import {
     PgTableWithColumns,
     boolean,
     date,
+    decimal,
     integer,
     pgTable,
     text,
@@ -63,12 +64,12 @@ export const statistics = pgTable('statistics', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     timestamp: date('timestamp').default('now()'),
     user_address: text('user_address').references(() => user.address),
-    pnl_long: integer('pnl_long').default(0),
-    pnl_short: integer('pnl_short').default(0),
-    pnl_lp: integer('pnl_lp').default(0),
-    volume_long: integer('volume_long').default(0),
-    volume_short: integer('volume_short').default(0),
-    volume_lp: integer('volume_lp').default(0),
+    pnl_long: decimal('pnl_long'),
+    pnl_short: decimal('pnl_short'),
+    pnl_lp: decimal('pnl_lp'),
+    volume_long: decimal('volume_long'),
+    volume_short: decimal('volume_short'),
+    volume_lp: decimal('volume_lp'),
 })
 
 export const offChainActions = pgTable('off_chain_actions', {
