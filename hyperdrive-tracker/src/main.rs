@@ -14,6 +14,8 @@ use ethers::{
 };
 use futures::StreamExt;
 use hex_literal::hex;
+use rust_decimal::prelude::{FromPrimitive, FromStr};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
 use uuid::Uuid;
@@ -236,15 +238,15 @@ struct CsvRecord {
     action_count_longs: usize,
     action_count_shorts: usize,
     action_count_lps: usize,
-    volume_longs: String,
-    volume_shorts: String,
-    volume_lps: String,
-    pnl_longs: String,
-    pnl_shorts: String,
-    pnl_lps: String,
-    balance_longs: String,
-    balance_shorts: String,
-    balance_lps: String,
+    volume_longs: Decimal,
+    volume_shorts: Decimal,
+    volume_lps: Decimal,
+    pnl_longs: Decimal,
+    pnl_shorts: Decimal,
+    pnl_lps: Decimal,
+    balance_longs: Decimal,
+    balance_shorts: Decimal,
+    balance_lps: Decimal,
 }
 
 // LOAD EVENTS ///////////////////////////////////////////////////
@@ -1091,15 +1093,24 @@ async fn dump_hourly_aggregates(
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,
                 action_count_lps: agg.action_count.lp,
-                volume_longs: agg.volume.long.to_string(),
-                volume_shorts: agg.volume.short.to_string(),
-                volume_lps: agg.volume.lp.to_string(),
-                pnl_longs: agg.pnl.long.to_string(),
-                pnl_shorts: agg.pnl.short.to_string(),
-                pnl_lps: agg.pnl.lp.to_string(),
-                balance_longs: agg.balance.long.to_string(),
-                balance_shorts: agg.balance.short.to_string(),
-                balance_lps: agg.balance.lp.to_string(),
+                volume_longs: Decimal::from_i128(agg.volume.long.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                volume_shorts: Decimal::from_i128(agg.volume.short.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                volume_lps: Decimal::from_i128(agg.volume.lp.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                pnl_longs: Decimal::from_i128(agg.pnl.long.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                pnl_shorts: Decimal::from_i128(agg.pnl.short.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                pnl_lps: Decimal::from_i128(agg.pnl.lp.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                balance_longs: Decimal::from_i128(agg.balance.long.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                balance_shorts: Decimal::from_i128(agg.balance.short.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
+                balance_lps: Decimal::from_i128(agg.balance.lp.as_i128()).unwrap()
+                    / Decimal::new(1000000000000000000, 8),
             })?
         }
 
