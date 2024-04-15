@@ -4,6 +4,7 @@ import './globals.css'
 import Web3Provider from '../utils/Web3Provider'
 import NavBar from '../components/globals/NavBar'
 import { Toaster } from 'sonner'
+import { ThemeProvider } from '@/components/globals/ThemeProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,11 +21,18 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
-                <Web3Provider>
-                    <NavBar />
-                    {children}
-                    <Toaster richColors />
-                </Web3Provider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <Web3Provider>
+                        <NavBar />
+                        {children}
+                        <Toaster richColors />
+                    </Web3Provider>
+                </ThemeProvider>
             </body>
         </html>
     )
