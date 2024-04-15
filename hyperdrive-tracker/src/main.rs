@@ -53,8 +53,6 @@ async fn find_block_by_timestamp(
     Ok(high.into())
 }
 
-// [TODO] Handle multiple contracts and add Aggregates at the end.
-
 // CONFIG ///////////////////////////////////////////////////
 
 /// Rust tests deployment
@@ -63,7 +61,7 @@ async fn find_block_by_timestamp(
 //const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("7aba23eab591909f9dc5770cea764b8aa989dd25"));
 /// Agent0 fixture deployment
 //const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("6949c3f59634E94B659486648848Cd3f112AD098"));
-/// Infra artifacts expected
+/// Infra artifacts
 const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
 
 // [TODO] Replace with the correct block.
@@ -71,7 +69,6 @@ const START_BLOCK: u64 = 41;
 
 const SEVEN_DAYS: u64 = 7 * 24 * 60 * 60;
 const HOUR: u64 = 60 * 60;
-const CSV_FILEPATH_BASE: &str = "4626";
 
 // TYPES ///////////////////////////////////////////////////
 
@@ -210,6 +207,14 @@ struct Volume {
     long: I256,
     short: I256,
     lp: I256,
+}
+
+#[derive(Debug, Clone)]
+struct HyperdriveConfig {
+    address: H160,
+    contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
+    pool_config: i_hyperdrive::PoolConfig,
+    events: Arc<Events>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -593,13 +598,19 @@ async fn write_remove_liquidity(
 }
 
 async fn load_hyperdrive_events(
-    events: Arc<Events>,
     client: Arc<Provider<Ws>>,
     hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pool_config_ref: &i_hyperdrive::PoolConfig,
     start_block: u64,
     end_block: U64,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<Arc<Events>, Box<dyn std::error::Error>> {
+    let events = Arc::new(Events {
+        longs: DashMap::new(),
+        shorts: DashMap::new(),
+        lps: DashMap::new(),
+        share_prices: DashMap::new(),
+    });
+
     let contract_events = hyperdrive_contract
         .events()
         .from_block(start_block)
@@ -648,7 +659,8 @@ async fn load_hyperdrive_events(
             break;
         }
     }
-    Ok(())
+
+    Ok(events)
 }
 
 // PNLS ///////////////////////////////////////////////////
@@ -958,23 +970,77 @@ fn aggregate_per_user_over_period(
     users_aggs
 }
 
+async fn calc_contract_hourly_aggregates(
+    hyperdrive: HyperdriveConfig,
+    period_start: U256,
+    period_end_block_num: U64,
+    period_end: U256,
+) -> Result<UsersAggs, Box<dyn std::error::Error>> {
+    let pool_info = hyperdrive
+        .contract
+        .get_pool_info()
+        .block(period_end_block_num)
+        .call()
+        .await?;
+    let hyperdrive_state = hyperdrive_math::State::new(hyperdrive.pool_config.clone(), pool_info);
+    // [XXX] What happens if period_end > maturity_date?
+    let (longs_stmts, shorts_stmts, lps_stmts) =
+        calc_pnls(hyperdrive.events.clone(), period_end, hyperdrive_state);
+    let end_time_data = TimeData {
+        timestamp: period_end,
+        longs: longs_stmts,
+        shorts: shorts_stmts,
+        lps: lps_stmts,
+    };
+
+    Ok(aggregate_per_user_over_period(
+        hyperdrive.events.clone(),
+        end_time_data,
+        period_start,
+        period_end,
+    ))
+}
+
+fn combine_users_aggs(aggs_list: Vec<UsersAggs>) -> UsersAggs {
+    aggs_list
+        .into_iter()
+        .fold(HashMap::new(), |mut combined, aggs| {
+            for (user, agg) in aggs {
+                let combined_agg = combined.entry(user).or_default();
+
+                combined_agg.action_count.long += agg.action_count.long;
+                combined_agg.action_count.short += agg.action_count.short;
+                combined_agg.action_count.lp += agg.action_count.lp;
+
+                combined_agg.volume.long += agg.volume.long;
+                combined_agg.volume.short += agg.volume.short;
+                combined_agg.volume.lp += agg.volume.lp;
+
+                combined_agg.pnl.long += agg.pnl.long;
+                combined_agg.pnl.short += agg.pnl.short;
+                combined_agg.pnl.lp += agg.pnl.lp;
+
+                combined_agg.balance.long += agg.balance.long;
+                combined_agg.balance.short += agg.balance.short;
+                combined_agg.balance.lp += agg.balance.lp;
+            }
+            combined
+        })
+}
+
 async fn dump_hourly_aggregates(
-    events: Arc<Events>,
     client: Arc<Provider<Ws>>,
-    hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
+    hyperdrives: Vec<HyperdriveConfig>,
     start_block: u64,
     start_timestamp: U256,
     end_block: U64,
     end_timestamp: U256,
-    pool_config_ref: &i_hyperdrive::PoolConfig,
-    csv_filepath_base: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut period_start = start_timestamp;
     let mut period_end = start_timestamp + HOUR;
 
     let mut writer = Writer::from_path(format!(
-        "{}--hourly--start-{}.csv",
-        csv_filepath_base,
+        "hourly--start-{}.csv",
         timestamp_to_string(period_start)
     ))?;
 
@@ -988,24 +1054,21 @@ async fn dump_hourly_aggregates(
             end_block,
         )
         .await?;
-        let pool_info = hyperdrive_contract
-            .get_pool_info()
-            .block(period_end_block_num)
-            .call()
-            .await?;
-        let hyperdrive_state = hyperdrive_math::State::new(pool_config_ref.clone(), pool_info);
-        // [XXX] What happens if period_end > maturity_date?
-        let (longs_stmts, shorts_stmts, lps_stmts) =
-            calc_pnls(events.clone(), period_end, hyperdrive_state);
-        let end_time_data = TimeData {
-            timestamp: period_end,
-            longs: longs_stmts,
-            shorts: shorts_stmts,
-            lps: lps_stmts,
-        };
 
-        let users_aggs =
-            aggregate_per_user_over_period(events.clone(), end_time_data, period_start, period_end);
+        let mut hyperdrives_usersaggs = Vec::new();
+        for hyperdrive in hyperdrives.clone() {
+            hyperdrives_usersaggs.push(
+                calc_contract_hourly_aggregates(
+                    hyperdrive,
+                    period_start,
+                    period_end_block_num,
+                    period_end,
+                )
+                .await?,
+            );
+        }
+
+        let users_aggs = combine_users_aggs(hyperdrives_usersaggs);
 
         for (address, agg) in users_aggs {
             writer.serialize(CsvRecord {
@@ -1047,21 +1110,11 @@ async fn dump_hourly_aggregates(
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
-    let events = Arc::new(Events {
-        longs: DashMap::new(),
-        shorts: DashMap::new(),
-        lps: DashMap::new(),
-        share_prices: DashMap::new(),
-    });
-
     // [XXX] Check how many blocks behind can the archive node produce.
     let provider = Provider::<Ws>::connect("ws://localhost:8545")
         .await
         .unwrap();
     let client = Arc::new(provider);
-    let hyperdrive_4626 = i_hyperdrive::IHyperdrive::new(HYPERDRIVE_4626_ADDR, client.clone());
-    let pool_config = hyperdrive_4626.get_pool_config().call().await?;
-    info!("Config pool_config={:#?}", pool_config);
     let start_block_timestamp = client
         .clone()
         .get_block(START_BLOCK)
@@ -1079,27 +1132,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .await?; // -1 prevents stalling…
 
-    load_hyperdrive_events(
-        events.clone(),
-        client.clone(),
-        hyperdrive_4626.clone(),
-        &pool_config,
-        START_BLOCK,
-        end_block,
-    )
-    .await?;
+    let mut hyperdrives: Vec<HyperdriveConfig> = Vec::new();
+
+    let hyperdrive_addrs: Vec<H160> = vec![HYPERDRIVE_4626_ADDR];
+
+    for address in hyperdrive_addrs {
+        let contract = i_hyperdrive::IHyperdrive::new(address, client.clone());
+        let pool_config = contract.clone().get_pool_config().call().await?;
+
+        info!("Config pool_config={:#?}", pool_config.clone());
+
+        let events = load_hyperdrive_events(
+            client.clone(),
+            contract.clone(),
+            &pool_config,
+            START_BLOCK,
+            end_block,
+        )
+        .await?;
+
+        hyperdrives.push(HyperdriveConfig {
+            address,
+            contract,
+            pool_config,
+            events,
+        });
+    }
 
     //let current_timestamp = U256::from(Utc::now().timestamp() as u64);
     dump_hourly_aggregates(
-        events.clone(),
         client.clone(),
-        hyperdrive_4626.clone(),
+        hyperdrives,
         START_BLOCK,
         start_block_timestamp,
         end_block,
         end_timestamp,
-        &pool_config,
-        CSV_FILEPATH_BASE,
     )
     .await?;
 
