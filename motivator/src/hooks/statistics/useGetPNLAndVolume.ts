@@ -17,8 +17,7 @@ const useGetPNLAndVolume = ({ userAddr }: Props) => {
         queryFn: async () => {
             return getPNLAndVolume({ userAddr })
         },
-        refetchOnWindowFocus: true,
-        staleTime: 1000 * 6,
+        // staleTime: 1000 * 6,
         retry: 5,
         // enabled: false,
     })

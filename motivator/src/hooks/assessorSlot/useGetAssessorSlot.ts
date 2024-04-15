@@ -19,8 +19,8 @@ const useGetAssessorSlot = ({ assessorAddr }: Props) => {
         queryFn: async () => {
             return getAssessorSlot(assessorAddr)
         },
-        staleTime: 1000 * 6,
-        retry: 5,
+        // staleTime: 1000 * 6,
+        retry: true,
         // enabled: false,
     })
 
