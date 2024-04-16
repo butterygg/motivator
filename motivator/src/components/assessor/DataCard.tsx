@@ -28,7 +28,12 @@ export function DataCard({ title, value, icon }: Props) {
                 <div className=" text-xl flex items-center">
                     {icon ? icon : null}
                     <Label className="text-xl mx-auto" htmlFor="name">
-                        {value}
+                        <p
+                            className="
+                        overflow-hidden"
+                        >
+                            {value}
+                        </p>
                     </Label>
                 </div>
             </CardContent>

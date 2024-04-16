@@ -3,6 +3,7 @@ import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot } from '@db/schema'
 import { Address } from 'viem'
+import { getTotals } from '../globals/getTotals'
 /** Assign an Assessor Slot to an Assessor
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -19,7 +20,10 @@ export async function randomizeAssessorSlot({
      * Normalize Score
      */
     // * Get Number Actions and Total Volume for each Users
-    const numberAndActionsFromUsers = await db.query.stats.findMany()
+    // const numberAndActionsFromUsers = await db.query.stats.findMany()
+    const getTotalsForUsers = await getTotals()
+
+    // const getTotalsForUsers = await getAllTotalsForUsersPromised()
 
     // * Use ponderation to get the total score of each user
     const ratioVolume = 0
@@ -39,12 +43,16 @@ export async function randomizeAssessorSlot({
     // * Assign Ponderation score to users and store them in an array
     const getScoreAndAddresseses: () => ScoreAndAddress[] = () => {
         const result: ScoreAndAddress[] = []
-        numberAndActionsFromUsers.forEach((element) => {
+        getTotalsForUsers.forEach((element) => {
             result.push({
                 score:
-                    (element?.actions ? element?.actions : 0 * ratioActions) +
-                    (element?.volume ? element.volume : 0 * ratioVolume),
-                address: element.user_address,
+                    (element?.totalActions
+                        ? element?.totalActions
+                        : 0 * ratioActions) +
+                    (element?.totalVolume
+                        ? element.totalVolume
+                        : 0 * ratioVolume),
+                address: element.user_address as Address,
             })
 
             sumOfScore += result[result.length - 1].score
@@ -69,6 +77,9 @@ export async function randomizeAssessorSlot({
     const pickXUsersRandomly = (pool: ScoreAndAddress[], x: number) => {
         const result: Address[] = []
         for (let index = 0; index < x; index++) {
+            if (index > pool.length - 1) {
+                break
+            }
             const randomIndex = Math.floor(Math.random() * pool.length)
             // * Check if the user is already in the result, if yes pick another one
             if (

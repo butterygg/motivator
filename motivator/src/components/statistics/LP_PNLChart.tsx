@@ -63,24 +63,28 @@ export function LP_PNLChart({ title, value, dataset }: Props) {
             Pnl: 3239,
         },
     ]
+    console.log('dataset', dataset)
     return (
         <div className="border rounded-lg p-5">
-            <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+            {/* <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content"> */}
+            <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+            {/* <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 ${value}
-            </p>
-            <AreaChart
-                className="h-80 rounded-lg"
-                data={chartdata}
-                index="date"
-                categories={['Pnl']}
-                colors={['red']}
-                valueFormatter={valueFormatter}
-                yAxisWidth={70}
-                onValueChange={(v) => console.log(v)}
-            />
+            </p> */}
+
+            {dataset.length > 0 ? (
+                <AreaChart
+                    className="h-80 rounded-lg"
+                    data={dataset}
+                    index="date"
+                    categories={['pnl']}
+                    colors={['red']}
+                    valueFormatter={valueFormatter}
+                    yAxisWidth={70}
+                />
+            ) : null}
         </div>
     )
 }

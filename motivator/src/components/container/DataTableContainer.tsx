@@ -1,13 +1,19 @@
 'use client'
 import React, { useEffect } from 'react'
 import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
-import { AssessorSlot, Reward, Stat } from '@/types/data/assessorSlot'
+import {
+    AssessorSlot,
+    Reward,
+    Statistics,
+    Totals,
+} from '@/types/data/assessorSlot'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
 import { RoundSpinner } from '../ui/spinner'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useGetTotalsVolPnlActions } from '../../hooks/statistics/usegetTotalsVolPnlActions'
 const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
@@ -15,9 +21,12 @@ const DataTableContainer = () => {
             const reward = assessorSlot.rewards.find(
                 (reward) => reward.user_address === element
             )
-            const stat = assessorSlot.stats.find(
+            const totals = assessorSlot.totals.find(
+                (totals) => totals.user_address === element
+            ) as Totals
+            const statistics = assessorSlot.statistics.filter(
                 (stat) => stat.user_address === element
-            ) as Stat
+            ) as Statistics[]
             res.push({
                 id: {
                     id: index.toString(),
@@ -25,7 +34,10 @@ const DataTableContainer = () => {
                 },
                 addressName: element,
                 pnl: 100,
-                stat: stat,
+                stat: {
+                    stats: statistics,
+                    totals: totals,
+                },
                 reward: {
                     reward: reward ? reward : undefined,
                     status: reward ? Status.Rewarded : Status.Pending,
@@ -39,6 +51,9 @@ const DataTableContainer = () => {
     const { address, status: statusAccount } = useAccount()
     const { data, error, status, refetch } = useGetAssessorSlot({
         assessorAddr: address as string,
+    })
+    const { data: dataTotals } = useGetTotalsVolPnlActions({
+        userAddr: address as string,
     })
     const { push } = useRouter()
     // Refresh the data when the account is connected

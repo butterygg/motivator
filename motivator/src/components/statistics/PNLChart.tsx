@@ -77,21 +77,20 @@ export function PNLChart({ title, value, dataset }: Props) {
     ]
     return (
         <div className="border rounded-lg p-5">
-            <h3 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+            <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
-            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+            {/* <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 ${value}
-            </p>
+            </p> */}
             <AreaChart
                 className="h-80"
-                data={chartdata}
+                data={dataset}
                 index="date"
                 categories={['Short', 'Long']}
                 colors={['red', 'blue']}
                 valueFormatter={valueFormatter}
                 yAxisWidth={70}
-                onValueChange={(v) => console.log(v)}
             />
         </div>
     )

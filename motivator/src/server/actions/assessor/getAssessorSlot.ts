@@ -1,10 +1,10 @@
 'use server'
-import { and, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
-import { NextRequest } from 'next/server'
-import { stat } from 'fs'
-import { AssessorSlot } from '@/types/data/assessorSlot'
+import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
+import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
+import { getTotalsVolPnlActions } from '../statistics/getTotalsVolPnlActions'
+import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -57,19 +57,26 @@ export async function getAssessorSlot(address: string) {
             )
         )
         .execute()
-
-    // Get the stats for the users present in array usersOfAssessorSlot
-    const getStatsUsers = await db
-        .select()
-        .from(stats)
-        .where(inArray(stats.user_address, usersOfAssessorSlot))
-
-    if (!getStatsUsers) {
-        return {
-            status: 'ko',
-            message: 'No stats for the users',
-        }
+    const totalsForUsersPromised = async () => {
+        const res: Promise<Totals>[] = usersOfAssessorSlot.map((userAddr) => {
+            return getTotalsVolPnlActions({ userAddr })
+        })
+        return await Promise.all(res)
     }
+    const userTotals = await totalsForUsersPromised()
+    console.log('userTotals', userTotals)
+
+    const statisticsPromised = async () => {
+        const res = usersOfAssessorSlot.map(async (userAddr) => {
+            return (await getPNLAndVolume({ userAddr })).stats
+        })
+        if (!res) {
+            return []
+        }
+        return await Promise.all(res)
+    }
+    const statistics = await statisticsPromised()
+
     //build the response
     const assessorSlot: AssessorSlot = {
         id: assessorSlotOfAssessor.id,
@@ -78,7 +85,8 @@ export async function getAssessorSlot(address: string) {
         week: assessorSlotOfAssessor.week as number,
         users: usersOfAssessorSlot,
         rewards: getRewardsUsers,
-        stats: getStatsUsers,
+        totals: userTotals,
+        statistics: statistics.flat() as Statistics[],
     }
     if (!assessorSlot) {
         return {
