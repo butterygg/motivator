@@ -1010,16 +1010,26 @@ fn aggregate_per_user_over_period(
 ) -> UsersAggs {
     let mut users_aggs: UsersAggs = HashMap::new();
 
+    info!(
+        start_timestamp_str = timestamp_to_string(start_timestamp),
+        start_timestamp = %start_timestamp,
+        end_timestamp_str = timestamp_to_string(end_timestamp),
+        end_timestamp = %end_timestamp,
+        "Agg"
+    );
+
     for entry in events.longs.iter() {
         let long_key = entry.key();
         let filtered_entries: Vec<_> = entry
             .value()
             .iter()
-            .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
+            .filter(|debit| {
+                (start_timestamp <= debit.timestamp) && (debit.timestamp < end_timestamp)
+            })
             .collect();
         let agg = users_aggs.entry(long_key.trader).or_default();
-        agg.action_count.long = filtered_entries.len();
-        agg.volume.long = filtered_entries
+        agg.action_count.long += filtered_entries.len();
+        agg.volume.long += filtered_entries
             .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
@@ -1029,6 +1039,13 @@ fn aggregate_per_user_over_period(
                 }
             })
             .sum::<I256>();
+        info!(
+           long_key=?long_key,
+           long=?entry.value(),
+           action_count_long=%agg.action_count.long,
+           volume_long=%agg.volume.long,
+           "LongEventInAgg"
+        );
     }
     for entry in events.shorts.iter() {
         let short_key = entry.key();
@@ -1038,8 +1055,8 @@ fn aggregate_per_user_over_period(
             .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
             .collect();
         let agg = users_aggs.entry(short_key.trader).or_default();
-        agg.action_count.short = filtered_entries.len();
-        agg.volume.short = filtered_entries
+        agg.action_count.short += filtered_entries.len();
+        agg.volume.short += filtered_entries
             .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
@@ -1058,8 +1075,8 @@ fn aggregate_per_user_over_period(
             .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
             .collect();
         let agg = users_aggs.entry(lp_key.provider).or_default();
-        agg.action_count.lp = filtered_entries.len();
-        agg.volume.lp = filtered_entries
+        agg.action_count.lp += filtered_entries.len();
+        agg.volume.lp += filtered_entries
             .iter()
             .map(|debit| {
                 if debit.base_amount < I256::zero() {
@@ -1073,18 +1090,18 @@ fn aggregate_per_user_over_period(
 
     for (long_key_ref, position_stmt_ref) in last_time_data.longs.iter() {
         let agg = users_aggs.entry(long_key_ref.trader).or_default();
-        agg.pnl.long = position_stmt_ref.pnl;
-        agg.base_cumulative_debit.long = position_stmt_ref.cumulative_debit.base_amount;
+        agg.pnl.long += position_stmt_ref.pnl;
+        agg.base_cumulative_debit.long += position_stmt_ref.cumulative_debit.base_amount;
     }
     for (short_key_ref, position_stmt_ref) in last_time_data.shorts.iter() {
         let agg = users_aggs.entry(short_key_ref.trader).or_default();
-        agg.pnl.short = position_stmt_ref.pnl;
-        agg.base_cumulative_debit.short = position_stmt_ref.cumulative_debit.base_amount;
+        agg.pnl.short += position_stmt_ref.pnl;
+        agg.base_cumulative_debit.short += position_stmt_ref.cumulative_debit.base_amount;
     }
     for (lp_key_ref, position_stmt_ref) in last_time_data.lps.iter() {
         let agg = users_aggs.entry(lp_key_ref.provider).or_default();
-        agg.pnl.lp = position_stmt_ref.pnl;
-        agg.base_cumulative_debit.lp = position_stmt_ref.cumulative_debit.base_amount;
+        agg.pnl.lp += position_stmt_ref.pnl;
+        agg.base_cumulative_debit.lp += position_stmt_ref.cumulative_debit.base_amount;
     }
 
     users_aggs
