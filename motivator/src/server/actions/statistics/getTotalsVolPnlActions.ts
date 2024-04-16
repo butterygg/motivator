@@ -6,12 +6,12 @@ import {
     assessor_slot_user,
     reward,
     statistics,
-    stats,
     user,
 } from '@db/schema'
 import { NextRequest } from 'next/server'
 import { stat } from 'fs'
 import { AssessorSlot } from '@/types/data/assessorSlot'
+import { parseEther } from 'viem'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -38,13 +38,13 @@ export async function getTotalsVolPnlActions({
             timestamp: true,
         },
     })
-
+    console.log('Allstats', Allstats)
     let lastStat = {
         user_address: userAddr,
         timestamp: new Date(0),
-        totalVolume: BigInt(0),
-        totalPnl: BigInt(0),
-        totalActions: BigInt(0),
+        totalVolume: 0,
+        totalPnl: 0,
+        totalActions: 0,
     }
     // Pick the newer stat in matter of timestamp
     Allstats.forEach((element) => {
@@ -53,41 +53,44 @@ export async function getTotalsVolPnlActions({
             lastStat.timestamp < new Date(element.timestamp)
         ) {
             lastStat.timestamp = new Date(element.timestamp)
-            lastStat.totalVolume = BigInt(
-                (BigInt(element?.volume_longs as string)
-                    ? BigInt(element?.volume_longs as string)
-                    : BigInt(0)) + BigInt(element?.volume_shorts as string)
-                    ? BigInt(element?.volume_shorts as string)
-                    : BigInt(0) +
-                          (BigInt(element?.volume_lps as string)
-                              ? BigInt(element?.volume_lps as string)
-                              : BigInt(0))
-            )
-            lastStat.totalPnl = BigInt(
-                (BigInt(element?.pnl_longs as string)
-                    ? BigInt(element?.pnl_longs as string)
-                    : BigInt(0)) + BigInt(element?.pnl_shorts as string)
-                    ? BigInt(element?.pnl_shorts as string)
-                    : BigInt(0) +
-                          (BigInt(element?.pnl_lps as string)
-                              ? BigInt(element?.pnl_lps as string)
-                              : BigInt(0))
+            lastStat.totalVolume = Number(
+                (
+                    (element?.volume_longs
+                        ? (element?.volume_longs as number)
+                        : 0) +
+                    (element?.volume_shorts
+                        ? (element?.volume_shorts as number)
+                        : 0) +
+                    (element?.volume_lps ? (element?.volume_lps as number) : 0)
+                ).toFixed(2)
             )
 
-            lastStat.totalActions = BigInt(
-                (BigInt(element?.action_count_longs as string)
-                    ? BigInt(element?.action_count_longs as string)
-                    : BigInt(0)) +
-                    BigInt(element?.action_count_shorts as string)
-                    ? BigInt(element?.action_count_shorts as string)
-                    : BigInt(0) +
-                          (BigInt(element?.action_count_lps as string)
-                              ? BigInt(element?.action_count_lps as string)
-                              : BigInt(0))
+            lastStat.totalPnl = Number(
+                (
+                    (element?.pnl_longs ? (element?.pnl_longs as number) : 0) +
+                    (element?.pnl_shorts
+                        ? (element?.pnl_shorts as number)
+                        : 0) +
+                    (element?.pnl_lps ? (element?.pnl_lps as number) : 0)
+                ).toFixed(2)
+            )
+
+            lastStat.totalActions = Number(
+                (
+                    (element?.action_count_longs
+                        ? (element?.action_count_longs as number)
+                        : 0) +
+                    (element?.action_count_shorts
+                        ? (element?.action_count_shorts as number)
+                        : 0) +
+                    (element?.action_count_lps
+                        ? (element?.action_count_lps as number)
+                        : 0)
+                ).toFixed(2)
             )
         }
     })
-
+    console.log('lastStat', lastStat)
     // if (lastStat.timestamp.getTime() === new Date(0).getTime()) {
     //     return {}
     // }

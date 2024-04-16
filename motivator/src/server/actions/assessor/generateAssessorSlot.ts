@@ -29,7 +29,6 @@ export async function generateAssessorSlot({
         })
         .returning({ id: assessor_slot.id })
     // Build the values for the assessor_slot_user table
-
     const values = () => {
         const result: {
             user_address: `0x${string}`

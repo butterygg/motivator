@@ -1,9 +1,7 @@
 'use server'
-import { and, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
-import { NextRequest } from 'next/server'
-import { stat } from 'fs'
+import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { getTotalsVolPnlActions } from '../statistics/getTotalsVolPnlActions'
 import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
@@ -66,6 +64,7 @@ export async function getAssessorSlot(address: string) {
         return await Promise.all(res)
     }
     const userTotals = await totalsForUsersPromised()
+    console.log('userTotals', userTotals)
 
     const statisticsPromised = async () => {
         const res = usersOfAssessorSlot.map(async (userAddr) => {
