@@ -21,3 +21,4 @@ hyperdrive-math = { git = "https://github.com/delvtech/hyperdrive", tag = "v0.10
 fixed-point = { git = "https://github.com/delvtech/hyperdrive", tag = "v0.10.1", package = "fixed-point" }
 dashmap = "5.5.3"
 chrono = "0.4.37"
+uuid = { version = "1.8.0", features = ["v4", "serde"] }
