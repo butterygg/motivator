@@ -9,6 +9,6 @@ export type User = {
     status?: Status
     stat: {
         totals: Totals
-        stats: Statistics
+        stats: Statistics[]
     }
 }

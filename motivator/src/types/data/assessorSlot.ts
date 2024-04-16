@@ -14,26 +14,23 @@ export type AssessorSlot = {
 export type Totals = {
     user_address: string
     timestamp: Date
-    totalActions: bigint
-    totalVolume: bigint
-    totalPnl: bigint
+    totalActions: number
+    totalVolume: number
+    totalPnl: number
 }
 
 export type Statistics = {
     user_address: string
     timestamp: string | null
-    pnl_longs: bigint | null
-    pnl_shorts: bigint | null
-    pnl_lps: bigint | null
-    volume_longs: bigint | null
-    volume_shorts: bigint | null
-    volume_lps: bigint | null
-    balance_longs: bigint | null
-    balance_shorts: bigint | null
-    balance_lps: bigint | null
-    action_count_shorts: bigint | null
-    action_count_longs: bigint | null
-    action_count_lps: bigint | null
+    pnl_longs: number | null
+    pnl_shorts: number | null
+    pnl_lps: number | null
+    volume_longs: number | null
+    volume_shorts: number | null
+    volume_lps: number | null
+    action_count_shorts: number | null
+    action_count_longs: number | null
+    action_count_lps: number | null
 }
 
 export type Reward = {
