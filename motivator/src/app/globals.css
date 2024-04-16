@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* Original theme*/
 /* @layer base {
     :root {
@@ -116,7 +115,6 @@
     }
 } */
 
-
 /**
  * Butter Colors
  */
@@ -168,11 +166,9 @@
     }
 } */
 
-
 /**
  * Butter 2nd Try
  */
-
 
 @layer base {
     :root {
@@ -220,7 +216,6 @@
         --ring: 14 74% 55%;
     }
 }
-
 
 /* @layer base {
     input[type='number']::-webkit-inner-spin-button,
