@@ -39,18 +39,18 @@ type Props = {
 
 export type DataSetChartTrading = {
     date: string | null
-    Short: number | null
-    Long: number | null
+    Short: string | null
+    Long: string | null
 }
 
 export type DataSetChartVolumeLP = {
     date: string | null
-    volume: number | null
+    volume: string | null
 }
 
 export type DataSetChartPnlLP = {
     date: string | null
-    pnl: number | null
+    pnl: string | null
 }
 
 export function DialogUserData({ user }: Props) {
@@ -84,8 +84,8 @@ export function DialogUserData({ user }: Props) {
         const result: DataSetChartTrading[] = data.stats.map((element) => {
             return {
                 date: element.timestamp,
-                Short: element.pnl_short,
-                Long: element.pnl_long,
+                Short: element.pnl_shorts,
+                Long: element.pnl_longs,
             }
         })
         setPNLTradingData(result)
@@ -96,8 +96,8 @@ export function DialogUserData({ user }: Props) {
         const result: DataSetChartTrading[] = data.stats.map((element) => {
             return {
                 date: element.timestamp,
-                Short: element.volume_short,
-                Long: element.volume_long,
+                Short: element.volume_shorts,
+                Long: element.volume_longs,
             }
         })
         setVolumeTradingData(result)
@@ -108,7 +108,7 @@ export function DialogUserData({ user }: Props) {
         const result: DataSetChartPnlLP[] = data.stats.map((element) => {
             return {
                 date: element.timestamp,
-                pnl: element.pnl_lp,
+                pnl: element.pnl_lps,
             }
         })
         setLP_PNLTradingData(result)
@@ -119,7 +119,7 @@ export function DialogUserData({ user }: Props) {
         const result: DataSetChartVolumeLP[] = data.stats.map((element) => {
             return {
                 date: element.timestamp,
-                volume: element.volume_lp,
+                volume: element.volume_lps,
             }
         })
         setLP_VolumeTradingData(result)

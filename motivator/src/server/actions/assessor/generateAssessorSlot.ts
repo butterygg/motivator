@@ -3,6 +3,7 @@
 import { Address, parseEther } from 'viem'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user } from '@db/schema'
+import { signAssessor } from './signAssessor'
 /** handle Payment coming from front end
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -15,6 +16,8 @@ export async function generateAssessorSlot({
     assessorAddr: string
     userList: Address[]
 }) {
+    await signAssessor({ assessorAddr })
+
     const registerAssessorSlot = await db
         .insert(assessor_slot)
         .values({

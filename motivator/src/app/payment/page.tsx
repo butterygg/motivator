@@ -14,6 +14,7 @@ import { ethers } from 'ethers'
 import { waitForTransactionReceipt } from '@wagmi/core'
 import { useWaitForTransactionReceipt } from 'wagmi'
 import { SpokeCheck } from '../../components/ui/check'
+import { Card } from '../../components/ui/card'
 type Props = {}
 
 const Payment = (props: Props) => {
@@ -104,12 +105,14 @@ const Payment = (props: Props) => {
     const handleDisplay = () => {
         if (assessorSlotFinded) {
             return (
-                <div className=" flex flex-col gap-4 items-center justify-center">
-                    <RoundSpinner size="triplexl" />
-                    <Label className="font-bold">
-                        Assessor slot found, you will be redirected quickly.
-                    </Label>
-                </div>
+                <Card className="w-96 items-center p-4 rounded-lg mx-auto">
+                    <div className=" flex flex-col gap-4 items-center justify-center">
+                        <RoundSpinner size="triplexl" />
+                        <Label className="font-bold">
+                            Assessor slot found, you will be redirected quickly.
+                        </Label>
+                    </div>
+                </Card>
             )
         }
         if (

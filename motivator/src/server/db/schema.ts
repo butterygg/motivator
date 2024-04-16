@@ -3,6 +3,7 @@ import {
     PgTableWithColumns,
     boolean,
     date,
+    decimal,
     integer,
     pgTable,
     text,
@@ -11,16 +12,7 @@ import {
 
 export const user = pgTable('users', {
     address: text('address').unique().primaryKey(),
-    isBot: boolean('is_bot').default(false),
-    owner: text('owner'),
 })
-
-export const usersRelations = relations(user, ({ one }) => ({
-    invitee: one(user, {
-        fields: [user.owner],
-        references: [user.address],
-    }),
-}))
 
 export const stats = pgTable('stats', {
     user_address: text('user_address')
@@ -63,12 +55,18 @@ export const statistics = pgTable('statistics', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     timestamp: date('timestamp').default('now()'),
     user_address: text('user_address').references(() => user.address),
-    pnl_long: integer('pnl_long').default(0),
-    pnl_short: integer('pnl_short').default(0),
-    pnl_lp: integer('pnl_lp').default(0),
-    volume_long: integer('volume_long').default(0),
-    volume_short: integer('volume_short').default(0),
-    volume_lp: integer('volume_lp').default(0),
+    pnl_longs: decimal('pnl_longs'),
+    pnl_shorts: decimal('pnl_shorts'),
+    pnl_lps: decimal('pnl_lps'),
+    volume_longs: decimal('volume_longs'),
+    volume_shorts: decimal('volume_shorts'),
+    volume_lps: decimal('volume_lps'),
+    balance_longs: decimal('balance_longs'),
+    balance_shorts: decimal('balance_shorts'),
+    balance_lps: decimal('balance_lps'),
+    action_count_shorts: decimal('action_count_shorts'),
+    action_count_longs: decimal('action_count_longs'),
+    action_count_lps: decimal('action_count_lps'),
 })
 
 export const offChainActions = pgTable('off_chain_actions', {
@@ -77,4 +75,5 @@ export const offChainActions = pgTable('off_chain_actions', {
     feedback: boolean('feedback').default(false),
     strategyWriteUp: boolean('strategy_write_up').default(false),
     communityEngagement: boolean('community_engagement').default(false),
+    isBot: boolean('is_bot').default(false),
 })
