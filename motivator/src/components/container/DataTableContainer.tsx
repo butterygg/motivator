@@ -22,11 +22,11 @@ const DataTableContainer = () => {
                 (reward) => reward.user_address === element
             )
             const totals = assessorSlot.totals.find(
-                (stat) => stat.user_address === element
+                (totals) => totals.user_address === element
             ) as Totals
-            const statistics = assessorSlot.statistics.find(
+            const statistics = assessorSlot.statistics.filter(
                 (stat) => stat.user_address === element
-            ) as Statistics
+            ) as Statistics[]
             res.push({
                 id: {
                     id: index.toString(),
