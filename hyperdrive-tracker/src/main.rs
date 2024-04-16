@@ -14,7 +14,6 @@ use ethers::{
 };
 use futures::StreamExt;
 use hex_literal::hex;
-use rust_decimal::prelude::FromPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tokio::time::{self, Duration};
@@ -22,6 +21,27 @@ use tracing::{debug, info};
 use uuid::Uuid;
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
+
+// CONFIG ///////////////////////////////////////////////////
+
+/// Rust tests deployment
+// const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("8d4928532f2dd0e2f31f447d7902197e54db2302"));
+/// Agent0 artifacts expected deployment
+//const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("7aba23eab591909f9dc5770cea764b8aa989dd25"));
+/// Agent0 fixture deployment
+//const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("6949c3f59634E94B659486648848Cd3f112AD098"));
+/// Infra artifacts
+const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
+
+// [TODO] Replace with block right before Sepolia contracts deployment.
+const START_BLOCK: u64 = 41;
+
+const HOUR: u64 = 60 * 60;
+
+const TIMEOUT_DURATION: u64 = 10;
+
+const DECIMAL_SCALE: u32 = 18;
+const DECIMAL_PRECISION: u32 = 18;
 
 // UTILS ///////////////////////////////////////////////////
 
@@ -57,23 +77,35 @@ async fn find_block_by_timestamp(
     Ok(high.into())
 }
 
-// CONFIG ///////////////////////////////////////////////////
+trait Decimalizable {
+    fn normalized(&self) -> Decimal;
+}
 
-/// Rust tests deployment
-// const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("8d4928532f2dd0e2f31f447d7902197e54db2302"));
-/// Agent0 artifacts expected deployment
-//const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("7aba23eab591909f9dc5770cea764b8aa989dd25"));
-/// Agent0 fixture deployment
-//const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("6949c3f59634E94B659486648848Cd3f112AD098"));
-/// Infra artifacts
-const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
+impl Decimalizable for I256 {
+    fn normalized(&self) -> Decimal {
+        let val_i128 = (*self).as_i128();
+        let val_dec = Decimal::from_i128_with_scale(val_i128, DECIMAL_SCALE);
+        val_dec.round_dp(DECIMAL_PRECISION)
+    }
+}
 
-// [TODO] Replace with block right before Sepolia contracts deployment.
-const START_BLOCK: u64 = 41;
+impl Decimalizable for U256 {
+    fn normalized(&self) -> Decimal {
+        let val_ethers_i128 = I256::try_from(*self).unwrap();
+        let val_i128 = val_ethers_i128.as_i128();
+        let val_dec = Decimal::from_i128_with_scale(val_i128, DECIMAL_SCALE);
+        val_dec.round_dp(DECIMAL_PRECISION)
+    }
+}
 
-const HOUR: u64 = 60 * 60;
-
-const TIMEOUT_DURATION: u64 = 10;
+impl Decimalizable for fixed_point::FixedPoint {
+    fn normalized(&self) -> Decimal {
+        let val_ethers_i128 = I256::try_from(*self).unwrap();
+        let val_i128 = val_ethers_i128.as_i128();
+        let val_dec = Decimal::from_i128_with_scale(val_i128, DECIMAL_SCALE);
+        val_dec.round_dp(DECIMAL_PRECISION)
+    }
+}
 
 // TYPES ///////////////////////////////////////////////////
 
@@ -172,13 +204,13 @@ struct LpCumulativeDebit {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct PositionStatement {
     cumulative_debit: PositionCumulativeDebit,
-    pnl: I256,
+    pnl: Decimal,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct LpStatement {
     cumulative_debit: LpCumulativeDebit,
-    pnl: I256,
+    pnl: Decimal,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -196,11 +228,13 @@ struct CumulativeDebits {
     lp: I256,
 }
 
+// [TODO] Move all PnLs to Decimal.
+///Still scaled to the e18. Comparable to base_amounts.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct PnL {
-    long: I256,
-    short: I256,
-    lp: I256,
+    long: Decimal,
+    short: Decimal,
+    lp: Decimal,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -266,7 +300,8 @@ async fn write_open_long(
     info!(
         block_num=%meta.block_number,
         trader=%event.trader,
-        maturity_time=%timestamp_to_string(event.maturity_time),
+        maturity_time_str=%timestamp_to_string(event.maturity_time),
+        maturity_time=?event.maturity_time,
         base_amount=%event.base_amount/U256::exp10(18),
         bond_amount=%event.bond_amount/U256::exp10(18),
         "OpenLong",
@@ -758,7 +793,9 @@ fn calc_pnls(
                 key,
                 PositionCumulativeDebit {
                     base_amount: base_cumul_debit,
-                    bond_amount: bond_cumul_credit.try_into().expect("Negative bond balance"),
+                    bond_amount: bond_cumul_credit
+                        .try_into()
+                        .expect("Negative long bond balance"),
                 },
             )
         })
@@ -787,7 +824,9 @@ fn calc_pnls(
                 key,
                 PositionCumulativeDebit {
                     base_amount: base_cumul_debit,
-                    bond_amount: bond_cumul_credit.try_into().expect("Negative bond balance"),
+                    bond_amount: bond_cumul_credit
+                        .try_into()
+                        .expect("Negative short bond balance"),
                 },
             )
         })
@@ -827,24 +866,28 @@ fn calc_pnls(
         .map(|entry| {
             let long_key = *entry.key();
 
-            let cumulative_debits = longs_cumul_debits.get(&long_key).unwrap();
+            let cumulative_debit = longs_cumul_debits.get(&long_key).unwrap();
 
             let normalized_time_remaining =
                 hyperdrive_state.time_remaining_scaled(timestamp, long_key.maturity_time);
             // [XXX] Are we calling this fn correctly? And converting units?
             let calculated_close_shares = hyperdrive_state
-                .calculate_close_long(cumulative_debits.bond_amount, normalized_time_remaining.into());
+                .calculate_close_long(cumulative_debit.bond_amount, normalized_time_remaining.into());
+            // Knowing `calculate_close_long` returns vault share amounts:
+            // [TODO] Verify that's still the case.
             let calculated_close_base_amount =
-                calculated_close_shares * hyperdrive_state.info.vault_share_price.into();
+                calculated_close_shares.normalized() * hyperdrive_state.info.vault_share_price.normalized();
 
-            debug!(
-                "LongsPnL timestamp={} long_key={:?} cumulative_debits={:?} calculated_close_base_amount={:?}",
-                timestamp_to_string(timestamp), long_key, cumulative_debits, calculated_close_base_amount
+            let cumulative_base_debit = cumulative_debit.base_amount.normalized();
+
+            info!(
+                "LongsPnL timestamp={} long_key={:?} cumulative_debit={:?} calculated_close_base_amount={:?}",
+                timestamp_to_string(timestamp), long_key, cumulative_debit, calculated_close_base_amount
             );
 
             let pos_statement = PositionStatement {
-                cumulative_debit: *cumulative_debits,
-                pnl: I256::try_from(calculated_close_base_amount).unwrap() - cumulative_debits.base_amount,
+                cumulative_debit: *cumulative_debit,
+                pnl: calculated_close_base_amount - cumulative_base_debit,
             };
 
             (long_key, pos_statement)
@@ -857,7 +900,7 @@ fn calc_pnls(
         .map(|entry| {
             let short_key = *entry.key();
 
-            let cumulative_debits = shorts_cumul_debits.get(&short_key).unwrap();
+            let cumulative_debit = shorts_cumul_debits.get(&short_key).unwrap();
 
             let normalized_time_remaining =
                 hyperdrive_state.time_remaining_scaled(timestamp, short_key.maturity_time);
@@ -878,32 +921,49 @@ fn calc_pnls(
                 .expect(open_share_errmsg)
                 .price;
 
-            let close_checkpoint_time = short_key.maturity_time;
-            let close_share_errmsg = &format!(
-                "Expected short close checkpoint SharePrice to be recorded but did not: {:?} {:#?}",
-                open_checkpoint_time, events.share_prices
+            let maturity_checkpoint_time = short_key.maturity_time;
+            let maturity_share_errmsg = &format!(
+                "Expected short maturity checkpoint SharePrice to be recorded but did not: \
+                short_key={:?} position_duration={:?} maturity_checkpoint_time={:?} \
+                share_prices={:#?}",
+                short_key,
+                hyperdrive_state.config.position_duration,
+                maturity_checkpoint_time,
+                events.share_prices
             );
-            let close_share_price = events
+            let maturity_share_price = events
                 .share_prices
-                .get(&close_checkpoint_time)
-                .expect(close_share_errmsg)
+                .get(&maturity_checkpoint_time)
+                .expect(maturity_share_errmsg)
                 .price;
 
             // [XXX] Are we calling this fn correctly?
-            let calculated_close_shares = hyperdrive_state.calculate_close_short(
-                cumulative_debits.bond_amount,
-                open_share_price,
-                close_share_price,
-                normalized_time_remaining.into(),
+            let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
+                cumulative_debit.bond_amount.into(),
+                open_share_price.into(),
+                maturity_share_price.into(),
+                normalized_time_remaining,
             );
-            let calculated_close_base_amount =
-                calculated_close_shares * hyperdrive_state.info.vault_share_price.into();
+            let calculated_maturity_base_amount = calculated_maturity_shares.normalized()
+                * hyperdrive_state.info.vault_share_price.normalized();
+
+            let cumulative_base_debit = cumulative_debit.base_amount.normalized();
 
             let pos_statement = PositionStatement {
-                cumulative_debit: *cumulative_debits,
-                pnl: I256::try_from(calculated_close_base_amount).unwrap()
-                    - cumulative_debits.base_amount,
+                cumulative_debit: *cumulative_debit,
+                // frst: 19.967
+                pnl: calculated_maturity_base_amount - cumulative_base_debit,
             };
+
+            debug!(
+                "ShortPnL timestamp={} short_key={:?} pos_statement={:?} calc_matu_shares={:?} calc_matu_base={:?} h_state={:#?}",
+                timestamp_to_string(timestamp),
+                short_key,
+                pos_statement,
+                calculated_maturity_shares,
+                calculated_maturity_base_amount,
+                hyperdrive_state
+            );
 
             (short_key, pos_statement)
         })
@@ -915,14 +975,15 @@ fn calc_pnls(
         .map(|entry| {
             let lp_key = *entry.key();
 
-            let cumulative_debits = lps_cumul_debits.get(&lp_key).unwrap();
+            let cumulative_debit = lps_cumul_debits.get(&lp_key).unwrap();
 
-            let lp_base_amount: U256 =
-                cumulative_debits.lp_amount * hyperdrive_state.info.lp_share_price;
+            let lp_base_amount = cumulative_debit.lp_amount.normalized()
+                * hyperdrive_state.info.lp_share_price.normalized();
+            let cumulative_base_debit = cumulative_debit.base_amount.normalized();
 
             let lp_statement = LpStatement {
-                cumulative_debit: *cumulative_debits,
-                pnl: I256::try_from(lp_base_amount).unwrap() - cumulative_debits.base_amount,
+                cumulative_debit: *cumulative_debit,
+                pnl: lp_base_amount - cumulative_base_debit,
             };
 
             debug!(
@@ -1094,14 +1155,12 @@ async fn dump_hourly_aggregates(
     start_timestamp: U256,
     end_block: U64,
     end_timestamp: U256,
+    filepath: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut period_start = start_timestamp;
     let mut period_end = start_timestamp + HOUR;
 
-    let mut writer = Writer::from_path(format!(
-        "hourly--start-{}.csv",
-        timestamp_to_string(period_start)
-    ))?;
+    let mut writer = Writer::from_path(filepath)?;
 
     while period_end < end_timestamp {
         // The PnL part doesn't need to know about `period_start` as PnLs and balances are
@@ -1138,27 +1197,15 @@ async fn dump_hourly_aggregates(
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,
                 action_count_lps: agg.action_count.lp,
-                volume_longs: Decimal::from_i128(agg.volume.long.as_i128()).unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                volume_shorts: Decimal::from_i128(agg.volume.short.as_i128()).unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                volume_lps: Decimal::from_i128(agg.volume.lp.as_i128()).unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                pnl_longs: Decimal::from_i128(agg.pnl.long.as_i128()).unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                pnl_shorts: Decimal::from_i128(agg.pnl.short.as_i128()).unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                pnl_lps: Decimal::from_i128(agg.pnl.lp.as_i128()).unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                base_balance_longs: -Decimal::from_i128(agg.base_cumulative_debit.long.as_i128())
-                    .unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                base_balance_shorts: -Decimal::from_i128(agg.base_cumulative_debit.short.as_i128())
-                    .unwrap()
-                    / Decimal::new(1000000000000000000, 8),
-                base_balance_lps: -Decimal::from_i128(agg.base_cumulative_debit.lp.as_i128())
-                    .unwrap()
-                    / Decimal::new(1000000000000000000, 8),
+                volume_longs: agg.volume.long.normalized(),
+                volume_shorts: agg.volume.short.normalized(),
+                volume_lps: agg.volume.lp.normalized(),
+                pnl_longs: agg.pnl.long,
+                pnl_shorts: agg.pnl.short,
+                pnl_lps: agg.pnl.lp,
+                base_balance_longs: -agg.base_cumulative_debit.long.normalized(),
+                base_balance_shorts: -agg.base_cumulative_debit.short.normalized(),
+                base_balance_lps: -agg.base_cumulative_debit.lp.normalized(),
             })?
         }
 
@@ -1255,6 +1302,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("DumpHourlyAggregates");
 
+    let filepath = &format!(
+        "hourly--start-{}.csv",
+        timestamp_to_string(start_block_timestamp)
+    );
+
     //let current_timestamp = U256::from(Utc::now().timestamp() as u64);
     dump_hourly_aggregates(
         client.clone(),
@@ -1263,10 +1315,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         start_block_timestamp,
         end_block,
         end_block_timestamp,
+        filepath,
     )
     .await?;
 
-    info!("Done");
+    info!(file=%filepath, "DumpDone");
 
     Ok(())
 }
