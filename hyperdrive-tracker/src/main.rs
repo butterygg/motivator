@@ -14,9 +14,10 @@ use ethers::{
 };
 use futures::StreamExt;
 use hex_literal::hex;
-use rust_decimal::prelude::{FromPrimitive, FromStr};
+use rust_decimal::prelude::FromPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
+use tokio::time::{self, Duration};
 use tracing::{debug, info};
 use uuid::Uuid;
 
@@ -72,6 +73,8 @@ const START_BLOCK: u64 = 41;
 
 const HOUR: u64 = 60 * 60;
 
+const TIMEOUT_DURATION: u64 = 10;
+
 // TYPES ///////////////////////////////////////////////////
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -85,6 +88,8 @@ impl Display for LongKey {
     }
 }
 
+/// All Debits are considered from the point of view of player wallets with respect to their
+/// base-token holdings.
 type Long = Vec<LongDebit>;
 
 ///Closes are negative, Opens are positive.
@@ -153,26 +158,26 @@ struct Events {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct PositionBalance {
-    base_balance: I256,
-    bond_balance: U256,
+struct PositionCumulativeDebit {
+    base_amount: I256,
+    bond_amount: U256,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct LpBalance {
-    base_balance: I256,
-    lp_balance: U256,
+struct LpCumulativeDebit {
+    base_amount: I256,
+    lp_amount: U256,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct PositionStatement {
-    balance: PositionBalance,
+    cumulative_debit: PositionCumulativeDebit,
     pnl: I256,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct LpStatement {
-    balance: LpBalance,
+    cumulative_debit: LpCumulativeDebit,
     pnl: I256,
 }
 
@@ -185,7 +190,7 @@ struct TimeData {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
-struct BaseDebitBalance {
+struct CumulativeDebits {
     long: I256,
     short: I256,
     lp: I256,
@@ -225,7 +230,7 @@ struct UserAgg {
     action_count: ActionCount,
     volume: Volume,
     pnl: PnL,
-    balance: BaseDebitBalance,
+    base_cumulative_debit: CumulativeDebits,
 }
 
 type UsersAggs = HashMap<H160, UserAgg>;
@@ -234,6 +239,7 @@ type UsersAggs = HashMap<H160, UserAgg>;
 struct CsvRecord {
     id: Uuid,
     timestamp: String,
+    block_number: u64,
     address: H160,
     action_count_longs: usize,
     action_count_shorts: usize,
@@ -244,9 +250,9 @@ struct CsvRecord {
     pnl_longs: Decimal,
     pnl_shorts: Decimal,
     pnl_lps: Decimal,
-    balance_longs: Decimal,
-    balance_shorts: Decimal,
-    balance_lps: Decimal,
+    base_balance_longs: Decimal,
+    base_balance_shorts: Decimal,
+    base_balance_lps: Decimal,
 }
 
 // LOAD EVENTS ///////////////////////////////////////////////////
@@ -257,7 +263,7 @@ async fn write_open_long(
     event: i_hyperdrive::OpenLongFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
-    debug!(
+    info!(
         block_num=%meta.block_number,
         trader=%event.trader,
         maturity_time=%timestamp_to_string(event.maturity_time),
@@ -297,7 +303,7 @@ async fn write_close_long(
     event: i_hyperdrive::CloseLongFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
-    debug!(
+    info!(
         block_num=%meta.block_number,
         trader=%event.trader,
         maturity_time=%timestamp_to_string(event.maturity_time),
@@ -425,7 +431,7 @@ async fn write_share_price(
         price: maturity_state.info.vault_share_price,
     };
 
-    debug!(
+    info!(
         open_checkpoint_time=%open_checkpoint_time,
         open_block_num=%open_block_num,
         open_share_price=%open_share_price.price,
@@ -491,12 +497,12 @@ async fn write_initialize(
     event: i_hyperdrive::InitializeFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
-    debug!(
+    info!(
         block_num=%meta.block_number,
         provider=%event.provider,
         lp_amount=%event.lp_amount/U256::exp10(18),
         base_amount=%event.base_amount/U256::exp10(18),
-        "Initialize"
+        "InitializeLiquidity"
     );
 
     let key = LpKey {
@@ -529,7 +535,7 @@ async fn write_add_liquidity(
     event: i_hyperdrive::AddLiquidityFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
-    debug!(
+    info!(
         block_num=%meta.block_number,
         provider=%event.provider,
         lp_amount=%event.lp_amount/U256::exp10(18),
@@ -567,7 +573,7 @@ async fn write_remove_liquidity(
     event: i_hyperdrive::RemoveLiquidityFilter,
     meta: LogMeta,
 ) -> Result<(), Box<dyn Error>> {
-    debug!(
+    info!(
         block_num=%meta.block_number,
         provider=%event.provider,
         lp_amount=%event.lp_amount/U256::exp10(18),
@@ -626,48 +632,91 @@ async fn load_hyperdrive_events(
     );
 
     let mut stream = contract_events.stream_with_meta().await?;
-    while let Some(Ok((evt, meta))) = stream.next().await {
-        match evt {
-            i_hyperdrive::IHyperdriveEvents::OpenLongFilter(event) => {
-                let _ = write_open_long(client.clone(), events.clone(), event, meta.clone()).await;
-            }
-            i_hyperdrive::IHyperdriveEvents::OpenShortFilter(event) => {
-                let short_key =
-                    write_open_short(client.clone(), events.clone(), event, meta.clone()).await;
-                let _ = write_share_price(
-                    client.clone(),
-                    events.clone(),
-                    hyperdrive_contract.clone(),
-                    pool_config_ref,
-                    start_block,
-                    end_block,
-                    short_key.unwrap(),
-                )
-                .await;
-            }
-            i_hyperdrive::IHyperdriveEvents::InitializeFilter(event) => {
-                let _ = write_initialize(client.clone(), events.clone(), event, meta.clone()).await;
-            }
-            i_hyperdrive::IHyperdriveEvents::AddLiquidityFilter(event) => {
-                let _ =
-                    write_add_liquidity(client.clone(), events.clone(), event, meta.clone()).await;
-            }
-            i_hyperdrive::IHyperdriveEvents::CloseLongFilter(event) => {
-                let _ = write_close_long(client.clone(), events.clone(), event, meta.clone()).await;
-            }
-            i_hyperdrive::IHyperdriveEvents::CloseShortFilter(event) => {
-                let _ =
-                    write_close_short(client.clone(), events.clone(), event, meta.clone()).await;
-            }
-            i_hyperdrive::IHyperdriveEvents::RemoveLiquidityFilter(event) => {
-                let _ = write_remove_liquidity(client.clone(), events.clone(), event, meta.clone())
-                    .await;
-            }
-            _ => (),
-        }
+    let timeout_duration = Duration::from_secs(TIMEOUT_DURATION);
 
-        if meta.block_number >= end_block {
-            break;
+    while let Ok(Some(event_result)) = time::timeout(timeout_duration, stream.next()).await {
+        match event_result {
+            Ok((evt, meta)) => {
+                debug!(
+                    "StartStreamEvent meta={:?} evt={:?}",
+                    meta.clone(),
+                    evt.clone()
+                );
+                match evt.clone() {
+                    i_hyperdrive::IHyperdriveEvents::OpenLongFilter(event) => {
+                        let _ =
+                            write_open_long(client.clone(), events.clone(), event, meta.clone())
+                                .await;
+                    }
+                    i_hyperdrive::IHyperdriveEvents::OpenShortFilter(event) => {
+                        let short_key =
+                            write_open_short(client.clone(), events.clone(), event, meta.clone())
+                                .await;
+                        let _ = write_share_price(
+                            client.clone(),
+                            events.clone(),
+                            hyperdrive_contract.clone(),
+                            pool_config_ref,
+                            start_block,
+                            end_block,
+                            short_key.unwrap(),
+                        )
+                        .await;
+                    }
+                    i_hyperdrive::IHyperdriveEvents::InitializeFilter(event) => {
+                        let _ =
+                            write_initialize(client.clone(), events.clone(), event, meta.clone())
+                                .await;
+                    }
+                    i_hyperdrive::IHyperdriveEvents::AddLiquidityFilter(event) => {
+                        let _ = write_add_liquidity(
+                            client.clone(),
+                            events.clone(),
+                            event,
+                            meta.clone(),
+                        )
+                        .await;
+                    }
+                    i_hyperdrive::IHyperdriveEvents::CloseLongFilter(event) => {
+                        let _ =
+                            write_close_long(client.clone(), events.clone(), event, meta.clone())
+                                .await;
+                    }
+                    i_hyperdrive::IHyperdriveEvents::CloseShortFilter(event) => {
+                        let _ =
+                            write_close_short(client.clone(), events.clone(), event, meta.clone())
+                                .await;
+                    }
+                    i_hyperdrive::IHyperdriveEvents::RemoveLiquidityFilter(event) => {
+                        let _ = write_remove_liquidity(
+                            client.clone(),
+                            events.clone(),
+                            event,
+                            meta.clone(),
+                        )
+                        .await;
+                    }
+                    _ => (),
+                }
+
+                debug!(
+                    "EndStreamEvent meta={:?} evt={:?}",
+                    meta.clone(),
+                    evt.clone()
+                );
+
+                if meta.block_number >= end_block {
+                    break;
+                }
+            }
+            Err(e) => {
+                // Handle individual event errors
+                panic!(
+                    "Error processing contract event: hyperdrive_contract={:?} start_block={:?}\
+                        end_block={:?} error={:?}",
+                    hyperdrive_contract, start_block, end_block, e
+                );
+            }
         }
     }
 
@@ -685,14 +734,14 @@ fn calc_pnls(
     HashMap<ShortKey, PositionStatement>,
     HashMap<LpKey, LpStatement>,
 ) {
-    // [PERF] We could build balances cumulatively in Debit objects.
-    let longs_balances: HashMap<LongKey, PositionBalance> = events
+    // [PERF] We could build these cumulatively in Debit objects.
+    let longs_cumul_debits: HashMap<LongKey, PositionCumulativeDebit> = events
         .longs
         .iter()
         .map(|entry| {
             let key = *entry.key();
             let long = entry.value().clone();
-            let balance_tuple = long.iter().fold(
+            let cumul_debits_2 = long.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
                     if debit.timestamp <= timestamp {
@@ -702,27 +751,26 @@ fn calc_pnls(
                     }
                 },
             );
-            (key, balance_tuple)
+            (key, cumul_debits_2)
         })
-        .map(|(key, (base_balance, bond_balance))| {
+        .map(|(key, (base_cumul_debit, bond_cumul_credit))| {
             (
                 key,
-                PositionBalance {
-                    base_balance,
-                    //bond_balance: U256::try_from(bond_balance).expect("Negative bond balance"),
-                    bond_balance: bond_balance.try_into().expect("Negative bond balance"),
+                PositionCumulativeDebit {
+                    base_amount: base_cumul_debit,
+                    bond_amount: bond_cumul_credit.try_into().expect("Negative bond balance"),
                 },
             )
         })
         .collect();
 
-    let shorts_balances: HashMap<ShortKey, PositionBalance> = events
+    let shorts_cumul_debits: HashMap<ShortKey, PositionCumulativeDebit> = events
         .shorts
         .iter()
         .map(|entry| {
             let key = *entry.key();
             let short = entry.value().clone();
-            let balance_tuple = short.iter().fold(
+            let cumul_debits_2 = short.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
                     if debit.timestamp <= timestamp {
@@ -732,27 +780,26 @@ fn calc_pnls(
                     }
                 },
             );
-            (key, balance_tuple)
+            (key, cumul_debits_2)
         })
-        .map(|(key, (base_balance, bond_balance))| {
+        .map(|(key, (base_cumul_debit, bond_cumul_credit))| {
             (
                 key,
-                PositionBalance {
-                    base_balance,
-                    //bond_balance: U256::try_from(bond_balance).expect("Negative bond balance"),
-                    bond_balance: bond_balance.try_into().expect("Negative bond balance"),
+                PositionCumulativeDebit {
+                    base_amount: base_cumul_debit,
+                    bond_amount: bond_cumul_credit.try_into().expect("Negative bond balance"),
                 },
             )
         })
         .collect();
 
-    let lps_balances: HashMap<LpKey, LpBalance> = events
+    let lps_cumul_debits: HashMap<LpKey, LpCumulativeDebit> = events
         .lps
         .iter()
         .map(|entry| {
             let key = *entry.key();
             let lp = entry.value().clone();
-            let balance_tuple =
+            let cumul_debits_2 =
                 lp.iter()
                     .fold((I256::zero(), I256::zero()), |(acc_base, acc_lp), debit| {
                         if debit.timestamp <= timestamp {
@@ -761,15 +808,14 @@ fn calc_pnls(
                             (acc_base, acc_lp)
                         }
                     });
-            (key, balance_tuple)
+            (key, cumul_debits_2)
         })
-        .map(|(key, (base_balance, lp_balance))| {
+        .map(|(key, (base_cumul_debit, lp_shares_credit))| {
             (
                 key,
-                LpBalance {
-                    base_balance,
-                    //bond_balance: U256::try_from(bond_balance).expect("Negative bond balance"),
-                    lp_balance: lp_balance.try_into().expect("Negative LP balance"),
+                LpCumulativeDebit {
+                    base_amount: base_cumul_debit,
+                    lp_amount: lp_shares_credit.try_into().expect("Negative LP balance"),
                 },
             )
         })
@@ -781,24 +827,24 @@ fn calc_pnls(
         .map(|entry| {
             let long_key = *entry.key();
 
-            let balance = longs_balances.get(&long_key).unwrap();
+            let cumulative_debits = longs_cumul_debits.get(&long_key).unwrap();
 
             let normalized_time_remaining =
                 hyperdrive_state.time_remaining_scaled(timestamp, long_key.maturity_time);
             // [XXX] Are we calling this fn correctly? And converting units?
             let calculated_close_shares = hyperdrive_state
-                .calculate_close_long(balance.bond_balance, normalized_time_remaining.into());
+                .calculate_close_long(cumulative_debits.bond_amount, normalized_time_remaining.into());
             let calculated_close_base_amount =
                 calculated_close_shares * hyperdrive_state.info.vault_share_price.into();
 
             debug!(
-                "LongsPnL timestamp={} long_key={:?} balance={:?} calculated_close_base_amount={:?}",
-                timestamp_to_string(timestamp), long_key, balance, calculated_close_base_amount
+                "LongsPnL timestamp={} long_key={:?} cumulative_debits={:?} calculated_close_base_amount={:?}",
+                timestamp_to_string(timestamp), long_key, cumulative_debits, calculated_close_base_amount
             );
 
             let pos_statement = PositionStatement {
-                balance: *balance,
-                pnl: I256::try_from(calculated_close_base_amount).unwrap() - balance.base_balance,
+                cumulative_debit: *cumulative_debits,
+                pnl: I256::try_from(calculated_close_base_amount).unwrap() - cumulative_debits.base_amount,
             };
 
             (long_key, pos_statement)
@@ -811,7 +857,7 @@ fn calc_pnls(
         .map(|entry| {
             let short_key = *entry.key();
 
-            let balance = shorts_balances.get(&short_key).unwrap();
+            let cumulative_debits = shorts_cumul_debits.get(&short_key).unwrap();
 
             let normalized_time_remaining =
                 hyperdrive_state.time_remaining_scaled(timestamp, short_key.maturity_time);
@@ -845,7 +891,7 @@ fn calc_pnls(
 
             // [XXX] Are we calling this fn correctly?
             let calculated_close_shares = hyperdrive_state.calculate_close_short(
-                balance.bond_balance,
+                cumulative_debits.bond_amount,
                 open_share_price,
                 close_share_price,
                 normalized_time_remaining.into(),
@@ -854,8 +900,9 @@ fn calc_pnls(
                 calculated_close_shares * hyperdrive_state.info.vault_share_price.into();
 
             let pos_statement = PositionStatement {
-                balance: *balance,
-                pnl: I256::try_from(calculated_close_base_amount).unwrap() - balance.base_balance,
+                cumulative_debit: *cumulative_debits,
+                pnl: I256::try_from(calculated_close_base_amount).unwrap()
+                    - cumulative_debits.base_amount,
             };
 
             (short_key, pos_statement)
@@ -868,17 +915,14 @@ fn calc_pnls(
         .map(|entry| {
             let lp_key = *entry.key();
 
-            let balance = lps_balances.get(&lp_key).unwrap();
+            let cumulative_debits = lps_cumul_debits.get(&lp_key).unwrap();
 
-            let calculated_present_value_shares =
-                hyperdrive_state.calculate_present_value(timestamp);
-            let lp_shares = calculated_present_value_shares * balance.lp_balance.into()
-                / hyperdrive_state.info.share_reserves.into();
-            let lp_base_amount = lp_shares * hyperdrive_state.info.vault_share_price.into();
+            let lp_base_amount: U256 =
+                cumulative_debits.lp_amount * hyperdrive_state.info.lp_share_price;
 
             let lp_statement = LpStatement {
-                balance: *balance,
-                pnl: I256::try_from(lp_base_amount).unwrap() - balance.base_balance,
+                cumulative_debit: *cumulative_debits,
+                pnl: I256::try_from(lp_base_amount).unwrap() - cumulative_debits.base_amount,
             };
 
             debug!(
@@ -969,17 +1013,17 @@ fn aggregate_per_user_over_period(
     for (long_key_ref, position_stmt_ref) in last_time_data.longs.iter() {
         let agg = users_aggs.entry(long_key_ref.trader).or_default();
         agg.pnl.long = position_stmt_ref.pnl;
-        agg.balance.long = position_stmt_ref.balance.base_balance;
+        agg.base_cumulative_debit.long = position_stmt_ref.cumulative_debit.base_amount;
     }
     for (short_key_ref, position_stmt_ref) in last_time_data.shorts.iter() {
         let agg = users_aggs.entry(short_key_ref.trader).or_default();
         agg.pnl.short = position_stmt_ref.pnl;
-        agg.balance.short = position_stmt_ref.balance.base_balance;
+        agg.base_cumulative_debit.short = position_stmt_ref.cumulative_debit.base_amount;
     }
     for (lp_key_ref, position_stmt_ref) in last_time_data.lps.iter() {
         let agg = users_aggs.entry(lp_key_ref.provider).or_default();
         agg.pnl.lp = position_stmt_ref.pnl;
-        agg.balance.lp = position_stmt_ref.balance.base_balance;
+        agg.base_cumulative_debit.lp = position_stmt_ref.cumulative_debit.base_amount;
     }
 
     users_aggs
@@ -1016,7 +1060,7 @@ async fn calc_contract_hourly_aggregates(
     ))
 }
 
-fn combine_users_aggs(aggs_list: Vec<UsersAggs>) -> UsersAggs {
+fn sum_users_aggs(aggs_list: Vec<UsersAggs>) -> UsersAggs {
     aggs_list
         .into_iter()
         .fold(HashMap::new(), |mut combined, aggs| {
@@ -1035,9 +1079,9 @@ fn combine_users_aggs(aggs_list: Vec<UsersAggs>) -> UsersAggs {
                 combined_agg.pnl.short += agg.pnl.short;
                 combined_agg.pnl.lp += agg.pnl.lp;
 
-                combined_agg.balance.long += agg.balance.long;
-                combined_agg.balance.short += agg.balance.short;
-                combined_agg.balance.lp += agg.balance.lp;
+                combined_agg.base_cumulative_debit.long += agg.base_cumulative_debit.long;
+                combined_agg.base_cumulative_debit.short += agg.base_cumulative_debit.short;
+                combined_agg.base_cumulative_debit.lp += agg.base_cumulative_debit.lp;
             }
             combined
         })
@@ -1083,12 +1127,13 @@ async fn dump_hourly_aggregates(
             );
         }
 
-        let users_aggs = combine_users_aggs(hyperdrives_usersaggs);
+        let users_aggs = sum_users_aggs(hyperdrives_usersaggs);
 
         for (address, agg) in users_aggs {
             writer.serialize(CsvRecord {
                 id: Uuid::new_v4(),
-                timestamp: timestamp_to_string(period_start),
+                timestamp: timestamp_to_string(period_end),
+                block_number: period_end_block_num.as_u64(),
                 address,
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,
@@ -1105,11 +1150,14 @@ async fn dump_hourly_aggregates(
                     / Decimal::new(1000000000000000000, 8),
                 pnl_lps: Decimal::from_i128(agg.pnl.lp.as_i128()).unwrap()
                     / Decimal::new(1000000000000000000, 8),
-                balance_longs: Decimal::from_i128(agg.balance.long.as_i128()).unwrap()
+                base_balance_longs: -Decimal::from_i128(agg.base_cumulative_debit.long.as_i128())
+                    .unwrap()
                     / Decimal::new(1000000000000000000, 8),
-                balance_shorts: Decimal::from_i128(agg.balance.short.as_i128()).unwrap()
+                base_balance_shorts: -Decimal::from_i128(agg.base_cumulative_debit.short.as_i128())
+                    .unwrap()
                     / Decimal::new(1000000000000000000, 8),
-                balance_lps: Decimal::from_i128(agg.balance.lp.as_i128()).unwrap()
+                base_balance_lps: -Decimal::from_i128(agg.base_cumulative_debit.lp.as_i128())
+                    .unwrap()
                     / Decimal::new(1000000000000000000, 8),
             })?
         }
@@ -1151,7 +1199,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let before_last_block = client.get_block_number().await? - 1;
     // [TODO] At week 1: seven days.
     // [TODO] At week 2: update.
-    let target_end = start_block_timestamp + 7 * 24 * 60 * 60 + 1;
+    let target_end = start_block_timestamp + 5 * 60 * 60 + 1;
     //let target_end = start_block_timestamp + 60 * 60;
     let end_block = find_block_by_timestamp(
         client.clone(),
@@ -1205,6 +1253,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
+    info!("DumpHourlyAggregates");
+
     //let current_timestamp = U256::from(Utc::now().timestamp() as u64);
     dump_hourly_aggregates(
         client.clone(),
@@ -1215,6 +1265,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         end_block_timestamp,
     )
     .await?;
+
+    info!("Done");
 
     Ok(())
 }

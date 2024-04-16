@@ -15,4 +15,11 @@ have changed.
 
 ## Produce datasets
 
-Launch 1 script per contract.
+- Launch script
+
+# Testnet launch
+
+Sepolia hyperdrive addresses:
+
+- ETH/stETH: `0xff33bd6d7ed4119c99c310f3e5f0fa467796ee23`
+- DAI/sDAI: `0x392839da0dacac790bd825c81ce2c5e264d793a8`
