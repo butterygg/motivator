@@ -7,6 +7,7 @@ import {
     reward,
     statistics,
     stats,
+    user,
 } from '@db/schema'
 import { NextRequest } from 'next/server'
 import { stat } from 'fs'
@@ -38,14 +39,8 @@ export async function getTotalsVolPnlActions({
         },
     })
 
-    if (!Allstats) {
-        return {
-            status: 'ko',
-            message: 'No stats available',
-        }
-    }
-
     let lastStat = {
+        user_address: userAddr,
         timestamp: new Date(0),
         totalVolume: BigInt(0),
         totalPnl: BigInt(0),
@@ -93,12 +88,9 @@ export async function getTotalsVolPnlActions({
         }
     })
 
-    if (lastStat.timestamp.getTime() === new Date(0).getTime()) {
-        return {
-            status: 'ko',
-            message: 'No stats available',
-        }
-    }
+    // if (lastStat.timestamp.getTime() === new Date(0).getTime()) {
+    //     return {}
+    // }
 
-    return
+    return lastStat
 }

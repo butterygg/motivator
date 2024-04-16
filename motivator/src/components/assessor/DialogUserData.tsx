@@ -204,14 +204,23 @@ export function DialogUserData({ user }: Props) {
                         <div className="grid grid-cols-3 items-center gap-2">
                             <DataCard
                                 title="Volume"
-                                value={user.stat.volume ? user.stat.volume : 0}
+                                value={
+                                    user.stat.totals.totalVolume
+                                        ? Number(user.stat.totals.totalVolume)
+                                        : 0
+                                }
                                 icon={<EthLogo className="h-4 w-4" />}
                             />
-                            <DataCard title="Pnl" value={user.pnl + 'K$'} />
+                            <DataCard
+                                title="Pnl"
+                                value={Number(user.stat.totals.totalPnl) + 'K$'}
+                            />
                             <DataCard
                                 title="Actions"
                                 value={
-                                    user.stat.actions ? user.stat.actions : 0
+                                    user.stat.totals.totalActions
+                                        ? Number(user.stat.totals.totalActions)
+                                        : 0
                                 }
                             />
                         </div>

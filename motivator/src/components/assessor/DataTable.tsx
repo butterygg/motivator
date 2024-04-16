@@ -16,69 +16,30 @@ import EthLogo from '~/ethereum-eth-logo.svg'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 import { Status } from '@/types/enum/status'
-import { Tag } from '@/components/assessor/Tag'
-import { AssessorSlot, Reward, Stat } from '../../types/data/assessorSlot'
+
+import {
+    AssessorSlot,
+    Reward,
+    Statistics,
+    Totals,
+} from '../../types/data/assessorSlot'
 import { DialogUserData } from './DialogUserData'
-import { useHomeAssessorData } from '../../hooks/dataComponents/useHomeAssessorData'
-import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
+
 import InputReward from '../globals/InputReward'
 import { Address } from 'viem'
 import { DialogConfirmSubmit } from './DialogConfirmSubmit'
-import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
 import TotalPoints from './TotalPoints'
 import { useRouter } from 'next/navigation'
-
-// const data: User[] = [
-//     {
-//         addressName: '0xmazout.eth',
-//         volume: 500,
-//         pnl: 30,
-//         actions: 40,
-//         id: '1',
-//         status: Status.Pending,
-//     },
-//     {
-//         addressName: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
-//         volume: 500,
-//         pnl: 30,
-//         actions: 40,
-//         id: '2',
-//         status: Status.Rewarded,
-//     },
-//     {
-//         addressName: '0xmazout.eth',
-//         volume: 500,
-//         pnl: 30,
-//         actions: 40,
-//         id: '3',
-//         status: Status.Pending,
-//     },
-//     {
-//         addressName: '0xmazout.eth',
-//         volume: 500,
-//         pnl: 30,
-//         actions: 40,
-//         id: '4',
-//         status: Status.NullReward,
-//     },
-//     {
-//         addressName: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
-//         volume: 500,
-//         pnl: 30,
-//         actions: 40,
-//         id: '5',
-//         status: Status.Pending,
-//     },
-// ]
 
 export type UserDatatable = {
     id: { id: string; assessorSlotId: string }
     addressName: string
     pnl: number
-    stat: Stat
+    stat: {
+        totals: Totals
+        stats: Statistics
+    }
     reward?: {
         reward: Reward | undefined
         status: Status
@@ -108,13 +69,6 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         addressName={row.getValue('addressName')}
                         isDatatableStyle
                     />
-                    {/* <div className="w-fit">
-                        <Tag
-                            value={
-                                reward?.status ? reward.status : Status.Pending
-                            }
-                        />
-                    </div> */}
                 </div>
             )
         },
@@ -134,7 +88,9 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         </p>
                         <div className="flex">
                             <EthLogo className="h-4 w-4" />
-                            <p className="font-bold">{stat.volume}</p>
+                            <p className="font-bold">
+                                {Number(stat.totals.totalVolume)}
+                            </p>
                         </div>
                     </div>
 
@@ -143,7 +99,9 @@ export const columns: ColumnDef<UserDatatable>[] = [
                             PnL
                         </p>
                         <div className="flex">
-                            <p className="font-bold">{pnl}K$</p>
+                            <p className="font-bold">
+                                {Number(stat.totals.totalPnl)}K$
+                            </p>
                         </div>
                     </div>
                     <div className="items-center flex-col flex">
@@ -152,7 +110,9 @@ export const columns: ColumnDef<UserDatatable>[] = [
                         </p>
                         <div className="flex items-center">
                             {/* <EthLogo className="h-4 w-4" /> */}
-                            <p className="font-bold">{stat.actions}</p>
+                            <p className="font-bold">
+                                {Number(stat.totals.totalActions)}
+                            </p>
                         </div>
                     </div>
                 </div>
