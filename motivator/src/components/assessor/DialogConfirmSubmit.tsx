@@ -75,7 +75,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                     </DialogTrigger>
                     <TooltipContent>
                         <p>
-                            Press Submit when you're finished allocating your 
+                            Press Submit when you’re finished allocating your
                             points
                         </p>
                     </TooltipContent>
@@ -87,15 +87,15 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                         <h3>Are you sure?</h3>
                     </DialogTitle>
                     <DialogDescription>
-                        Once you press confirm, you won’t be able to change 
-                        your allocation and your points will be distributed. 
-                        Feel free to double-check—we’ll wait.
+                        Once you press confirm, you won’t be able to change your
+                        allocation and your points will be distributed. Feel
+                        free to double-check—we’ll wait.
                     </DialogDescription>
                 </DialogHeader>
                 <Label htmlFor="name" className="">
                     {(points ? getPointsAvailable(points) : 0) > 0 ? (
                         <p className="font-semibold gap">
-                            It looks like you haven’t allocated all your points. 
+                            It looks like you haven’t allocated all your points.
                             <br /> Press cancel if you want to go back.
                         </p>
                     ) : null}
