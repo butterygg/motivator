@@ -9,7 +9,7 @@ import { offChainActions } from '@db/schema'
  * @param response Send the status of the transaction
  */
 export async function getOffChainActions(user_address: string) {
-    const getOffChainActions = await db.query.offChainActions.findMany({
+    const getOffChainActions = await db.query.offChainActions.findFirst({
         where: eq(offChainActions.user_address, user_address),
     })
 
