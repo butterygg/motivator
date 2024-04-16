@@ -33,6 +33,10 @@ import { VolumeChart } from '../statistics/VolumeChart'
 import { useGetPNLAndVolume } from '../../hooks/statistics/useGetPNLAndVolume'
 import { LP_PNLChart } from '../statistics/LP_PNLChart'
 import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
+import { useGetOffChainActions } from '../../hooks/offChainActions/useGetOffChainActions'
+import { Tag } from './Tag'
+import { OffChainActions } from '../../types/enum/status'
+import { Card } from '../ui/card'
 type Props = {
     user: User
 }
@@ -54,7 +58,12 @@ export type DataSetChartPnlLP = {
 }
 
 export function DialogUserData({ user }: Props) {
-    const { data } = useGetPNLAndVolume({ userAddr: user.addressName })
+    const { data: dataPNLAndVolume } = useGetPNLAndVolume({
+        userAddr: user.addressName,
+    })
+    const { data: dataOffChainActions } = useGetOffChainActions({
+        user_address: user.addressName,
+    })
     const [PNLTradingData, setPNLTradingData] = useState<DataSetChartTrading[]>(
         []
     )
@@ -71,81 +80,98 @@ export function DialogUserData({ user }: Props) {
     >([])
 
     useEffect(() => {
-        if (data) {
+        if (dataPNLAndVolume) {
             preparePNLTradingData()
             prepareVolumeTradingData()
             preparePNLLPData()
             prepareVolumeLPData()
         }
-    }, [data])
+    }, [dataPNLAndVolume])
+
+    const buildTags = () => {
+        if (!dataOffChainActions?.res) return null
+        const comEngagement = dataOffChainActions?.res?.communityEngagement
+            ? Tag({ value: OffChainActions.CommunityEngagement })
+            : null
+        const feedback = dataOffChainActions?.res?.feedback
+            ? Tag({ value: OffChainActions.Feedback })
+            : null
+        const writeUp = dataOffChainActions?.res?.strategyWriteUp
+            ? Tag({ value: OffChainActions.WriteUP })
+            : null
+        const isBot = dataOffChainActions?.res?.isBot
+            ? Tag({ value: OffChainActions.isBot })
+            : null
+        if (!comEngagement && !feedback && !writeUp && !isBot) return null
+        return (
+            <div>
+                <Label htmlFor="name" className="">
+                    Badges
+                </Label>
+                <div className="flex gap-3">
+                    {comEngagement}
+                    {feedback}
+                    {writeUp}
+                    {isBot}
+                </div>
+            </div>
+        )
+        // return result
+    }
 
     const preparePNLTradingData = () => {
-        if (!data || !data.stats) return
-        const result: DataSetChartTrading[] = data.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                Short: element.pnl_shorts,
-                Long: element.pnl_longs,
+        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
+        const result: DataSetChartTrading[] = dataPNLAndVolume.stats.map(
+            (element) => {
+                return {
+                    date: element.timestamp,
+                    Short: element.pnl_shorts,
+                    Long: element.pnl_longs,
+                }
             }
-        })
+        )
         setPNLTradingData(result)
     }
 
     const prepareVolumeTradingData = () => {
-        if (!data || !data.stats) return
-        const result: DataSetChartTrading[] = data.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                Short: element.volume_shorts,
-                Long: element.volume_longs,
+        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
+        const result: DataSetChartTrading[] = dataPNLAndVolume.stats.map(
+            (element) => {
+                return {
+                    date: element.timestamp,
+                    Short: element.volume_shorts,
+                    Long: element.volume_longs,
+                }
             }
-        })
+        )
         setVolumeTradingData(result)
     }
 
     const preparePNLLPData = () => {
-        if (!data || !data.stats) return
-        const result: DataSetChartPnlLP[] = data.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                pnl: element.pnl_lps,
+        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
+        const result: DataSetChartPnlLP[] = dataPNLAndVolume.stats.map(
+            (element) => {
+                return {
+                    date: element.timestamp,
+                    pnl: element.pnl_lps,
+                }
             }
-        })
+        )
         setLP_PNLTradingData(result)
     }
 
     const prepareVolumeLPData = () => {
-        if (!data || !data.stats) return
-        const result: DataSetChartVolumeLP[] = data.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                volume: element.volume_lps,
+        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
+        const result: DataSetChartVolumeLP[] = dataPNLAndVolume.stats.map(
+            (element) => {
+                return {
+                    date: element.timestamp,
+                    volume: element.volume_lps,
+                }
             }
-        })
+        )
         setLP_VolumeTradingData(result)
     }
-
-    // TODO: prepare Data for PNL and Volume
-    // const prepareDataForPNLLP = () => {
-    //     const pnlLongs = data?.result?.pnlLongs
-    //     return data
-    //         ? {
-    //               pnlLong: data.result?.pnlLongs,
-    //               pnlShorts: data.result?.pnlShorts,
-    //               volumeLong: data.result?.volumeLong,
-    //               volumeShort: data.result?.volumeShort,
-    //               lpVolume: data.result?.lpVolume,
-    //               dates: data.result?.dates,
-    //           }
-    //         : {
-    //               pnlLong: [],
-    //               pnlShorts: [],
-    //               volumeLong: [],
-    //               volumeShort: [],
-    //               lpVolume: [],
-    //               dates: [],
-    //           }
-    // }
     return (
         <Dialog>
             <TooltipProvider>
@@ -190,25 +216,7 @@ export function DialogUserData({ user }: Props) {
                             />
                         </div>
                     </div>
-                    <div>
-                        <Label htmlFor="name" className="">
-                            Badges
-                        </Label>
-                        <div className="grid grid-cols-3 items-center gap-2">
-                            <DataCard
-                                title="Bot"
-                                value={user.stat.volume ? user.stat.volume : 0}
-                                icon={<EthLogo className="h-4 w-4" />}
-                            />
-                            <DataCard title="Pnl" value={user.pnl + 'K$'} />
-                            <DataCard
-                                title="Actions"
-                                value={
-                                    user.stat.actions ? user.stat.actions : 0
-                                }
-                            />
-                        </div>
-                    </div>
+                    <Card className="items-center gap-2">{buildTags()}</Card>
                 </div>
                 <>
                     <div className="p-5 ">
@@ -256,20 +264,6 @@ export function DialogUserData({ user }: Props) {
                         </div>
                     </div>
                 </>
-
-                {/* <DialogFooter className="flex-row justify-between w-full">
-                    <div className="align-top flex gap-2 w-fit">
-                        <Input
-                            placeholder="Points"
-                            type="number"
-                            className="w-32 appearance-none"
-                            min={0}
-                            onChange={handleOnChangeInput}
-                            value={points}
-                        />
-                        <Button onClick={() => handleSubmit()}>Reward</Button>
-                    </div>
-                </DialogFooter> */}
             </DialogContentCustom>
         </Dialog>
     )
