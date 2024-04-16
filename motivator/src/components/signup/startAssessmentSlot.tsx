@@ -8,10 +8,6 @@ import {
     CardHeader,
 } from '../ui/card'
 import { Button } from '../ui/button'
-import { useSignAssessor } from '@/hooks/signup/useSignAssessor'
-import { useAccount } from 'wagmi'
-import { Address } from 'viem'
-import { useAssignAssessorSlot } from '@/hooks/assessorSlot/useAssignAssessorSlot'
 import { useRouter } from 'next/navigation'
 
 type Props = {
@@ -20,16 +16,7 @@ type Props = {
 }
 
 const StartAssessmentSlot = (props: Props) => {
-    const { address } = useAccount()
     const { push } = useRouter()
-    const { mutateAsync: mutateSignAssessor } = useSignAssessor({
-        assessorAddr: address as Address,
-    })
-
-    const { data, mutateAsync: mutateAssignAssessorSlot } =
-        useAssignAssessorSlot({
-            assessorAddr: address as Address,
-        })
 
     const handleStartAssessmentSlot = async () => {
         // await mutateSignAssessor()
@@ -63,8 +50,6 @@ const StartAssessmentSlot = (props: Props) => {
                     onClick={() => handleStartAssessmentSlot()}
                 >
                     Start assessment slot
-                    {/* <Link href={`/assessor/slot/` + assessorId}>
-                    </Link> */}
                 </Button>
             </CardFooter>
         </Card>
