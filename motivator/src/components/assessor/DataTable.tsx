@@ -38,7 +38,7 @@ export type UserDatatable = {
     pnl: number
     stat: {
         totals: Totals
-        stats: Statistics
+        stats: Statistics[]
     }
     reward?: {
         reward: Reward | undefined
@@ -148,7 +148,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             return (
                 <DialogUserData
                     user={{
-                        addressName: stat.user_address,
+                        addressName: stat.totals.user_address,
                         stat: stat,
                         pnl: pnl,
                         id: row.index.toString(),
@@ -196,7 +196,6 @@ export function DataTable({ users }: Props) {
         },
     })
     const assessorSlotID = useGetAssessorSlotIDFromURL()
-    const { push } = useRouter()
     // Prevent loading of the page if the user come to an assessor slot already done using url
     // console.log('users', users)
     // if (users.length === 0) {

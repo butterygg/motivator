@@ -43,24 +43,24 @@ type Props = {
 
 export type DataSetChartTrading = {
     date: string | null
-    Short: string | null
-    Long: string | null
+    Short: number | null
+    Long: number | null
 }
 
 export type DataSetChartVolumeLP = {
     date: string | null
-    volume: string | null
+    volume: number | null
 }
 
 export type DataSetChartPnlLP = {
     date: string | null
-    pnl: string | null
+    pnl: number | null
 }
 
 export function DialogUserData({ user }: Props) {
-    const { data: dataPNLAndVolume } = useGetPNLAndVolume({
-        userAddr: user.addressName,
-    })
+    // const { data: dataPNLAndVolume } = useGetPNLAndVolume({
+    //     userAddr: user.addressName,
+    // })
     const { data: dataOffChainActions } = useGetOffChainActions({
         user_address: user.addressName,
     })
@@ -80,13 +80,13 @@ export function DialogUserData({ user }: Props) {
     >([])
 
     useEffect(() => {
-        if (dataPNLAndVolume) {
+        if (user.stat.stats) {
             preparePNLTradingData()
             prepareVolumeTradingData()
             preparePNLLPData()
             prepareVolumeLPData()
         }
-    }, [dataPNLAndVolume])
+    }, [user.stat.stats])
 
     const buildTags = () => {
         if (!dataOffChainActions?.res) return null
@@ -120,49 +120,47 @@ export function DialogUserData({ user }: Props) {
     }
 
     const preparePNLTradingData = () => {
-        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
-        const result: DataSetChartTrading[] = dataPNLAndVolume.stats.map(
-            (element) => {
-                return {
-                    date: element.timestamp,
-                    Short: element.pnl_shorts,
-                    Long: element.pnl_longs,
-                }
+        if (!user || !user.stat.stats) return
+        const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
+            return {
+                date: element.timestamp,
+                Short: element.pnl_shorts,
+                Long: element.pnl_longs,
             }
-        )
+        })
+        console.log('preparePNLTradingData', result)
         setPNLTradingData(result)
     }
 
     const prepareVolumeTradingData = () => {
-        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
-        const result: DataSetChartTrading[] = dataPNLAndVolume.stats.map(
-            (element) => {
-                return {
-                    date: element.timestamp,
-                    Short: element.volume_shorts,
-                    Long: element.volume_longs,
-                }
+        if (!user || !user.stat.stats) return
+        const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
+            return {
+                date: element.timestamp,
+                Short: element.volume_shorts,
+                Long: element.volume_longs,
             }
-        )
+        })
+        console.log('prepareVolumeTradingData', result)
         setVolumeTradingData(result)
     }
 
     const preparePNLLPData = () => {
-        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
-        const result: DataSetChartPnlLP[] = dataPNLAndVolume.stats.map(
-            (element) => {
-                return {
-                    date: element.timestamp,
-                    pnl: element.pnl_lps,
-                }
+        if (!user || !user.stat.stats) return
+        const result: DataSetChartPnlLP[] = user.stat.stats.map((element) => {
+            return {
+                date: element.timestamp,
+                pnl: element.pnl_lps,
             }
-        )
+        })
+        console.log('preparePNLLPData', result)
         setLP_PNLTradingData(result)
     }
 
     const prepareVolumeLPData = () => {
-        if (!dataPNLAndVolume || !dataPNLAndVolume.stats) return
-        const result: DataSetChartVolumeLP[] = dataPNLAndVolume.stats.map(
+        if (!user || !user.stat.stats) return
+
+        const result: DataSetChartVolumeLP[] = user.stat.stats.map(
             (element) => {
                 return {
                     date: element.timestamp,
@@ -170,6 +168,7 @@ export function DialogUserData({ user }: Props) {
                 }
             }
         )
+        console.log('prepareVolumeLPData', result)
         setLP_VolumeTradingData(result)
     }
     return (
@@ -179,7 +178,7 @@ export function DialogUserData({ user }: Props) {
                     <DialogTrigger asChild>
                         <TooltipTrigger asChild>
                             <Button className="rounded-full" variant="outline">
-                                ?
+                                Statistics
                             </Button>
                         </TooltipTrigger>
                     </DialogTrigger>
