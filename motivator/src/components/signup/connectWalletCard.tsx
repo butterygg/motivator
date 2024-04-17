@@ -10,7 +10,10 @@ const ConnectWalletCard = (props: Props) => {
             <CardHeader className="font-bold text-2xl">
                 Welcome to Motivator
             </CardHeader>
-            <CardContent>Sign in to participate as an Assessor</CardContent>
+            <CardContent>
+                Connect the wallet you’re using on the testnet to start
+                Motivating
+            </CardContent>
             <div className="flex justify-center ">
                 <ConnectButton />
             </div>
