@@ -13,7 +13,6 @@ import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
  */
 export async function getAssessorSlot(address: string) {
     const assessorAddr = address
-    console.log('assessorAddr', assessorAddr)
     // grab an assessor slot that is not done and has the assessor assigned
     const assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
         where: and(
@@ -21,7 +20,6 @@ export async function getAssessorSlot(address: string) {
             eq(assessor_slot.assessor_ID, assessorAddr as string)
         ),
     })
-    console.log('assessorSlotOfAssessor', assessorSlotOfAssessor)
     if (!assessorSlotOfAssessor) {
         return {
             status: 'ko',
@@ -64,7 +62,6 @@ export async function getAssessorSlot(address: string) {
         return await Promise.all(res)
     }
     const userTotals = await totalsForUsersPromised()
-    console.log('userTotals', userTotals)
 
     const statisticsPromised = async () => {
         const res = usersOfAssessorSlot.map(async (userAddr) => {

@@ -129,7 +129,6 @@ export function DialogUserData({ user }: Props) {
                 Long: element.pnl_longs,
             }
         })
-        console.log('preparePNLTradingData', result)
         setPNLTradingData(result)
     }
 
@@ -142,7 +141,6 @@ export function DialogUserData({ user }: Props) {
                 Long: element.volume_longs,
             }
         })
-        console.log('prepareVolumeTradingData', result)
         setVolumeTradingData(result)
     }
 
@@ -154,7 +152,6 @@ export function DialogUserData({ user }: Props) {
                 pnl: element.pnl_lps,
             }
         })
-        console.log('preparePNLLPData', result)
         setLP_PNLTradingData(result)
     }
 
@@ -169,7 +166,6 @@ export function DialogUserData({ user }: Props) {
                 }
             }
         )
-        console.log('prepareVolumeLPData', result)
         setLP_VolumeTradingData(result)
     }
     return (

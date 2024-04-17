@@ -43,7 +43,6 @@ export async function getTotals() {
         }
         // Set the last stat for each user
         let arrayOfStats: Stat[] = []
-        // console.log('stats', stats)
         // Extract the last stat for each user
         stats.forEach((element) => {
             let lastStat = {

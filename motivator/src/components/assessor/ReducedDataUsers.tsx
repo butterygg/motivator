@@ -25,7 +25,7 @@ const ReducedDataUsers = ({
     const handlePointsUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPoints(parseInt(e.target.value))
     }
-    const { data, error, mutate, mutateAsync } = useAddRewardUsers({
+    const { mutateAsync } = useAddRewardUsers({
         assessorSlot: assessorSlot,
         userAddr: userAddr,
         value: points ? points : 0,
@@ -34,7 +34,6 @@ const ReducedDataUsers = ({
     const handleSubmit = () => {
         handleUpdate()
         mutateAsync()
-        console.log('error Modal', error, 'data', data)
     }
 
     return (

@@ -89,7 +89,6 @@ const Payment = (props: Props) => {
 
     useEffect(() => {
         if (transactionReceipt?.status === 'success') {
-            console.log('Transaction Receipt success', transactionReceipt)
             managePayment()
         }
         refetchReceipt()

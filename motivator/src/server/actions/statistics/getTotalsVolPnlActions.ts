@@ -1,21 +1,11 @@
 'use server'
-import { and, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import {
-    assessor_slot,
-    assessor_slot_user,
-    reward,
-    statistics,
-    user,
-} from '@db/schema'
-import { NextRequest } from 'next/server'
-import { stat } from 'fs'
-import { AssessorSlot } from '@/types/data/assessorSlot'
-import { parseEther } from 'viem'
-// Send Rewards to specifics users based on their actions
+import { statistics } from '@db/schema'
+// getTotalsVolPnlActions to specifics users based on their actions
 /**
  *
- * @param request Will contain an Array of [{assessorAddr: string}]
+ * @param request Will contain {userAddr: string}
  * @param response Send the status of the transaction
  */
 export async function getTotalsVolPnlActions({
@@ -38,7 +28,6 @@ export async function getTotalsVolPnlActions({
             timestamp: true,
         },
     })
-    console.log('Allstats', Allstats)
     let lastStat = {
         user_address: userAddr,
         timestamp: new Date(0),
@@ -90,10 +79,6 @@ export async function getTotalsVolPnlActions({
             )
         }
     })
-    console.log('lastStat', lastStat)
-    // if (lastStat.timestamp.getTime() === new Date(0).getTime()) {
-    //     return {}
-    // }
 
     return lastStat
 }

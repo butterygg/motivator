@@ -202,7 +202,6 @@ export function DataTable({ users }: Props) {
     })
     const assessorSlotID = useGetAssessorSlotIDFromURL()
     // Prevent loading of the page if the user come to an assessor slot already done using url
-    // console.log('users', users)
     // if (users.length === 0) {
     //     push(`/`)
     // }
