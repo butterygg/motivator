@@ -31,6 +31,17 @@ class EventType(Enum):
     RemoveLiquidity = auto()
 
 
+EVENT_TYPE_TYPE = {
+    EventType.OpenLong: "longs",
+    EventType.CloseLong: "longs",
+    EventType.OpenShort: "shorts",
+    EventType.CloseShort: "shorts",
+    EventType.Initialize: "lps",
+    EventType.AddLiquidity: "lps",
+    EventType.RemoveLiquidity: "lps",
+}
+
+
 @dataclass
 class Event:
     "Hello"
@@ -47,8 +58,12 @@ class Row:
     contract: str
     timestamp: datetime
     address: str
-    volume: int
-    action_count: int
+    volume_longs: int
+    volume_shorts: int
+    volume_lps: int
+    action_count_longs: int
+    action_count_shorts: int
+    action_count_lps: int
     _id: uuid.UUID = field(default_factory=uuid.uuid4)
 
     def to_list(self):
@@ -57,13 +72,28 @@ class Row:
             self.contract,
             self.timestamp,
             self.address,
-            self.action_count,
-            self.volume,
+            self.action_count_longs,
+            self.action_count_shorts,
+            self.action_count_lps,
+            self.volume_longs,
+            self.volume_shorts,
+            self.volume_lps,
         ]
 
     @staticmethod
     def header():
-        return ["id", "contract", "timestamp", "address", "action_count", "volume"]
+        return [
+            "id",
+            "contract",
+            "timestamp",
+            "address",
+            "action_count_longs",
+            "action_count_shorts",
+            "action_count_lps",
+            "volume_longs",
+            "volume_shorts",
+            "volume_lps",
+        ]
 
 
 def to_decimal(u256: str) -> Decimal:
@@ -90,14 +120,25 @@ def to_datetime(iso8601: str) -> datetime:
 def aggregate_period(
     events: Dict[str, List[Event]], start_time: datetime, end_time: datetime
 ) -> Iterator[Row]:
-    aggregates = defaultdict(lambda: {"volume": 0, "action_count": 0})
+    aggregates = defaultdict(
+        lambda: {
+            "action_count_longs": 0,
+            "action_count_shorts": 0,
+            "action_count_lps": 0,
+            "volume_longs": 0,
+            "volume_shorts": 0,
+            "volume_lps": 0,
+        }
+    )
 
     for cname, cevents in events.items():
         for event in cevents:
             if start_time < event.block_timestamp <= end_time:
                 key = (cname, event.block_timestamp, event.address)
-                aggregates[key]["volume"] += event.base_amount
-                aggregates[key]["action_count"] += 1
+                aggregates[key][f"action_count_{EVENT_TYPE_TYPE[event._type]}"] += 1
+                aggregates[key][
+                    f"volume_{EVENT_TYPE_TYPE[event._type]}"
+                ] += event.base_amount
 
     for (contract, timestamp, address), agg in aggregates.items():
         yield Row(contract=contract, timestamp=timestamp, address=address, **agg)
