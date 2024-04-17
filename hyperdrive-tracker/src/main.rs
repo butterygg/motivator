@@ -1,12 +1,14 @@
 use std::error::Error;
 // use std::fs::File;
 use std::collections::HashMap;
+use std::env;
 use std::fmt::{self, Display, Formatter};
 use std::sync::Arc;
 
 use chrono::{TimeZone, Utc};
 use csv::Writer;
 use dashmap::DashMap;
+use dotenv::dotenv;
 use ethers::{
     contract::LogMeta,
     providers::{Middleware, Provider, Ws},
@@ -24,21 +26,15 @@ use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
 // CONFIG ///////////////////////////////////////////////////
 
-/// Rust tests deployment
-// const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("8d4928532f2dd0e2f31f447d7902197e54db2302"));
-/// Agent0 artifacts expected deployment
-//const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("7aba23eab591909f9dc5770cea764b8aa989dd25"));
-/// Agent0 fixture deployment
-//const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("6949c3f59634E94B659486648848Cd3f112AD098"));
-/// Infra artifacts
-const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("5a7e8a85db4e5734387bd66d189f32cca918ea4f"));
+const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("392839da0dacac790bd825c81ce2c5e264d793a8"));
+const HYPERDRIVE_STETH_ADDR: H160 = H160(hex!("ff33bd6d7ed4119c99c310f3e5f0fa467796ee23"));
 
-// [TODO] Replace with block right before Sepolia contracts deployment.
-const START_BLOCK: u64 = 41;
+// See https://sepolia.etherscan.io/address/0xff33bd6d7ed4119c99c310f3e5f0fa467796ee23#internaltx
+const START_BLOCK: u64 = 5663018;
 
 const HOUR: u64 = 60 * 60;
 
-const TIMEOUT_DURATION: u64 = 10;
+const TIMEOUT_DURATION: u64 = 30;
 
 const DECIMAL_SCALE: u32 = 18;
 const DECIMAL_PRECISION: u32 = 18;
@@ -228,7 +224,6 @@ struct CumulativeDebits {
     lp: I256,
 }
 
-// [TODO] Move all PnLs to Decimal.
 ///Still scaled to the e18. Comparable to base_amounts.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct PnL {
@@ -762,7 +757,7 @@ async fn load_hyperdrive_events(
 
 fn calc_pnls(
     events: Arc<Events>,
-    timestamp: U256,
+    at_timestamp: U256,
     hyperdrive_state: hyperdrive_math::State,
 ) -> (
     HashMap<LongKey, PositionStatement>,
@@ -779,7 +774,7 @@ fn calc_pnls(
             let cumul_debits_2 = long.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
-                    if debit.timestamp <= timestamp {
+                    if debit.timestamp <= at_timestamp {
                         (acc_base + debit.base_amount, acc_bond + debit.bond_amount)
                     } else {
                         (acc_base, acc_bond)
@@ -810,7 +805,7 @@ fn calc_pnls(
             let cumul_debits_2 = short.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
-                    if debit.timestamp <= timestamp {
+                    if debit.timestamp <= at_timestamp {
                         (acc_base + debit.base_amount, acc_bond + debit.bond_amount)
                     } else {
                         (acc_base, acc_bond)
@@ -841,7 +836,7 @@ fn calc_pnls(
             let cumul_debits_2 =
                 lp.iter()
                     .fold((I256::zero(), I256::zero()), |(acc_base, acc_lp), debit| {
-                        if debit.timestamp <= timestamp {
+                        if debit.timestamp <= at_timestamp {
                             (acc_base + debit.base_amount, acc_lp + debit.lp_amount)
                         } else {
                             (acc_base, acc_lp)
@@ -868,11 +863,9 @@ fn calc_pnls(
 
             let cumulative_debit = longs_cumul_debits.get(&long_key).unwrap();
 
-            let normalized_time_remaining =
-                hyperdrive_state.time_remaining_scaled(timestamp, long_key.maturity_time);
-            // [XXX] Are we calling this fn correctly? And converting units?
+            // [XXX] Are we calling this fn correctly?
             let calculated_close_shares = hyperdrive_state
-                .calculate_close_long(cumulative_debit.bond_amount, normalized_time_remaining.into());
+                .calculate_close_long(cumulative_debit.bond_amount, long_key.maturity_time, at_timestamp);
             // Knowing `calculate_close_long` returns vault share amounts:
             // [TODO] Verify that's still the case.
             let calculated_close_base_amount =
@@ -882,7 +875,7 @@ fn calc_pnls(
 
             info!(
                 "LongsPnL timestamp={} long_key={:?} cumulative_debit={:?} calculated_close_base_amount={:?}",
-                timestamp_to_string(timestamp), long_key, cumulative_debit, calculated_close_base_amount
+                timestamp_to_string(at_timestamp), long_key, cumulative_debit, calculated_close_base_amount
             );
 
             let pos_statement = PositionStatement {
@@ -902,9 +895,6 @@ fn calc_pnls(
 
             let cumulative_debit = shorts_cumul_debits.get(&short_key).unwrap();
 
-            let normalized_time_remaining =
-                hyperdrive_state.time_remaining_scaled(timestamp, short_key.maturity_time);
-
             let open_checkpoint_time =
                 short_key.maturity_time - hyperdrive_state.config.position_duration;
             let open_share_errmsg = &format!(
@@ -920,6 +910,9 @@ fn calc_pnls(
                 .get(&open_checkpoint_time)
                 .expect(open_share_errmsg)
                 .price;
+
+            // [TODO] Only use maturity if in the past.
+            // if (hyperdrive_state.block_time >= maturity) and (maturity in checkpoint_share_prices.index):
 
             let maturity_checkpoint_time = short_key.maturity_time;
             let maturity_share_errmsg = &format!(
@@ -939,10 +932,13 @@ fn calc_pnls(
 
             // [XXX] Are we calling this fn correctly?
             let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
-                cumulative_debit.bond_amount.into(),
-                open_share_price.into(),
-                maturity_share_price.into(),
-                normalized_time_remaining,
+                cumulative_debit.bond_amount,
+                open_share_price,
+                // [TODO] This one is to replace with "maturity or current":
+                maturity_share_price,
+                // This argument is maturity time, wheter already happened or not:
+                short_key.maturity_time,
+                at_timestamp, 
             );
             let calculated_maturity_base_amount = calculated_maturity_shares.normalized()
                 * hyperdrive_state.info.vault_share_price.normalized();
@@ -951,13 +947,12 @@ fn calc_pnls(
 
             let pos_statement = PositionStatement {
                 cumulative_debit: *cumulative_debit,
-                // frst: 19.967
                 pnl: calculated_maturity_base_amount - cumulative_base_debit,
             };
 
             debug!(
                 "ShortPnL timestamp={} short_key={:?} pos_statement={:?} calc_matu_shares={:?} calc_matu_base={:?} h_state={:#?}",
-                timestamp_to_string(timestamp),
+                timestamp_to_string(at_timestamp),
                 short_key,
                 pos_statement,
                 calculated_maturity_shares,
@@ -988,7 +983,7 @@ fn calc_pnls(
 
             debug!(
                 "LpPnL timestamp={} lp_key={:?} lp_statement={:?}",
-                timestamp_to_string(timestamp),
+                timestamp_to_string(at_timestamp),
                 lp_key,
                 lp_statement
             );
@@ -1245,13 +1240,19 @@ async fn dump_hourly_aggregates(
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // SETUP STUFF //
+
     tracing_subscriber::fmt::init();
 
+    dotenv().ok();
+    let infura_key = env::var("INFURA_KEY").expect("INFURA_KEY must be set");
+    let infura_url = &format!("wss://sepolia.infura.io/ws/v3/{}", infura_key);
+
     // [XXX] Check how many blocks behind can the archive node produce.
-    let provider = Provider::<Ws>::connect("ws://localhost:8545")
-        .await
-        .unwrap();
+    let provider = Provider::<Ws>::connect(infura_url).await.unwrap();
     let client = Arc::new(provider);
+
+    let hyperdrive_addrs: Vec<H160> = vec![HYPERDRIVE_4626_ADDR, HYPERDRIVE_STETH_ADDR];
 
     let start_block_timestamp = client
         .clone()
@@ -1287,9 +1288,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         before_last_block, end_block, end_block_timestamp
     );
 
-    let mut hyperdrives: Vec<HyperdriveConfig> = Vec::new();
+    // DO STUFF //
 
-    let hyperdrive_addrs: Vec<H160> = vec![HYPERDRIVE_4626_ADDR];
+    let mut hyperdrives: Vec<HyperdriveConfig> = Vec::new();
 
     for address in hyperdrive_addrs {
         let contract = i_hyperdrive::IHyperdrive::new(address, client.clone());

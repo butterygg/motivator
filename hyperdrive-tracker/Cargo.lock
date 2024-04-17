@@ -781,6 +781,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
+
+[[package]]
 name = "dunce"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1237,7 +1243,7 @@ dependencies = [
 [[package]]
 name = "fixed-point"
 version = "0.1.0"
-source = "git+https://github.com/delvtech/hyperdrive?tag=v0.10.1#f0bb75cdde2807954a5c18bf467d93bb3e23422f"
+source = "git+https://github.com/delvtech/hyperdrive?tag=v1.0.0#cdf5b0b81f7f9ba1f904a42e77081ff86dc6886d"
 dependencies = [
  "ethers",
  "eyre",
@@ -1248,7 +1254,7 @@ dependencies = [
 [[package]]
 name = "fixed-point-macros"
 version = "0.1.0"
-source = "git+https://github.com/delvtech/hyperdrive?tag=v0.10.1#f0bb75cdde2807954a5c18bf467d93bb3e23422f"
+source = "git+https://github.com/delvtech/hyperdrive?tag=v1.0.0#cdf5b0b81f7f9ba1f904a42e77081ff86dc6886d"
 dependencies = [
  "ethers",
  "quote",
@@ -1642,6 +1648,7 @@ dependencies = [
  "clap",
  "csv",
  "dashmap",
+ "dotenv",
  "ethers",
  "fixed-point",
  "futures",
@@ -1660,7 +1667,7 @@ dependencies = [
 [[package]]
 name = "hyperdrive-math"
 version = "0.1.0"
-source = "git+https://github.com/delvtech/hyperdrive?tag=v0.10.1#f0bb75cdde2807954a5c18bf467d93bb3e23422f"
+source = "git+https://github.com/delvtech/hyperdrive?tag=v1.0.0#cdf5b0b81f7f9ba1f904a42e77081ff86dc6886d"
 dependencies = [
  "ethers",
  "eyre",
@@ -1673,7 +1680,7 @@ dependencies = [
 [[package]]
 name = "hyperdrive-wrappers"
 version = "0.1.0"
-source = "git+https://github.com/delvtech/hyperdrive?tag=v0.10.1#f0bb75cdde2807954a5c18bf467d93bb3e23422f"
+source = "git+https://github.com/delvtech/hyperdrive?tag=v1.0.0#cdf5b0b81f7f9ba1f904a42e77081ff86dc6886d"
 dependencies = [
  "ethers",
  "ethers-solc",
