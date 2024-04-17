@@ -25,9 +25,9 @@ export function DataCard({ title, value, icon }: Props) {
                 <p className="text-xs text-center">{title}</p>
             </CardHeader>
             <CardContent className="p-2">
-                <div className=" text-xl flex items-center">
+                <div className="  flex gap-1 items-center">
                     {icon ? icon : null}
-                    <Label className="text-xl mx-auto" htmlFor="name">
+                    <Label className="text-lg mx-auto" htmlFor="name">
                         <p
                             className="
                         overflow-hidden"

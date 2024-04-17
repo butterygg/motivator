@@ -38,6 +38,7 @@ import { useGetOffChainActions } from '../../hooks/offChainActions/useGetOffChai
 import { Tag } from './Tag'
 import { OffChainActions } from '../../types/enum/status'
 import { Card } from '../ui/card'
+import { transformNumberK } from '../../utils/utils'
 type Props = {
     user: User
 }
@@ -190,11 +191,11 @@ export function DialogUserData({ user }: Props) {
                     <DialogTitle>
                         <AddrAvatar addressName={user.addressName} />
                     </DialogTitle>
-                    <DialogDescription>Historical data</DialogDescription>
+                    <DialogDescription>Hyperdrive Data</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col items-center lg:flex-row justify-between gap-4 py-2">
                     <div>
-                        <Label htmlFor="name" className="">
+                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                             Statistics
                         </Label>
                         <div className="grid grid-cols-3 items-center gap-2">
@@ -202,7 +203,11 @@ export function DialogUserData({ user }: Props) {
                                 title="Volume"
                                 value={
                                     user.stat.totals.totalVolume
-                                        ? Number(user.stat.totals.totalVolume)
+                                        ? transformNumberK(
+                                              Number(
+                                                  user.stat.totals.totalVolume
+                                              )
+                                          )
                                         : 0
                                 }
                                 icon={<DaiLogo className="h-4 w-4" />}
@@ -229,11 +234,11 @@ export function DialogUserData({ user }: Props) {
                             Trading
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <PNLChart
+                            {/* <PNLChart
                                 title={'PNL'}
                                 value={'25000'}
                                 dataset={PNLTradingData ? PNLTradingData : []}
-                            />
+                            /> */}
                             <VolumeChart
                                 title={'Volume'}
                                 value={'25000'}
@@ -249,13 +254,13 @@ export function DialogUserData({ user }: Props) {
                             Liquidity Providing
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <LP_PNLChart
+                            {/* <LP_PNLChart
                                 title={'PNL'}
                                 value={'25000'}
                                 dataset={
                                     LP_PNLTradingData ? LP_PNLTradingData : []
                                 }
-                            />
+                            /> */}
                             <LP_VolumeChart
                                 title={'Volume'}
                                 value={'25000'}

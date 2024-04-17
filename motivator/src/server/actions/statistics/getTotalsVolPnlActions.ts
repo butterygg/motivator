@@ -16,6 +16,7 @@ export async function getTotalsVolPnlActions({
     const Allstats = await db.query.statistics.findMany({
         where: and(eq(statistics.user_address, userAddr)),
         columns: {
+            poolType: true,
             action_count_longs: true,
             action_count_lps: true,
             action_count_shorts: true,

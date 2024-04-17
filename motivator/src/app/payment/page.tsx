@@ -15,6 +15,7 @@ import { waitForTransactionReceipt } from '@wagmi/core'
 import { useWaitForTransactionReceipt } from 'wagmi'
 import { SpokeCheck } from '../../components/ui/check'
 import { Card } from '../../components/ui/card'
+import { cn } from '../../utils/utils'
 type Props = {}
 
 const Payment = (props: Props) => {
@@ -27,7 +28,7 @@ const Payment = (props: Props) => {
     const {
         data: assessorSlot,
         refetch,
-        status,
+        status: statusAssessorSlot,
     } = useGetAssessorSlot({
         assessorAddr: address ? address : '',
     })
@@ -36,7 +37,7 @@ const Payment = (props: Props) => {
         if (refetch) {
             refetch()
         }
-    }, [address, status])
+    }, [address, statusAssessorSlot])
 
     useEffect(() => {
         if (assessorSlot?.res?.id) {
@@ -61,11 +62,7 @@ const Payment = (props: Props) => {
         pollingInterval: 3000,
     })
 
-    const {
-        data: DataTransaction,
-        refetch: RefetchTransaction,
-        status: statusGetTransaction,
-    } = useTransaction({
+    const { data: DataTransaction } = useTransaction({
         hash: hashTransaction,
     })
     const handleOnClick = async () => {
@@ -174,7 +171,12 @@ const Payment = (props: Props) => {
                     <Button
                         onClick={handleOnClick}
                         variant={'submit'}
-                        className="w-1/2"
+                        className={cn(
+                            statusAssessorSlot == 'pending' ??
+                                'disabled:cursor-not-allowed',
+                            'w-1/2'
+                        )}
+                        disabled={statusAssessorSlot == 'pending'}
                     >
                         Send ${value} $SETH
                     </Button>
