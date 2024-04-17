@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button'
 
 import {
     Dialog,
-    DialogContent,
     DialogContentCustom,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { User } from '@/types/data/user'
 import AddrAvatar from '../globals/AddrAvatar'
@@ -20,19 +17,13 @@ import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
 import DaiLogo from '~/dai.svg'
 import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
-import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { PNLChart } from '../statistics/PNLChart'
-import { Separator } from '../ui/separator'
 import { VolumeChart } from '../statistics/VolumeChart'
-import { useGetPNLAndVolume } from '../../hooks/statistics/useGetPNLAndVolume'
-import { LP_PNLChart } from '../statistics/LP_PNLChart'
 import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
 import { useGetOffChainActions } from '../../hooks/offChainActions/useGetOffChainActions'
 import { Tag } from './Tag'
@@ -200,7 +191,21 @@ export function DialogUserData({ user }: Props) {
                         </Label>
                         <div className="grid grid-cols-3 items-center gap-2">
                             <DataCard
-                                title="Volume"
+                                title="Volume Pool Dai"
+                                value={
+                                    user.stat.totals.totalVolumePoolDai
+                                        ? transformNumberK(
+                                              Number(
+                                                  user.stat.totals
+                                                      .totalVolumePoolDai
+                                              )
+                                          )
+                                        : 0
+                                }
+                                icon={<DaiLogo className="h-4 w-4" />}
+                            />
+                            <DataCard
+                                title="Volume Pool ETH"
                                 value={
                                     user.stat.totals.totalVolumePoolETH
                                         ? transformNumberK(
@@ -211,7 +216,7 @@ export function DialogUserData({ user }: Props) {
                                           )
                                         : 0
                                 }
-                                icon={<DaiLogo className="h-4 w-4" />}
+                                icon={<EthLogo className="h-4 w-4" />}
                             />
                             {/* <DataCard
                                 title="Pnl"
