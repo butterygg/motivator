@@ -16,12 +16,13 @@ export async function getTotalsVolPnlActions({
     const Allstats = await db.query.statistics.findMany({
         where: and(eq(statistics.user_address, userAddr)),
         columns: {
+            poolType: true,
             action_count_longs: true,
             action_count_lps: true,
             action_count_shorts: true,
-            pnl_longs: true,
-            pnl_lps: true,
-            pnl_shorts: true,
+            // pnl_longs: true,
+            // pnl_lps: true,
+            // pnl_shorts: true,
             volume_longs: true,
             volume_lps: true,
             volume_shorts: true,
@@ -31,8 +32,9 @@ export async function getTotalsVolPnlActions({
     let lastStat = {
         user_address: userAddr,
         timestamp: new Date(0),
-        totalVolume: 0,
-        totalPnl: 0,
+        totalVolumePoolETH: 0,
+        totalVolumePoolDai: 0,
+        // totalPnl: 0,
         totalActions: 0,
     }
     // Pick the newer stat in matter of timestamp
@@ -42,27 +44,45 @@ export async function getTotalsVolPnlActions({
             lastStat.timestamp < new Date(element.timestamp)
         ) {
             lastStat.timestamp = new Date(element.timestamp)
-            lastStat.totalVolume = Number(
-                (
-                    (element?.volume_longs
-                        ? (element?.volume_longs as number)
-                        : 0) +
-                    (element?.volume_shorts
-                        ? (element?.volume_shorts as number)
-                        : 0) +
-                    (element?.volume_lps ? (element?.volume_lps as number) : 0)
-                ).toFixed(2)
-            )
+            if (element?.poolType === 'ETH') {
+                lastStat.totalVolumePoolETH = Number(
+                    (
+                        (element?.volume_longs
+                            ? (element?.volume_longs as number)
+                            : 0) +
+                        (element?.volume_shorts
+                            ? (element?.volume_shorts as number)
+                            : 0) +
+                        (element?.volume_lps
+                            ? (element?.volume_lps as number)
+                            : 0)
+                    ).toFixed(2)
+                )
+            } else {
+                lastStat.totalVolumePoolDai = Number(
+                    (
+                        (element?.volume_longs
+                            ? (element?.volume_longs as number)
+                            : 0) +
+                        (element?.volume_shorts
+                            ? (element?.volume_shorts as number)
+                            : 0) +
+                        (element?.volume_lps
+                            ? (element?.volume_lps as number)
+                            : 0)
+                    ).toFixed(2)
+                )
+            }
 
-            lastStat.totalPnl = Number(
-                (
-                    (element?.pnl_longs ? (element?.pnl_longs as number) : 0) +
-                    (element?.pnl_shorts
-                        ? (element?.pnl_shorts as number)
-                        : 0) +
-                    (element?.pnl_lps ? (element?.pnl_lps as number) : 0)
-                ).toFixed(2)
-            )
+            // lastStat.totalPnl = Number(
+            //     (
+            //         (element?.pnl_longs ? (element?.pnl_longs as number) : 0) +
+            //         (element?.pnl_shorts
+            //             ? (element?.pnl_shorts as number)
+            //             : 0) +
+            //         (element?.pnl_lps ? (element?.pnl_lps as number) : 0)
+            //     ).toFixed(2)
+            // )
 
             lastStat.totalActions = Number(
                 (

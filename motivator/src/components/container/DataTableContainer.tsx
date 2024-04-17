@@ -1,19 +1,12 @@
 'use client'
 import React, { useEffect } from 'react'
 import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
-import {
-    AssessorSlot,
-    Reward,
-    Statistics,
-    Totals,
-} from '@/types/data/assessorSlot'
+import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
 import { RoundSpinner } from '../ui/spinner'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
-import { useGetTotalsVolPnlActions } from '../../hooks/statistics/usegetTotalsVolPnlActions'
 const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []

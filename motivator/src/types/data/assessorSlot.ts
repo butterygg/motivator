@@ -15,16 +15,18 @@ export type Totals = {
     user_address: string
     timestamp: Date
     totalActions: number
-    totalVolume: number
-    totalPnl: number
+    totalVolumePoolETH: number
+    totalVolumePoolDai: number
+    // totalPnl: number
 }
 
 export type Statistics = {
     user_address: string
     timestamp: string | null
-    pnl_longs: number | null
-    pnl_shorts: number | null
-    pnl_lps: number | null
+    poolType: string | null
+    // pnl_longs: number | null
+    // pnl_shorts: number | null
+    // pnl_lps: number | null
     volume_longs: number | null
     volume_shorts: number | null
     volume_lps: number | null

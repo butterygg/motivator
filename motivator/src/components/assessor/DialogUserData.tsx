@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button'
 
 import {
     Dialog,
-    DialogContent,
     DialogContentCustom,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { User } from '@/types/data/user'
 import AddrAvatar from '../globals/AddrAvatar'
@@ -20,24 +17,19 @@ import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
 import DaiLogo from '~/dai.svg'
 import { useEffect, useState } from 'react'
-import { useAccount } from 'wagmi'
-import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { PNLChart } from '../statistics/PNLChart'
-import { Separator } from '../ui/separator'
 import { VolumeChart } from '../statistics/VolumeChart'
-import { useGetPNLAndVolume } from '../../hooks/statistics/useGetPNLAndVolume'
-import { LP_PNLChart } from '../statistics/LP_PNLChart'
 import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
 import { useGetOffChainActions } from '../../hooks/offChainActions/useGetOffChainActions'
 import { Tag } from './Tag'
 import { OffChainActions } from '../../types/enum/status'
 import { Card } from '../ui/card'
+import { transformNumberK } from '../../utils/utils'
 type Props = {
     user: User
 }
@@ -82,9 +74,9 @@ export function DialogUserData({ user }: Props) {
 
     useEffect(() => {
         if (user.stat.stats) {
-            preparePNLTradingData()
+            // preparePNLTradingData()
             prepareVolumeTradingData()
-            preparePNLLPData()
+            // preparePNLLPData()
             prepareVolumeLPData()
         }
     }, [user.stat.stats])
@@ -120,17 +112,17 @@ export function DialogUserData({ user }: Props) {
         // return result
     }
 
-    const preparePNLTradingData = () => {
-        if (!user || !user.stat.stats) return
-        const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                Short: element.pnl_shorts,
-                Long: element.pnl_longs,
-            }
-        })
-        setPNLTradingData(result)
-    }
+    // const preparePNLTradingData = () => {
+    //     if (!user || !user.stat.stats) return
+    //     const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
+    //         return {
+    //             date: element.timestamp,
+    //             Short: element.pnl_shorts,
+    //             Long: element.pnl_longs,
+    //         }
+    //     })
+    //     setPNLTradingData(result)
+    // }
 
     const prepareVolumeTradingData = () => {
         if (!user || !user.stat.stats) return
@@ -144,16 +136,16 @@ export function DialogUserData({ user }: Props) {
         setVolumeTradingData(result)
     }
 
-    const preparePNLLPData = () => {
-        if (!user || !user.stat.stats) return
-        const result: DataSetChartPnlLP[] = user.stat.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                pnl: element.pnl_lps,
-            }
-        })
-        setLP_PNLTradingData(result)
-    }
+    // const preparePNLLPData = () => {
+    //     if (!user || !user.stat.stats) return
+    //     const result: DataSetChartPnlLP[] = user.stat.stats.map((element) => {
+    //         return {
+    //             date: element.timestamp,
+    //             pnl: element.pnl_lps,
+    //         }
+    //     })
+    //     setLP_PNLTradingData(result)
+    // }
 
     const prepareVolumeLPData = () => {
         if (!user || !user.stat.stats) return
@@ -190,27 +182,46 @@ export function DialogUserData({ user }: Props) {
                     <DialogTitle>
                         <AddrAvatar addressName={user.addressName} />
                     </DialogTitle>
-                    <DialogDescription>Historical data</DialogDescription>
+                    <DialogDescription>Hyperdrive Data</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col items-center lg:flex-row justify-between gap-4 py-2">
                     <div>
-                        <Label htmlFor="name" className="">
+                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                             Statistics
                         </Label>
                         <div className="grid grid-cols-3 items-center gap-2">
                             <DataCard
-                                title="Volume"
+                                title="Volume Pool Dai"
                                 value={
-                                    user.stat.totals.totalVolume
-                                        ? Number(user.stat.totals.totalVolume)
+                                    user.stat.totals.totalVolumePoolDai
+                                        ? transformNumberK(
+                                              Number(
+                                                  user.stat.totals
+                                                      .totalVolumePoolDai
+                                              )
+                                          )
                                         : 0
                                 }
                                 icon={<DaiLogo className="h-4 w-4" />}
                             />
                             <DataCard
+                                title="Volume Pool ETH"
+                                value={
+                                    user.stat.totals.totalVolumePoolETH
+                                        ? transformNumberK(
+                                              Number(
+                                                  user.stat.totals
+                                                      .totalVolumePoolETH
+                                              )
+                                          )
+                                        : 0
+                                }
+                                icon={<EthLogo className="h-4 w-4" />}
+                            />
+                            {/* <DataCard
                                 title="Pnl"
                                 value={Number(user.stat.totals.totalPnl) + 'K$'}
-                            />
+                            /> */}
                             <DataCard
                                 title="Actions"
                                 value={
@@ -229,11 +240,11 @@ export function DialogUserData({ user }: Props) {
                             Trading
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <PNLChart
+                            {/* <PNLChart
                                 title={'PNL'}
                                 value={'25000'}
                                 dataset={PNLTradingData ? PNLTradingData : []}
-                            />
+                            /> */}
                             <VolumeChart
                                 title={'Volume'}
                                 value={'25000'}
@@ -249,13 +260,13 @@ export function DialogUserData({ user }: Props) {
                             Liquidity Providing
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <LP_PNLChart
+                            {/* <LP_PNLChart
                                 title={'PNL'}
                                 value={'25000'}
                                 dataset={
                                     LP_PNLTradingData ? LP_PNLTradingData : []
                                 }
-                            />
+                            /> */}
                             <LP_VolumeChart
                                 title={'Volume'}
                                 value={'25000'}
