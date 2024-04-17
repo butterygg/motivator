@@ -26,18 +26,23 @@ use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
 // CONFIG ///////////////////////////////////////////////////
 
+const HOUR: u64 = 60 * 60;
+
+// [FIXME] Don't sum pools together, just add to the same CSV with a contract column.
 const HYPERDRIVE_4626_ADDR: H160 = H160(hex!("392839da0dacac790bd825c81ce2c5e264d793a8"));
-const HYPERDRIVE_STETH_ADDR: H160 = H160(hex!("ff33bd6d7ed4119c99c310f3e5f0fa467796ee23"));
+//const HYPERDRIVE_STETH_ADDR: H160 = H160(hex!("ff33bd6d7ed4119c99c310f3e5f0fa467796ee23"));
 
 // See https://sepolia.etherscan.io/address/0xff33bd6d7ed4119c99c310f3e5f0fa467796ee23#internaltx
 const START_BLOCK: u64 = 5663018;
-
-const HOUR: u64 = 60 * 60;
-
-const TIMEOUT_DURATION: u64 = 30;
+// [TODO] At week 1: seven days.
+// [TODO] At week 2: update.
+const ROUND_DURATION: u64 = 5 * 60 * 60 + 1; // Normally, 1 week.
 
 const DECIMAL_SCALE: u32 = 18;
 const DECIMAL_PRECISION: u32 = 18;
+
+const TIMEOUT_DURATION: u64 = 30;
+
 
 // UTILS ///////////////////////////////////////////////////
 
@@ -867,7 +872,6 @@ fn calc_pnls(
             let calculated_close_shares = hyperdrive_state
                 .calculate_close_long(cumulative_debit.bond_amount, long_key.maturity_time, at_timestamp);
             // Knowing `calculate_close_long` returns vault share amounts:
-            // [TODO] Verify that's still the case.
             let calculated_close_base_amount =
                 calculated_close_shares.normalized() * hyperdrive_state.info.vault_share_price.normalized();
 
@@ -911,7 +915,7 @@ fn calc_pnls(
                 .expect(open_share_errmsg)
                 .price;
 
-            // [TODO] Only use maturity if in the past.
+            // [FIXME] Only use maturity if in the past.
             // if (hyperdrive_state.block_time >= maturity) and (maturity in checkpoint_share_prices.index):
 
             let maturity_checkpoint_time = short_key.maturity_time;
@@ -934,7 +938,7 @@ fn calc_pnls(
             let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
                 cumulative_debit.bond_amount,
                 open_share_price,
-                // [TODO] This one is to replace with "maturity or current":
+                // [FIXME] This one is to replace with "maturity or current":
                 maturity_share_price,
                 // This argument is maturity time, wheter already happened or not:
                 short_key.maturity_time,
@@ -1245,14 +1249,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
 
     dotenv().ok();
-    let infura_key = env::var("INFURA_KEY").expect("INFURA_KEY must be set");
-    let infura_url = &format!("wss://sepolia.infura.io/ws/v3/{}", infura_key);
+    let ws_url = env::var("WS_URL").expect("WS_URL must be set");
 
     // [XXX] Check how many blocks behind can the archive node produce.
-    let provider = Provider::<Ws>::connect(infura_url).await.unwrap();
+    let provider = Provider::<Ws>::connect(ws_url).await.unwrap();
     let client = Arc::new(provider);
 
-    let hyperdrive_addrs: Vec<H160> = vec![HYPERDRIVE_4626_ADDR, HYPERDRIVE_STETH_ADDR];
+    // [FIXME] This doesn't make sense to sum over different hyperdrives (as long as they don't
+    // share base tokens). We should produce data for each contract separately.
+    let hyperdrive_addrs: Vec<H160> = vec![HYPERDRIVE_4626_ADDR];
 
     let start_block_timestamp = client
         .clone()
@@ -1262,9 +1267,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .timestamp;
     // -1 prevents stalling:
     let before_last_block = client.get_block_number().await? - 1;
-    // [TODO] At week 1: seven days.
-    // [TODO] At week 2: update.
-    let target_end = start_block_timestamp + 5 * 60 * 60 + 1;
+    let target_end = start_block_timestamp + ROUND_DURATION;
     //let target_end = start_block_timestamp + 60 * 60;
     let end_block = find_block_by_timestamp(
         client.clone(),
