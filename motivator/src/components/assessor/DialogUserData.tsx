@@ -18,6 +18,7 @@ import { User } from '@/types/data/user'
 import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
+import DaiLogo from '~/dai.svg'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
@@ -208,7 +209,7 @@ export function DialogUserData({ user }: Props) {
                                         ? Number(user.stat.totals.totalVolume)
                                         : 0
                                 }
-                                icon={<EthLogo className="h-4 w-4" />}
+                                icon={<DaiLogo className="h-4 w-4" />}
                             />
                             <DataCard
                                 title="Pnl"

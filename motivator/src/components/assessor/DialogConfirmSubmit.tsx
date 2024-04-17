@@ -6,20 +6,14 @@ import {
     DialogClose,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { User } from '@/types/data/user'
-import AddrAvatar from '../globals/AddrAvatar'
 import { DataCard } from './DataCard'
-import EthLogo from '~/ethereum-eth-logo.svg'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
-import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import {
     Tooltip,
     TooltipContent,

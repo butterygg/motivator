@@ -12,6 +12,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table'
 import EthLogo from '~/ethereum-eth-logo.svg'
+import DaiLogo from '~/dai.svg'
 
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
@@ -87,7 +88,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
                             Volume
                         </p>
                         <div className="flex">
-                            <EthLogo className="h-4 w-4" />
+                            <DaiLogo className="h-4 w-4" />
                             <p className="font-bold">
                                 {Number(stat.totals.totalVolume)}
                             </p>
