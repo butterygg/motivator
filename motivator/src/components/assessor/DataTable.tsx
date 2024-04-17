@@ -83,7 +83,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
 
             return (
-                <div className="flex gap-6 justify-evenly">
+                <div className="flex gap-6 items-center justify-evenly">
                     {/* <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
                             PnL
@@ -95,17 +95,38 @@ export const columns: ColumnDef<UserDatatable>[] = [
                             </p>
                         </div>
                     </div> */}
-                    <div className="items-center flex-col flex">
-                        <p className="font-extralight text-center text-xs">
+                    <div className="flex items-center">
+                        {' '}
+                        <p className="[writing-mode:vertical-lr] rotate-180">
                             Volume
                         </p>
-                        <div className="flex items-center gap-1">
-                            <DaiLogo className="h-4 w-4" />
-                            <p className="font-bold">
-                                {transformNumberK(
-                                    Number(stat.totals.totalVolume)
-                                )}
-                            </p>
+                        <div className="flex flex-col">
+                            <div className="items-center flex-col flex">
+                                <p className="font-extralight text-center text-xs">
+                                    Pool ETH
+                                </p>
+                                <div className="flex items-center gap-1">
+                                    <EthLogo className="h-4 w-4" />
+                                    <p className="font-bold">
+                                        {transformNumberK(
+                                            Number(stat.totals.totalVolume)
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="items-center flex-col flex">
+                                <p className="font-extralight text-center text-xs">
+                                    Pool Dai
+                                </p>
+                                <div className="flex items-center gap-1">
+                                    <DaiLogo className="h-4 w-4" />
+                                    <p className="font-bold">
+                                        {transformNumberK(
+                                            Number(stat.totals.totalVolume)
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
