@@ -7,7 +7,7 @@ type Props = {
 }
 
 /**
- * This hook is used to asssign an AssessorSlot to user
+ * This hook is used to SubmitAssessorSlot
  * @param {Props} props
  *
  *
@@ -23,8 +23,6 @@ const useSubmitAssessorSlot = ({ assessorAddr }: Props) => {
         // enabled: false,
         retry: 1,
     })
-    // console.log(data, 'data')
-    // console.log(error, 'error')
     return { data, mutateAsync, error, status }
 }
 

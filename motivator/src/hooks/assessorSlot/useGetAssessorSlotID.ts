@@ -20,8 +20,6 @@ const useGetAssessorSlotID = ({ assessorAddr }: Props) => {
         // enabled: false,
         retry: 1,
     })
-    console.log(data, 'data')
-    console.log(error, 'error')
     if (status === 'error') {
         console.log(error, 'error')
     }

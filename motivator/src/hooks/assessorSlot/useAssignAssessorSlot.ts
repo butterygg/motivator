@@ -22,8 +22,6 @@ const useAssignAssessorSlot = ({ assessorAddr }: Props) => {
         // enabled: false,
         retry: 1,
     })
-    // console.log(data, 'data')
-    // console.log(error, 'error')
     return { data, mutateAsync, error, status }
 }
 

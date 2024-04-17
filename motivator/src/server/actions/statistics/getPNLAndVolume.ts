@@ -1,16 +1,10 @@
 'use server'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import {
-    assessor,
-    assessor_slot,
-    assessor_slot_user,
-    statistics,
-} from '@db/schema'
-import { NextRequest } from 'next/server'
+import { statistics } from '@db/schema'
 /**
  *
- * @param request Will contain an Array of [{userAddr: string}]
+ * @param request Will contain {userAddr: string}
  * @param response Send the status of the transaction
  */
 

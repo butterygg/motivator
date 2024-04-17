@@ -20,7 +20,6 @@ export async function getNumberAssessorSlotAvailable() {
             isNull(assessor_slot.assessor_ID)
         ),
     })
-    console.log('assessorSlotOfAssessor', assessorSlotOfAssessor)
     if (!assessorSlotOfAssessor) {
         return {
             status: 'ok',

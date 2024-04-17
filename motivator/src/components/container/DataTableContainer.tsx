@@ -52,20 +52,15 @@ const DataTableContainer = () => {
     const { data, error, status, refetch } = useGetAssessorSlot({
         assessorAddr: address as string,
     })
-    const { data: dataTotals } = useGetTotalsVolPnlActions({
-        userAddr: address as string,
-    })
+
     const { push } = useRouter()
     // Refresh the data when the account is connected
     useEffect(() => {
-        console.log('statusAccount', statusAccount)
         if (statusAccount === 'connected' && refetch) refetch()
     }, [refetch, statusAccount])
 
     // Redirecting to avoid error
     useEffect(() => {
-        console.log('status', status)
-        console.log('data', data)
         if (data?.status == 'ko' || data?.res === undefined) {
             // if (statusAccount === 'connected' && refetch) refetch()
 
@@ -84,7 +79,6 @@ const DataTableContainer = () => {
         )
     }
 
-    console.log('data', data)
     return <DataTable users={prepareDataForTable(data.res as AssessorSlot)} />
 }
 
