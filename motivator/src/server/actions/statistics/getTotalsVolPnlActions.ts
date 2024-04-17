@@ -32,8 +32,9 @@ export async function getTotalsVolPnlActions({
     let lastStat = {
         user_address: userAddr,
         timestamp: new Date(0),
-        totalVolume: 0,
-        totalPnl: 0,
+        totalVolumePoolETH: 0,
+        totalVolumePoolDai: 0,
+        // totalPnl: 0,
         totalActions: 0,
     }
     // Pick the newer stat in matter of timestamp
@@ -43,17 +44,35 @@ export async function getTotalsVolPnlActions({
             lastStat.timestamp < new Date(element.timestamp)
         ) {
             lastStat.timestamp = new Date(element.timestamp)
-            lastStat.totalVolume = Number(
-                (
-                    (element?.volume_longs
-                        ? (element?.volume_longs as number)
-                        : 0) +
-                    (element?.volume_shorts
-                        ? (element?.volume_shorts as number)
-                        : 0) +
-                    (element?.volume_lps ? (element?.volume_lps as number) : 0)
-                ).toFixed(2)
-            )
+            if (element?.poolType === 'ETH') {
+                lastStat.totalVolumePoolETH = Number(
+                    (
+                        (element?.volume_longs
+                            ? (element?.volume_longs as number)
+                            : 0) +
+                        (element?.volume_shorts
+                            ? (element?.volume_shorts as number)
+                            : 0) +
+                        (element?.volume_lps
+                            ? (element?.volume_lps as number)
+                            : 0)
+                    ).toFixed(2)
+                )
+            } else {
+                lastStat.totalVolumePoolDai = Number(
+                    (
+                        (element?.volume_longs
+                            ? (element?.volume_longs as number)
+                            : 0) +
+                        (element?.volume_shorts
+                            ? (element?.volume_shorts as number)
+                            : 0) +
+                        (element?.volume_lps
+                            ? (element?.volume_lps as number)
+                            : 0)
+                    ).toFixed(2)
+                )
+            }
 
             // lastStat.totalPnl = Number(
             //     (

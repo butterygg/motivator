@@ -202,10 +202,11 @@ export function DialogUserData({ user }: Props) {
                             <DataCard
                                 title="Volume"
                                 value={
-                                    user.stat.totals.totalVolume
+                                    user.stat.totals.totalVolumePoolETH
                                         ? transformNumberK(
                                               Number(
-                                                  user.stat.totals.totalVolume
+                                                  user.stat.totals
+                                                      .totalVolumePoolETH
                                               )
                                           )
                                         : 0

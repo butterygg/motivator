@@ -109,7 +109,9 @@ export const columns: ColumnDef<UserDatatable>[] = [
                                     <EthLogo className="h-4 w-4" />
                                     <p className="font-bold">
                                         {transformNumberK(
-                                            Number(stat.totals.totalVolume)
+                                            Number(
+                                                stat.totals.totalVolumePoolETH
+                                            )
                                         )}
                                     </p>
                                 </div>
@@ -122,7 +124,9 @@ export const columns: ColumnDef<UserDatatable>[] = [
                                     <DaiLogo className="h-4 w-4" />
                                     <p className="font-bold">
                                         {transformNumberK(
-                                            Number(stat.totals.totalVolume)
+                                            Number(
+                                                stat.totals.totalVolumePoolDai
+                                            )
                                         )}
                                     </p>
                                 </div>

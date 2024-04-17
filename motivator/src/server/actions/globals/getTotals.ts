@@ -20,6 +20,7 @@ export async function getTotals() {
         // Get all Statistics for every user
         const stats = await db.query.statistics.findMany({
             columns: {
+                poolType: true,
                 timestamp: true,
                 user_address: true,
                 action_count_longs: true,
@@ -35,10 +36,10 @@ export async function getTotals() {
         })
         type Stat = {
             user_address: Address
-
+            pool_type: string
             timestamp: Date
-            totalVolume: number
-            totalPnl: number
+            totalVolumePoolETH: number
+            totalVolumePoolDai: number
             totalActions: number
         }
         // Set the last stat for each user
@@ -46,10 +47,12 @@ export async function getTotals() {
         // Extract the last stat for each user
         stats.forEach((element) => {
             let lastStat = {
+                pool_type: element.poolType as string,
                 user_address: element.user_address as Address,
                 timestamp: new Date(0),
-                totalVolume: 0,
-                totalPnl: 0,
+                totalVolumePoolETH: 0,
+                totalVolumePoolDai: 0,
+                // totalPnl: 0,
                 totalActions: 0,
             }
             // find the last stat for this user
@@ -66,8 +69,8 @@ export async function getTotals() {
                 // Update the last stat with new Date
                 lastStat.timestamp = new Date(element.timestamp)
                 // Sum the total volume
-                lastStat.totalVolume =
-                    Number(
+                if (element?.poolType === 'ETH') {
+                    lastStat.totalVolumePoolETH = Number(
                         (
                             (element?.volume_longs
                                 ? (element?.volume_longs as number)
@@ -79,7 +82,22 @@ export async function getTotals() {
                                 ? (element?.volume_lps as number)
                                 : 0)
                         ).toFixed(2)
-                    ) / 1000
+                    )
+                } else {
+                    lastStat.totalVolumePoolDai = Number(
+                        (
+                            (element?.volume_longs
+                                ? (element?.volume_longs as number)
+                                : 0) +
+                            (element?.volume_shorts
+                                ? (element?.volume_shorts as number)
+                                : 0) +
+                            (element?.volume_lps
+                                ? (element?.volume_lps as number)
+                                : 0)
+                        ).toFixed(2)
+                    )
+                }
                 // // Sum the total PNL
                 // lastStat.totalPnl =
                 //     Number(
@@ -124,8 +142,9 @@ export async function getTotals() {
                 week: Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL),
                 user_address: stat.user_address,
                 totalActions: stat.totalActions,
-                totalVolume: stat.totalVolume,
-                totalPnl: stat.totalPnl,
+                totalVolumePoolETH: stat.totalVolumePoolETH,
+                totalVolumePoolDaie: stat.totalVolumePoolDai,
+                // totalPnl: stat.totalPnl,
             }
         })
 
