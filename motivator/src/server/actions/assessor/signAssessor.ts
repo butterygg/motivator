@@ -5,11 +5,10 @@ import { assessor, assessor_slot, assessor_slot_user } from '@db/schema'
 import { NextRequest } from 'next/server'
 /**
  *
- * @param request Will contain an Array of [{assessorAddr: string}]
+ * @param request Will contain {assessorAddr: string}
  * @param response Send the status of the transaction
  */
 export async function signAssessor({ assessorAddr }: { assessorAddr: string }) {
-    console.log('assessorAddr', assessorAddr)
     const userIsSigned = await db.query.assessor.findFirst({
         where: eq(assessor.address, assessorAddr),
     })
