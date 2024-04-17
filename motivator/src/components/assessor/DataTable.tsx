@@ -12,6 +12,7 @@ import {
     useReactTable,
 } from '@tanstack/react-table'
 import EthLogo from '~/ethereum-eth-logo.svg'
+import DaiLogo from '~/dai.svg'
 
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
@@ -31,6 +32,7 @@ import { DialogConfirmSubmit } from './DialogConfirmSubmit'
 import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
 import TotalPoints from './TotalPoints'
 import { useRouter } from 'next/navigation'
+import { transformNumberK } from '../../utils/utils'
 
 export type UserDatatable = {
     id: { id: string; assessorSlotId: string }
@@ -84,26 +86,29 @@ export const columns: ColumnDef<UserDatatable>[] = [
                 <div className="flex gap-6 justify-evenly">
                     <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
+                            PnL
+                        </p>
+                        <div className="flex items-center gap-1">
+                            <DaiLogo className="h-4 w-4" />
+                            <p className="font-bold">
+                                {transformNumberK(Number(stat.totals.totalPnl))}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="items-center flex-col flex">
+                        <p className="font-extralight text-center text-xs">
                             Volume
                         </p>
-                        <div className="flex">
-                            <EthLogo className="h-4 w-4" />
+                        <div className="flex items-center gap-1">
+                            <DaiLogo className="h-4 w-4" />
                             <p className="font-bold">
-                                {Number(stat.totals.totalVolume)}
+                                {transformNumberK(
+                                    Number(stat.totals.totalVolume)
+                                )}
                             </p>
                         </div>
                     </div>
 
-                    <div className="items-center flex-col flex">
-                        <p className="font-extralight text-center text-xs">
-                            PnL
-                        </p>
-                        <div className="flex">
-                            <p className="font-bold">
-                                {Number(stat.totals.totalPnl)}K$
-                            </p>
-                        </div>
-                    </div>
                     <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
                             Actions
