@@ -28,9 +28,9 @@ export async function getTotals() {
                 volume_longs: true,
                 volume_lps: true,
                 volume_shorts: true,
-                pnl_lps: true,
-                pnl_shorts: true,
-                pnl_longs: true,
+                // pnl_lps: true,
+                // pnl_shorts: true,
+                // pnl_longs: true,
             },
         })
         type Stat = {
@@ -80,21 +80,21 @@ export async function getTotals() {
                                 : 0)
                         ).toFixed(2)
                     ) / 1000
-                // Sum the total PNL
-                lastStat.totalPnl =
-                    Number(
-                        (
-                            (element?.pnl_longs
-                                ? (element?.pnl_longs as number)
-                                : 0) +
-                            (element?.pnl_shorts
-                                ? (element?.pnl_shorts as number)
-                                : 0) +
-                            (element?.pnl_lps
-                                ? (element?.pnl_lps as number)
-                                : 0)
-                        ).toFixed(2)
-                    ) / 1000
+                // // Sum the total PNL
+                // lastStat.totalPnl =
+                //     Number(
+                //         (
+                //             (element?.pnl_longs
+                //                 ? (element?.pnl_longs as number)
+                //                 : 0) +
+                //             (element?.pnl_shorts
+                //                 ? (element?.pnl_shorts as number)
+                //                 : 0) +
+                //             (element?.pnl_lps
+                //                 ? (element?.pnl_lps as number)
+                //                 : 0)
+                //         ).toFixed(2)
+                //     ) / 1000
                 // Sum the total Actions
                 lastStat.totalActions = Number(
                     (

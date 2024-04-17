@@ -19,9 +19,9 @@ export async function getTotalsVolPnlActions({
             action_count_longs: true,
             action_count_lps: true,
             action_count_shorts: true,
-            pnl_longs: true,
-            pnl_lps: true,
-            pnl_shorts: true,
+            // pnl_longs: true,
+            // pnl_lps: true,
+            // pnl_shorts: true,
             volume_longs: true,
             volume_lps: true,
             volume_shorts: true,
@@ -54,15 +54,15 @@ export async function getTotalsVolPnlActions({
                 ).toFixed(2)
             )
 
-            lastStat.totalPnl = Number(
-                (
-                    (element?.pnl_longs ? (element?.pnl_longs as number) : 0) +
-                    (element?.pnl_shorts
-                        ? (element?.pnl_shorts as number)
-                        : 0) +
-                    (element?.pnl_lps ? (element?.pnl_lps as number) : 0)
-                ).toFixed(2)
-            )
+            // lastStat.totalPnl = Number(
+            //     (
+            //         (element?.pnl_longs ? (element?.pnl_longs as number) : 0) +
+            //         (element?.pnl_shorts
+            //             ? (element?.pnl_shorts as number)
+            //             : 0) +
+            //         (element?.pnl_lps ? (element?.pnl_lps as number) : 0)
+            //     ).toFixed(2)
+            // )
 
             lastStat.totalActions = Number(
                 (

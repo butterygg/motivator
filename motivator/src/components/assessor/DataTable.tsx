@@ -84,7 +84,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
 
             return (
                 <div className="flex gap-6 justify-evenly">
-                    <div className="items-center flex-col flex">
+                    {/* <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
                             PnL
                         </p>
@@ -94,7 +94,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
                                 {transformNumberK(Number(stat.totals.totalPnl))}
                             </p>
                         </div>
-                    </div>
+                    </div> */}
                     <div className="items-center flex-col flex">
                         <p className="font-extralight text-center text-xs">
                             Volume

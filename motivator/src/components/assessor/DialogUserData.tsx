@@ -82,9 +82,9 @@ export function DialogUserData({ user }: Props) {
 
     useEffect(() => {
         if (user.stat.stats) {
-            preparePNLTradingData()
+            // preparePNLTradingData()
             prepareVolumeTradingData()
-            preparePNLLPData()
+            // preparePNLLPData()
             prepareVolumeLPData()
         }
     }, [user.stat.stats])
@@ -120,17 +120,17 @@ export function DialogUserData({ user }: Props) {
         // return result
     }
 
-    const preparePNLTradingData = () => {
-        if (!user || !user.stat.stats) return
-        const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                Short: element.pnl_shorts,
-                Long: element.pnl_longs,
-            }
-        })
-        setPNLTradingData(result)
-    }
+    // const preparePNLTradingData = () => {
+    //     if (!user || !user.stat.stats) return
+    //     const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
+    //         return {
+    //             date: element.timestamp,
+    //             Short: element.pnl_shorts,
+    //             Long: element.pnl_longs,
+    //         }
+    //     })
+    //     setPNLTradingData(result)
+    // }
 
     const prepareVolumeTradingData = () => {
         if (!user || !user.stat.stats) return
@@ -144,16 +144,16 @@ export function DialogUserData({ user }: Props) {
         setVolumeTradingData(result)
     }
 
-    const preparePNLLPData = () => {
-        if (!user || !user.stat.stats) return
-        const result: DataSetChartPnlLP[] = user.stat.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                pnl: element.pnl_lps,
-            }
-        })
-        setLP_PNLTradingData(result)
-    }
+    // const preparePNLLPData = () => {
+    //     if (!user || !user.stat.stats) return
+    //     const result: DataSetChartPnlLP[] = user.stat.stats.map((element) => {
+    //         return {
+    //             date: element.timestamp,
+    //             pnl: element.pnl_lps,
+    //         }
+    //     })
+    //     setLP_PNLTradingData(result)
+    // }
 
     const prepareVolumeLPData = () => {
         if (!user || !user.stat.stats) return
@@ -207,10 +207,10 @@ export function DialogUserData({ user }: Props) {
                                 }
                                 icon={<DaiLogo className="h-4 w-4" />}
                             />
-                            <DataCard
+                            {/* <DataCard
                                 title="Pnl"
                                 value={Number(user.stat.totals.totalPnl) + 'K$'}
-                            />
+                            /> */}
                             <DataCard
                                 title="Actions"
                                 value={
