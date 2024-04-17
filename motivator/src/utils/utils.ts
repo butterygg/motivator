@@ -19,5 +19,8 @@ export function transformNumberK(value: number) {
     if (value > 999) {
         return `${(value / 1000).toFixed(1)}k`
     }
+    if (value < -999) {
+        return `${(value / 1000).toFixed(1)}k`
+    }
     return value
 }
