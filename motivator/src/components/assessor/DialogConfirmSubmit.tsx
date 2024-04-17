@@ -87,10 +87,9 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                         <h3>Confirm Assessment Submit</h3>
                     </DialogTitle>
                     <DialogDescription>
-                        Pressing the confirm button, will lock the amount you
-                        selected and distribute rewards to the users. You
-                        won&apos;t have access to this assessment and this will
-                        be definitive .
+                        Once you press confirm you won’t be able to change your
+                        allocation and your points will be distributed. Feel
+                        free to double check, we’ll wait.
                     </DialogDescription>
                 </DialogHeader>
                 <Label htmlFor="name" className="">
@@ -105,7 +104,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                     <div className="grid grid-cols-3 items-center gap-2">
                         <DataCard
                             title="Available"
-                            value={points ? getPointsAvailable(points) : 0}
+                            value={points ? getPointsAvailable(points) : 100}
                         />
                         <DataCard
                             title="Distributed"
@@ -133,20 +132,6 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                         </div>
                     </div>
                 </div>
-
-                {/* <DialogFooter className="flex-row justify-between w-full">
-                    <div className="align-top flex gap-2 w-fit">
-                        <Input
-                            placeholder="Points"
-                            type="number"
-                            className="w-32 appearance-none"
-                            min={0}
-                            onChange={handleOnChangeInput}
-                            value={points}
-                        />
-                        <Button onClick={() => handleSubmit()}>Reward</Button>
-                    </div>
-                </DialogFooter> */}
             </DialogContent>
         </Dialog>
     )
