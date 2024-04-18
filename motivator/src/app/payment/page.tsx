@@ -109,7 +109,7 @@ const Payment = (props: Props) => {
                     <div className=" flex flex-col gap-4 items-center justify-center">
                         <RoundSpinner size="triplexl" />
                         <Label className="font-bold">
-                            Assessor slot found, you will be redirected quickly.
+                            Motivator slot found, you will be redirected shortly.
                         </Label>
                     </div>
                 </Card>
@@ -125,7 +125,7 @@ const Payment = (props: Props) => {
                         {statusTransaction === 'pending' ? (
                             <>
                                 <Label className="font-bold">
-                                    Waiting Validation
+                                    Awaiting validation
                                 </Label>
                                 <RoundSpinner size="xl" />
                             </>
@@ -142,7 +142,7 @@ const Payment = (props: Props) => {
                         {transactionReceipt?.status != 'success' ? (
                             <>
                                 <Label className="font-bold">
-                                    Transaction sent waiting for confirmation
+                                    Transaction sent. Waiting for confirmation
                                 </Label>
                                 <RoundSpinner size="xl" />
                             </>
@@ -166,10 +166,10 @@ const Payment = (props: Props) => {
         }
         return (
             <div className="border rounded-md p-4">
-                <Label className="font-bold">Payment</Label>
+                <Label className="font-bold">Purchase Motivator Slot</Label>
                 <div className="mt-2 gap-4 items-center flex flex-col">
                     <Label className="font-light">
-                        To acquire an assessor slots, you need to pay ${value}{' '}
+                        To purchase a Motivator slot, pay ${value}{' '}
                         $SETH
                     </Label>
                     <Button
