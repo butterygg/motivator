@@ -52,7 +52,10 @@ const DataTableContainer = () => {
             })
         })
 
-        return res
+        // sort the array by number of total actions
+        return res.sort((a, b) => {
+            return b.stat.totals.totalActions - a.stat.totals.totalActions
+        })
     }
 
     const { address, status: statusAccount } = useAccount()
