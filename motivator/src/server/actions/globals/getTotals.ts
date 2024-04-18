@@ -69,7 +69,7 @@ export async function getTotals() {
                 // Update the last stat with new Date
                 lastStat.timestamp = new Date(element.timestamp)
                 // Sum the total volume
-                if (element?.poolType === 'ETH') {
+                if (element?.poolType === 'stETH') {
                     lastStat.totalVolumePoolETH = Number(
                         (
                             (element?.volume_longs

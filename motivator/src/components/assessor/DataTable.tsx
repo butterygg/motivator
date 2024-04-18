@@ -40,7 +40,10 @@ export type UserDatatable = {
     pnl: number
     stat: {
         totals: Totals
-        stats: Statistics[]
+        stats: {
+            statsPoolETH: Statistics[]
+            statsPoolDAI: Statistics[]
+        }
     }
     reward?: {
         reward: Reward | undefined
@@ -167,7 +170,6 @@ export const columns: ColumnDef<UserDatatable>[] = [
         cell: ({ row }) => {
             const stat = row.getValue('stat') as UserDatatable['stat']
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
-            const id = row.getValue('id') as UserDatatable['id']
             const reward = row.getValue('reward') as UserDatatable['reward']
             // const stat = {
             //     volume: 50,
