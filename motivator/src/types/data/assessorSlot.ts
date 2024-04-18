@@ -13,9 +13,9 @@ export type AssessorSlot = {
 
 export type Totals = {
     user_address: string
-    timestamp: Date
+    week: number
     totalActions: number
-    totalVolumePoolETH: number
+    totalVolumePoolEth: number
     totalVolumePoolDai: number
     // totalPnl: number
 }

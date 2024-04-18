@@ -113,7 +113,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
                                     <p className="font-bold">
                                         {transformNumberK(
                                             Number(
-                                                stat.totals.totalVolumePoolETH
+                                                stat.totals.totalVolumePoolEth
                                             )
                                         )}
                                     </p>

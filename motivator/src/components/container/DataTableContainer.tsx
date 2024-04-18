@@ -30,7 +30,6 @@ const DataTableContainer = () => {
             const statsPoolDAI = statistics.filter(
                 (stat) => stat.poolType === '4626'
             ) as Statistics[]
-            console.log(statsPoolETH, statsPoolDAI, 'pools')
             res.push({
                 id: {
                     id: index.toString(),

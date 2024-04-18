@@ -5,6 +5,7 @@ import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { getTotalsVolPnlActions } from '../statistics/getTotalsVolPnlActions'
 import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
+import { getTotalsForUser } from '../globals/getTotalsForUser'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -56,8 +57,8 @@ export async function getAssessorSlot(address: string) {
         )
         .execute()
     const totalsForUsersPromised = async () => {
-        const res: Promise<Totals>[] = usersOfAssessorSlot.map((userAddr) => {
-            return getTotalsVolPnlActions({ userAddr })
+        const res = usersOfAssessorSlot.map((userAddr) => {
+            return getTotalsForUser({ userAddr })
         })
         return await Promise.all(res)
     }
@@ -82,7 +83,7 @@ export async function getAssessorSlot(address: string) {
         week: assessorSlotOfAssessor.week as number,
         users: usersOfAssessorSlot,
         rewards: getRewardsUsers,
-        totals: userTotals,
+        totals: userTotals as Totals[],
         statistics: statistics.flat() as Statistics[],
     }
     if (!assessorSlot) {
