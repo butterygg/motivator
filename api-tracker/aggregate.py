@@ -134,7 +134,7 @@ def aggregate_period(
     for cname, cevents in events.items():
         for event in cevents:
             if start_time < event.block_timestamp <= end_time:
-                key = (cname, event.block_timestamp, event.address)
+                key = (cname, end_time, event.address)
                 aggregates[key][f"action_count_{EVENT_TYPE_TYPE[event._type]}"] += 1
                 aggregates[key][
                     f"volume_{EVENT_TYPE_TYPE[event._type]}"
