@@ -249,7 +249,7 @@ export function DialogUserData({ user }: Props) {
                     </div>
                     <div className="p-5 mt-3 ">
                         <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Liquidity Providing
+                            Liquidity Provision
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
                             <LP_PNLChart
