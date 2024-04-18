@@ -40,7 +40,10 @@ export type UserDatatable = {
     pnl: number
     stat: {
         totals: Totals
-        stats: Statistics[]
+        stats: {
+            statsPoolETH: Statistics[]
+            statsPoolDAI: Statistics[]
+        }
     }
     reward?: {
         reward: Reward | undefined

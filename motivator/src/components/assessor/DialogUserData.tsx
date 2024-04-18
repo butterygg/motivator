@@ -60,7 +60,11 @@ export function DialogUserData({ user }: Props) {
     const [PNLTradingData, setPNLTradingData] = useState<DataSetChartTrading[]>(
         []
     )
-    const [VolumeTradingData, setVolumeTradingData] = useState<
+    const [VolumeTradingDataPoolEth, setVolumeTradingDataPoolEth] = useState<
+        DataSetChartTrading[]
+    >([])
+
+    const [VolumeTradingDataPoolDai, setVolumeTradingDataPoolDai] = useState<
         DataSetChartTrading[]
     >([])
 
@@ -68,16 +72,19 @@ export function DialogUserData({ user }: Props) {
         DataSetChartPnlLP[]
     >([])
 
-    const [LP_VolumeTradingData, setLP_VolumeTradingData] = useState<
-        DataSetChartVolumeLP[]
-    >([])
+    const [LP_VolumeTradingDataPoolEth, setLP_VolumeTradingDataPoolEth] =
+        useState<DataSetChartVolumeLP[]>([])
+    const [LP_VolumeTradingDataPoolDai, setLP_VolumeTradingDataPoolDai] =
+        useState<DataSetChartVolumeLP[]>([])
 
     useEffect(() => {
         if (user.stat.stats) {
             // preparePNLTradingData()
-            prepareVolumeTradingData()
+            prepareVolumeTradingData('ETH')
+            prepareVolumeTradingData('DAI')
             // preparePNLLPData()
-            prepareVolumeLPData()
+            prepareVolumeLPData('ETH')
+            prepareVolumeLPData('DAI')
         }
     }, [user.stat.stats])
 
@@ -124,16 +131,29 @@ export function DialogUserData({ user }: Props) {
     //     setPNLTradingData(result)
     // }
 
-    const prepareVolumeTradingData = () => {
+    const prepareVolumeTradingData = (pooltype: string) => {
         if (!user || !user.stat.stats) return
-        const result: DataSetChartTrading[] = user.stat.stats.map((element) => {
-            return {
-                date: element.timestamp,
-                Short: element.volume_shorts,
-                Long: element.volume_longs,
-            }
-        })
-        setVolumeTradingData(result)
+        if (pooltype === 'ETH') {
+            const result: DataSetChartTrading[] =
+                user.stat.stats.statsPoolETH.map((element) => {
+                    return {
+                        date: element.timestamp,
+                        Short: element.volume_shorts,
+                        Long: element.volume_longs,
+                    }
+                })
+            setVolumeTradingDataPoolEth(result)
+        } else {
+            const result: DataSetChartTrading[] =
+                user.stat.stats.statsPoolDAI.map((element) => {
+                    return {
+                        date: element.timestamp,
+                        Short: element.volume_shorts,
+                        Long: element.volume_longs,
+                    }
+                })
+            setVolumeTradingDataPoolDai(result)
+        }
     }
 
     // const preparePNLLPData = () => {
@@ -147,18 +167,28 @@ export function DialogUserData({ user }: Props) {
     //     setLP_PNLTradingData(result)
     // }
 
-    const prepareVolumeLPData = () => {
+    const prepareVolumeLPData = (pooltype: string) => {
         if (!user || !user.stat.stats) return
 
-        const result: DataSetChartVolumeLP[] = user.stat.stats.map(
-            (element) => {
-                return {
-                    date: element.timestamp,
-                    volume: element.volume_lps,
-                }
-            }
-        )
-        setLP_VolumeTradingData(result)
+        if (pooltype === 'ETH') {
+            const result: DataSetChartVolumeLP[] =
+                user.stat.stats.statsPoolETH.map((element) => {
+                    return {
+                        date: element.timestamp,
+                        volume: element.volume_lps,
+                    }
+                })
+            setLP_VolumeTradingDataPoolEth(result)
+        } else {
+            const result: DataSetChartVolumeLP[] =
+                user.stat.stats.statsPoolDAI.map((element) => {
+                    return {
+                        date: element.timestamp,
+                        volume: element.volume_lps,
+                    }
+                })
+            setLP_VolumeTradingDataPoolDai(result)
+        }
     }
     return (
         <Dialog>
@@ -235,9 +265,9 @@ export function DialogUserData({ user }: Props) {
                     <Card className="items-center gap-2">{buildTags()}</Card>
                 </div>
                 <>
-                    <div className="p-5 ">
+                    <div className="p-5 w-full">
                         <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Trading
+                            Volume - ETH Pool
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
                             {/* <PNLChart
@@ -246,33 +276,43 @@ export function DialogUserData({ user }: Props) {
                                 dataset={PNLTradingData ? PNLTradingData : []}
                             /> */}
                             <VolumeChart
-                                title={'Volume'}
-                                value={'25000'}
+                                title={'Trading'}
                                 dataset={
-                                    VolumeTradingData ? VolumeTradingData : []
+                                    VolumeTradingDataPoolEth
+                                        ? VolumeTradingDataPoolEth
+                                        : []
                                 }
                             />
+                            <LP_VolumeChart
+                                title={'Liquidity Providing'}
+                                dataset={
+                                    LP_VolumeTradingDataPoolEth
+                                        ? LP_VolumeTradingDataPoolEth
+                                        : []
+                                }
+                            />
+
                             {/* <PNLChart title={'Volume'} value={'25000'} /> */}
                         </div>
                     </div>
-                    <div className="p-5 mt-3 ">
+                    <div className="p-5 mt-3 w-full">
                         <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Liquidity Providing
+                            Volume - Dai Pool
                         </Label>
                         <div className="grid gap-2 lg:grid-flow-col p-2">
-                            {/* <LP_PNLChart
-                                title={'PNL'}
-                                value={'25000'}
+                            <VolumeChart
+                                title={'Trading'}
                                 dataset={
-                                    LP_PNLTradingData ? LP_PNLTradingData : []
+                                    VolumeTradingDataPoolDai
+                                        ? VolumeTradingDataPoolDai
+                                        : []
                                 }
-                            /> */}
+                            />
                             <LP_VolumeChart
-                                title={'Volume'}
-                                value={'25000'}
+                                title={'Liquidity Providing'}
                                 dataset={
-                                    LP_VolumeTradingData
-                                        ? LP_VolumeTradingData
+                                    LP_VolumeTradingDataPoolDai
+                                        ? LP_VolumeTradingDataPoolDai
                                         : []
                                 }
                             />

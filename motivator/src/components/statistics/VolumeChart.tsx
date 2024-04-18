@@ -3,79 +3,16 @@ import { DataSetChartTrading } from '@/components/assessor/DialogUserData'
 
 export type Props = {
     title: string
-    value: string
     dataset: DataSetChartTrading[]
 }
-export function VolumeChart({ title, value, dataset }: Props) {
-    const chartdata = [
-        {
-            date: 'Jan 23',
-            Short: 45,
-            Long: 78,
-        },
-        {
-            date: 'Feb 23',
-            Short: 52,
-            Long: 71,
-        },
-        {
-            date: 'Mar 23',
-            Short: 48,
-            Long: 80,
-        },
-        {
-            date: 'Apr 23',
-            Short: 61,
-            Long: 65,
-        },
-        {
-            date: 'May 23',
-            Short: 55,
-            Long: 58,
-        },
-        {
-            date: 'Jun 23',
-            Short: 67,
-            Long: 62,
-        },
-        {
-            date: 'Jul 23',
-            Short: 60,
-            Long: 54,
-        },
-        {
-            date: 'Aug 23',
-            Short: 72,
-            Long: 49,
-        },
-        {
-            date: 'Sep 23',
-            Short: 65,
-            Long: 52,
-        },
-        {
-            date: 'Oct 23',
-            Short: 68,
-            Long: null,
-        },
-        {
-            date: 'Nov 23',
-            Short: 74,
-            Long: null,
-        },
-        {
-            date: 'Dec 23',
-            Short: 71,
-            Long: null,
-        },
-    ]
+export function VolumeChart({ title, dataset }: Props) {
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
-            {/* <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
-                ${value}
+            {/* <p className="text-tremor-label text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+                {value}
             </p> */}
             <BarChart
                 className="h-80"

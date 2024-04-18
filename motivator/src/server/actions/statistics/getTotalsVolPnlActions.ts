@@ -44,7 +44,7 @@ export async function getTotalsVolPnlActions({
             lastStat.timestamp < new Date(element.timestamp)
         ) {
             lastStat.timestamp = new Date(element.timestamp)
-            if (element?.poolType === 'ETH') {
+            if (element?.poolType === 'stETH') {
                 lastStat.totalVolumePoolETH = Number(
                     (
                         (element?.volume_longs
