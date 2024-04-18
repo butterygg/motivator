@@ -9,15 +9,15 @@ import sys
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, getcontext
 from enum import Enum, auto
 from typing import Dict, Iterator, List
 
 # Start block: 5663018, Apr-09-2024 06:56:48 PM +UTC.
-START_TIME = datetime(2024, 4, 9, 6, 0).replace(tzinfo=timezone.utc)
+START_TIME = datetime(2024, 4, 9, 0, 0).replace(tzinfo=timezone.utc)
 # End: at noon Eastern on Thu 17th.
-END_TIME = datetime(2024, 4, 17, 16, 0).replace(tzinfo=timezone.utc)
+END_TIME = datetime(2024, 4, 18, 0, 0).replace(tzinfo=timezone.utc)
 
 
 class EventType(Enum):
@@ -55,9 +55,9 @@ class Event:
 @dataclass
 class Row:
     "Hello"
-    contract: str
-    timestamp: datetime
-    address: str
+    pool_type: str
+    timestamp: date
+    user_address: str
     volume_longs: int
     volume_shorts: int
     volume_lps: int
@@ -69,9 +69,9 @@ class Row:
     def to_list(self):
         return [
             self._id,
-            self.contract,
             self.timestamp,
-            self.address,
+            self.pool_type,
+            self.user_address,
             self.action_count_longs,
             self.action_count_shorts,
             self.action_count_lps,
@@ -84,9 +84,9 @@ class Row:
     def header():
         return [
             "id",
-            "contract",
             "timestamp",
-            "address",
+            "pool_type",
+            "user_address",
             "action_count_longs",
             "action_count_shorts",
             "action_count_lps",
@@ -134,34 +134,39 @@ def aggregate_period(
     for cname, cevents in events.items():
         for event in cevents:
             if start_time < event.block_timestamp <= end_time:
-                key = (cname, end_time, event.address)
+                key = (cname, start_time, event.address)
                 aggregates[key][f"action_count_{EVENT_TYPE_TYPE[event._type]}"] += 1
                 aggregates[key][
                     f"volume_{EVENT_TYPE_TYPE[event._type]}"
                 ] += event.base_amount
 
-    for (contract, timestamp, address), agg in aggregates.items():
-        yield Row(contract=contract, timestamp=timestamp, address=address, **agg)
+    for (pool_type, timestamp, user_address), agg in aggregates.items():
+        yield Row(
+            pool_type=pool_type,
+            timestamp=timestamp.date(),
+            user_address=user_address,
+            **agg,
+        )
 
 
 def aggregate(events: Dict[str, List[Event]]) -> Iterator[Row]:
     start_time = START_TIME
-    end_time = start_time + timedelta(hours=1)
+    end_time = start_time + timedelta(days=1)
     while end_time <= END_TIME:
         yield from aggregate_period(events, start_time, end_time)
 
         start_time = end_time
-        end_time += timedelta(hours=1)
+        end_time += timedelta(days=1)
 
 
 def cumulate_action_counts(rows: List[Row]):
-    contracts = [r.contract for r in rows]
-    addresses = [r.address for r in rows]
+    pool_type = [r.pool_type for r in rows]
+    addresses = [r.user_address for r in rows]
 
     struct = defaultdict(lambda: {"longs": 0, "shorts": 0, "lps": 0})
 
     for row in rows:
-        counts = struct[(row.contract, row.address)]
+        counts = struct[(row.pool_type, row.user_address)]
         counts["longs"] += row.action_count_longs
         counts["shorts"] += row.action_count_shorts
         counts["lps"] += row.action_count_lps
