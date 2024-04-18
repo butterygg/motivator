@@ -9,7 +9,7 @@ import sys
 import uuid
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal, getcontext
 from enum import Enum, auto
 from typing import Dict, Iterator, List
@@ -117,11 +117,9 @@ def to_datetime(iso8601: str) -> datetime:
     return datetime.fromisoformat(iso8601.replace("Z", "+00:00"))
 
 
-def aggregate_period(
-    events: Dict[str, List[Event]], start_time: datetime, end_time: datetime
-) -> Iterator[Row]:
-    aggregates = defaultdict(
-        lambda: {
+def base_aggregates(events: Dict[str, List[Event]], day: date):
+    def default():
+        return {
             "action_count_longs": 0,
             "action_count_shorts": 0,
             "action_count_lps": 0,
@@ -129,12 +127,25 @@ def aggregate_period(
             "volume_shorts": 0,
             "volume_lps": 0,
         }
-    )
 
-    for cname, cevents in events.items():
-        for event in cevents:
-            if start_time < event.block_timestamp <= end_time:
-                key = (cname, start_time, event.address)
+    return {
+        (pool_type, day, event.address): default()
+        for pool_type, pool_events in events.items()
+        for event in pool_events
+    }
+
+
+def aggregate_day(events: Dict[str, List[Event]], day: date) -> Iterator[Row]:
+    aggregates = base_aggregates(events, day)
+
+    for pool_type, pool_events in events.items():
+        for event in pool_events:
+            if (
+                datetime.combine(day, time(), timezone.utc)
+                < event.block_timestamp
+                <= datetime.combine(day + timedelta(days=1), time(), timezone.utc)
+            ):
+                key = (pool_type, day, event.address)
                 aggregates[key][f"action_count_{EVENT_TYPE_TYPE[event._type]}"] += 1
                 aggregates[key][
                     f"volume_{EVENT_TYPE_TYPE[event._type]}"
@@ -143,23 +154,21 @@ def aggregate_period(
     for (pool_type, timestamp, user_address), agg in aggregates.items():
         yield Row(
             pool_type=pool_type,
-            timestamp=timestamp.date(),
+            timestamp=timestamp,
             user_address=user_address,
             **agg,
         )
 
 
 def aggregate(events: Dict[str, List[Event]]) -> Iterator[Row]:
-    start_time = START_TIME
-    end_time = start_time + timedelta(days=1)
-    while end_time <= END_TIME:
-        yield from aggregate_period(events, start_time, end_time)
+    day = START_TIME.date()
+    while day < END_TIME.date():
+        yield from aggregate_day(events, day)
 
-        start_time = end_time
-        end_time += timedelta(days=1)
+        day += timedelta(days=1)
 
 
-def cumulate_action_counts(rows: List[Row]):
+def cumulate_action_counts(rows: List[Row]) -> List[Row]:
     pool_type = [r.pool_type for r in rows]
     addresses = [r.user_address for r in rows]
 
