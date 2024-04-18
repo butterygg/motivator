@@ -24,10 +24,10 @@ const DataTableContainer = () => {
             ) as Statistics[]
             // Filter the statistics for each pool
             const statsPoolETH = statistics.filter(
-                (stat) => stat.poolType === 'ETH'
+                (stat) => stat.poolType === 'stETH'
             ) as Statistics[]
             const statsPoolDAI = statistics.filter(
-                (stat) => stat.poolType === 'DAI'
+                (stat) => stat.poolType === '4626'
             ) as Statistics[]
             res.push({
                 id: {

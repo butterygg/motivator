@@ -30,6 +30,7 @@ import { Tag } from './Tag'
 import { OffChainActions } from '../../types/enum/status'
 import { Card } from '../ui/card'
 import { transformNumberK } from '../../utils/utils'
+import Link from 'next/link'
 type Props = {
     user: User
 }
@@ -133,7 +134,7 @@ export function DialogUserData({ user }: Props) {
 
     const prepareVolumeTradingData = (pooltype: string) => {
         if (!user || !user.stat.stats) return
-        if (pooltype === 'ETH') {
+        if (pooltype === 'stETH') {
             const result: DataSetChartTrading[] =
                 user.stat.stats.statsPoolETH.map((element) => {
                     return {
@@ -170,7 +171,7 @@ export function DialogUserData({ user }: Props) {
     const prepareVolumeLPData = (pooltype: string) => {
         if (!user || !user.stat.stats) return
 
-        if (pooltype === 'ETH') {
+        if (pooltype === 'stETH') {
             const result: DataSetChartVolumeLP[] =
                 user.stat.stats.statsPoolETH.map((element) => {
                     return {
@@ -207,14 +208,24 @@ export function DialogUserData({ user }: Props) {
                 </Tooltip>
             </TooltipProvider>
             {/* <DialogContent className="sm:max-w-[625px] sm:w-fit overflow-auto"> */}
-            <DialogContentCustom className="w-full overflow-auto">
-                <DialogHeader>
-                    <DialogTitle>
+            <DialogContentCustom className="w-fit w-max-full overflow-auto">
+                <DialogHeader className="p-4">
+                    <DialogTitle className=" flex justify-between items-center">
                         <AddrAvatar addressName={user.addressName} />
+                        <Button>
+                            <a
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                href={`https://hyperdrive.blockanalitica.com/wallets/${user.addressName}`}
+                            >
+                                {' '}
+                                Analytics
+                            </a>
+                        </Button>
                     </DialogTitle>
                     <DialogDescription>Hyperdrive Data</DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center lg:flex-row justify-between gap-4 py-2">
+                <div className="flex flex-col items-center lg:flex-row justify-between gap-4 p-4">
                     <div>
                         <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                             Statistics
@@ -265,60 +276,75 @@ export function DialogUserData({ user }: Props) {
                     <Card className="items-center gap-2">{buildTags()}</Card>
                 </div>
                 <>
-                    <div className="p-5 w-full">
-                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Volume - ETH Pool
-                        </Label>
-                        <div className="grid gap-2 lg:grid-flow-col p-2">
-                            {/* <PNLChart
+                    {(VolumeTradingDataPoolEth.length > 0 ||
+                        LP_VolumeTradingDataPoolEth.length > 0) ?? (
+                        <div className="p-5 w-full">
+                            <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                                Volume - ETH Pool
+                            </Label>
+                            <div className="grid gap-2 lg:grid-flow-col p-2">
+                                {/* <PNLChart
                                 title={'PNL'}
                                 value={'25000'}
                                 dataset={PNLTradingData ? PNLTradingData : []}
                             /> */}
-                            <VolumeChart
-                                title={'Trading'}
-                                dataset={
-                                    VolumeTradingDataPoolEth
-                                        ? VolumeTradingDataPoolEth
-                                        : []
-                                }
-                            />
-                            <LP_VolumeChart
-                                title={'Liquidity Providing'}
-                                dataset={
-                                    LP_VolumeTradingDataPoolEth
-                                        ? LP_VolumeTradingDataPoolEth
-                                        : []
-                                }
-                            />
 
-                            {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                                {VolumeTradingDataPoolEth.length > 0 ?? (
+                                    <VolumeChart
+                                        title={'Trading'}
+                                        dataset={
+                                            VolumeTradingDataPoolEth
+                                                ? VolumeTradingDataPoolEth
+                                                : []
+                                        }
+                                    />
+                                )}
+                                {LP_VolumeTradingDataPoolEth.length > 0 ?? (
+                                    <LP_VolumeChart
+                                        title={'Liquidity Providing'}
+                                        dataset={
+                                            LP_VolumeTradingDataPoolEth
+                                                ? LP_VolumeTradingDataPoolEth
+                                                : []
+                                        }
+                                    />
+                                )}
+
+                                {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                            </div>
                         </div>
-                    </div>
-                    <div className="p-5 mt-3 w-full">
-                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Volume - Dai Pool
-                        </Label>
-                        <div className="grid gap-2 lg:grid-flow-col p-2">
-                            <VolumeChart
-                                title={'Trading'}
-                                dataset={
-                                    VolumeTradingDataPoolDai
-                                        ? VolumeTradingDataPoolDai
-                                        : []
-                                }
-                            />
-                            <LP_VolumeChart
-                                title={'Liquidity Providing'}
-                                dataset={
-                                    LP_VolumeTradingDataPoolDai
-                                        ? LP_VolumeTradingDataPoolDai
-                                        : []
-                                }
-                            />
-                            {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                    )}
+                    {(VolumeTradingDataPoolDai.length > 0 ||
+                        LP_VolumeTradingDataPoolDai.length > 0) ?? (
+                        <div className="p-5 mt-3 w-full">
+                            <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                                Volume - Dai Pool
+                            </Label>
+                            <div className="grid gap-2 lg:grid-flow-col p-2">
+                                {VolumeTradingDataPoolDai.length > 0 ?? (
+                                    <VolumeChart
+                                        title={'Trading'}
+                                        dataset={
+                                            VolumeTradingDataPoolDai
+                                                ? VolumeTradingDataPoolDai
+                                                : []
+                                        }
+                                    />
+                                )}
+                                {LP_VolumeTradingDataPoolDai.length > 0 ?? (
+                                    <LP_VolumeChart
+                                        title={'Liquidity Providing'}
+                                        dataset={
+                                            LP_VolumeTradingDataPoolDai
+                                                ? LP_VolumeTradingDataPoolDai
+                                                : []
+                                        }
+                                    />
+                                )}
+                                {/* <PNLChart title={'Volume'} value={'25000'} /> */}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </>
             </DialogContentCustom>
         </Dialog>
