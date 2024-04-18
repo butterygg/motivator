@@ -144,7 +144,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setVolumeTradingDataPoolEth(result)
-            console.log(result, 'result')
         } else {
             const result: DataSetChartTrading[] =
                 user.stat.stats.statsPoolDAI.map((element) => {
@@ -155,7 +154,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setVolumeTradingDataPoolDai(result)
-            console.log(result, 'result')
         }
     }
 
@@ -182,7 +180,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setLP_VolumeTradingDataPoolEth(result)
-            console.log(result, 'result')
         } else {
             const result: DataSetChartVolumeLP[] =
                 user.stat.stats.statsPoolDAI.map((element) => {
@@ -192,7 +189,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setLP_VolumeTradingDataPoolDai(result)
-            console.log(result, 'result')
         }
     }
     return (
