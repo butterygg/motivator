@@ -81,10 +81,10 @@ export function DialogUserData({ user }: Props) {
     useEffect(() => {
         if (user.stat.stats) {
             // preparePNLTradingData()
-            prepareVolumeTradingData('ETH')
+            prepareVolumeTradingData('stETH')
             prepareVolumeTradingData('DAI')
             // preparePNLLPData()
-            prepareVolumeLPData('ETH')
+            prepareVolumeLPData('stETH')
             prepareVolumeLPData('DAI')
         }
     }, [user.stat.stats])
@@ -144,6 +144,7 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setVolumeTradingDataPoolEth(result)
+            console.log(result, 'result')
         } else {
             const result: DataSetChartTrading[] =
                 user.stat.stats.statsPoolDAI.map((element) => {
@@ -154,6 +155,7 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setVolumeTradingDataPoolDai(result)
+            console.log(result, 'result')
         }
     }
 
@@ -180,6 +182,7 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setLP_VolumeTradingDataPoolEth(result)
+            console.log(result, 'result')
         } else {
             const result: DataSetChartVolumeLP[] =
                 user.stat.stats.statsPoolDAI.map((element) => {
@@ -189,6 +192,7 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setLP_VolumeTradingDataPoolDai(result)
+            console.log(result, 'result')
         }
     }
     return (
@@ -208,7 +212,7 @@ export function DialogUserData({ user }: Props) {
                 </Tooltip>
             </TooltipProvider>
             {/* <DialogContent className="sm:max-w-[625px] sm:w-fit overflow-auto"> */}
-            <DialogContentCustom className="w-fit w-max-full overflow-auto">
+            <DialogContentCustom className="w-max-full overflow-auto">
                 <DialogHeader className="p-4">
                     <DialogTitle className=" flex justify-between items-center">
                         <AddrAvatar addressName={user.addressName} />
@@ -277,7 +281,7 @@ export function DialogUserData({ user }: Props) {
                 </div>
                 <>
                     {(VolumeTradingDataPoolEth.length > 0 ||
-                        LP_VolumeTradingDataPoolEth.length > 0) ?? (
+                        LP_VolumeTradingDataPoolEth.length > 0) && (
                         <div className="p-5 w-full">
                             <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                                 Volume - ETH Pool
@@ -289,7 +293,7 @@ export function DialogUserData({ user }: Props) {
                                 dataset={PNLTradingData ? PNLTradingData : []}
                             /> */}
 
-                                {VolumeTradingDataPoolEth.length > 0 ?? (
+                                {VolumeTradingDataPoolEth.length > 0 && (
                                     <VolumeChart
                                         title={'Trading'}
                                         dataset={
@@ -299,7 +303,7 @@ export function DialogUserData({ user }: Props) {
                                         }
                                     />
                                 )}
-                                {LP_VolumeTradingDataPoolEth.length > 0 ?? (
+                                {LP_VolumeTradingDataPoolEth.length > 0 && (
                                     <LP_VolumeChart
                                         title={'Liquidity Providing'}
                                         dataset={
@@ -315,13 +319,13 @@ export function DialogUserData({ user }: Props) {
                         </div>
                     )}
                     {(VolumeTradingDataPoolDai.length > 0 ||
-                        LP_VolumeTradingDataPoolDai.length > 0) ?? (
+                        LP_VolumeTradingDataPoolDai.length > 0) && (
                         <div className="p-5 mt-3 w-full">
                             <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                                 Volume - Dai Pool
                             </Label>
                             <div className="grid gap-2 lg:grid-flow-col p-2">
-                                {VolumeTradingDataPoolDai.length > 0 ?? (
+                                {VolumeTradingDataPoolDai.length > 0 && (
                                     <VolumeChart
                                         title={'Trading'}
                                         dataset={
@@ -331,7 +335,7 @@ export function DialogUserData({ user }: Props) {
                                         }
                                     />
                                 )}
-                                {LP_VolumeTradingDataPoolDai.length > 0 ?? (
+                                {LP_VolumeTradingDataPoolDai.length > 0 && (
                                     <LP_VolumeChart
                                         title={'Liquidity Providing'}
                                         dataset={

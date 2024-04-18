@@ -3,7 +3,12 @@ import { AreaChart } from '@tremor/react'
 import { DataSetChartTrading } from '@/components/assessor/DialogUserData'
 
 const valueFormatter = function (number: number) {
-    return '$ ' + new Intl.NumberFormat('us').format(number).toString()
+    return (
+        '$ ' +
+        new Intl.NumberFormat('us', { maximumSignificantDigits: 2 })
+            .format(number)
+            .toString()
+    )
 }
 
 export type Props = {

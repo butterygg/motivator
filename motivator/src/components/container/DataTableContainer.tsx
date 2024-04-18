@@ -9,6 +9,7 @@ import { RoundSpinner } from '../ui/spinner'
 import { useRouter } from 'next/navigation'
 const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+        console.log(assessorSlot, 'assessorSlot')
         const res: UserDatatable[] = []
         assessorSlot?.users.forEach((element, index) => {
             const reward = assessorSlot.rewards.find(
@@ -29,6 +30,7 @@ const DataTableContainer = () => {
             const statsPoolDAI = statistics.filter(
                 (stat) => stat.poolType === '4626'
             ) as Statistics[]
+            console.log(statsPoolETH, statsPoolDAI, 'pools')
             res.push({
                 id: {
                     id: index.toString(),
