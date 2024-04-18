@@ -305,7 +305,7 @@ export function DialogUserData({ user }: Props) {
                                 )}
                                 {LP_VolumeTradingDataPoolEth.length > 0 && (
                                     <LP_VolumeChart
-                                        title={'Liquidity Providing'}
+                                        title={'Liquidity Provision'}
                                         dataset={
                                             LP_VolumeTradingDataPoolEth
                                                 ? LP_VolumeTradingDataPoolEth
@@ -337,7 +337,7 @@ export function DialogUserData({ user }: Props) {
                                 )}
                                 {LP_VolumeTradingDataPoolDai.length > 0 && (
                                     <LP_VolumeChart
-                                        title={'Liquidity Providing'}
+                                        title={'Liquidity Provision'}
                                         dataset={
                                             LP_VolumeTradingDataPoolDai
                                                 ? LP_VolumeTradingDataPoolDai

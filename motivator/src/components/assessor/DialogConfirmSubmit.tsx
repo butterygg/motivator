@@ -47,7 +47,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     }
 
     async function handleSubmit() {
-        toast('Submitting assessment')
+        toast('Submitting')
         setIsSubmited(true)
         setTimeout(async () => {
             await mutateAsync()
@@ -77,8 +77,8 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                         </DialogTrigger>
                         <TooltipContent>
                             <p>
-                                Submit your rewards when you finished your
-                                assessment
+                                Press Submit when you’ve finished allocating
+                                your points.
                             </p>
                         </TooltipContent>
                     </Tooltip>
@@ -104,7 +104,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                                 </DialogTitle>
                                 <DialogDescription>
                                     Once you press confirm you won’t be able to
-                                    change your allocation and your points will
+                                    change your allocation, and your points will
                                     be distributed. Feel free to double check,
                                     we’ll wait.
                                 </DialogDescription>
