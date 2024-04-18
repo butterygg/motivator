@@ -1,6 +1,7 @@
+'use server'
 import { and, eq, ne } from 'drizzle-orm'
-import { db } from '@/app/db/dbRouter'
-import { reward } from '@/app/db/schema'
+import { db } from '@db/dbRouter'
+import { reward } from '@db/schema'
 
 export const getRewardedUsers = async (assessorSlotId: string) => {
     const rewardedUsers = await db
@@ -8,7 +9,7 @@ export const getRewardedUsers = async (assessorSlotId: string) => {
         .from(reward)
         .where(
             and(
-                eq(reward.assessor_slot_ID, assessorSlotId),
+                eq(reward.assessor_slot_id, assessorSlotId),
                 ne(reward.amount, 0)
             )
         )

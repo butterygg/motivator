@@ -1,0 +1,25 @@
+name: "Lint"
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./motivator
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install
+      run: yarn install --frozen-lockfile --dev
+    - name: Lint
+      run: yarn lint
+    - name: Format check
+      run: yarn format:check
+    - name: Typescript check
+      run: npx tsc

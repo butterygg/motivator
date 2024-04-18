@@ -1,11 +1,17 @@
 import { Status } from '@/types/enum/status'
-import { Reward, Stat } from './assessorSlot'
+import { Reward, Statistics, Totals } from './assessorSlot'
 
 export type User = {
     id: string
     addressName: string
     pnl: number
     reward?: Reward
-    stat: Stat
     status?: Status
+    stat: {
+        totals: Totals
+        stats: {
+            statsPoolETH: Statistics[]
+            statsPoolDAI: Statistics[]
+        }
+    }
 }

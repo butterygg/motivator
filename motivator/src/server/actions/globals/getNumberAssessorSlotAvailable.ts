@@ -1,7 +1,7 @@
 'use server'
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
+import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
 import { NextRequest } from 'next/server'
 import { stat } from 'fs'
 import { AssessorSlot } from '@/types/data/assessorSlot'
@@ -20,7 +20,6 @@ export async function getNumberAssessorSlotAvailable() {
             isNull(assessor_slot.assessor_ID)
         ),
     })
-    console.log('assessorSlotOfAssessor', assessorSlotOfAssessor)
     if (!assessorSlotOfAssessor) {
         return {
             status: 'ok',

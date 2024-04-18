@@ -8,66 +8,62 @@ import {
     CardHeader,
 } from '../ui/card'
 import { Button } from '../ui/button'
-import { useSignAssessor } from '@/hooks/signup/useSignAssessor'
-import { useAccount } from 'wagmi'
-import { Address } from 'viem'
-import { useAssignAssessorSlot } from '@/hooks/assessorSlot/useAssignAssessorSlot'
 import { useRouter } from 'next/navigation'
 
 type Props = {
     week: number
-    slotsAvailable: number
     weekmax: number
 }
 
 const StartAssessmentSlot = (props: Props) => {
-    const [assessorId, setAssessorId] = useState('')
-    const { address } = useAccount()
     const { push } = useRouter()
-    console.log(address, 'address')
-    const { mutateAsync: mutateSignAssessor } = useSignAssessor({
-        assessorAddr: address as Address,
-    })
-
-    const { data, mutateAsync: mutateAssignAssessorSlot } =
-        useAssignAssessorSlot({
-            assessorAddr: address as Address,
-        })
 
     const handleStartAssessmentSlot = async () => {
-        await mutateSignAssessor()
-        const { res } = await mutateAssignAssessorSlot()
-        push(`/assessor/slot/${res?.id}`)
+        // await mutateSignAssessor()
+        // const { res } = await mutateAssignAssessorSlot()
+        push(`/payment`)
+        // push(`/assessor/slot/${res?.id}`)
         // setAssessorId(res?.id as string)
     }
 
     return (
         <Card className="w-96 items-center p-4 rounded-lg mx-auto">
             <CardHeader className="font-bold p-4  flex flex-wrap">
-                <h2 className="text-xl">Start an assessment slot</h2>
-                <p className="text-md font-semibold">
-                    {' '}
-                    on week - {props.week} / {props.weekmax}
-                </p>
+                <div>
+                    <h2 className="text-xl">Purchase a Motivator Slot</h2>
+                    <h2 className="font-semibold">
+                        Week {props.week}/{props.weekmax}
+                    </h2>
+                </div>
+                <br />
+                <p className="text-md font-semibold"> The Rules</p>
             </CardHeader>
             <CardContent className="p-4">
-                Allocate rewards to testnet players and get rewarded for
-                that!Remember: you can get audited by the council and your
-                rewards will be either doubled if deemed aligned with
-                Hyperdrive, or slashed if misaligned.
+                <ol
+                    className="gap-3 flex flex-col"
+                    style={{ listStyleType: 'decimal' }}
+                >
+                    <li>Each slot contains a random selection of players</li>
+                    <li>
+                        Allocate the points you’ve been assigned based on player
+                        participation and performance
+                    </li>
+                    <li>
+                        Identify top performers and participants with innovative
+                        strategies and avoid rewarding fraudulent behavior to
+                        receive extra points
+                    </li>
+                </ol>
             </CardContent>
             <CardDescription className="p-4">
-                There are {props.slotsAvailable} slots still available. The more
-                assessments you do, the more rewards you accumulate.
+                The more slots you complete, the more points you earn.
             </CardDescription>
             <CardFooter className="p-4">
                 <Button
                     className="m-auto"
                     onClick={() => handleStartAssessmentSlot()}
                 >
-                    Start assessment slot
-                    {/* <Link href={`/assessor/slot/` + assessorId}>
-                    </Link> */}
+                    Purchase Motivator slot
                 </Button>
             </CardFooter>
         </Card>

@@ -15,15 +15,13 @@ const useAssignAssessorSlot = ({ assessorAddr }: Props) => {
     const { data, mutateAsync, status, error } = useMutation({
         mutationKey: ['assignAssessor'],
         mutationFn: async () => {
-            return assignAssessorSlot({
+            return await assignAssessorSlot({
                 assessorAddr: assessorAddr as string,
             })
         },
         // enabled: false,
         retry: 1,
     })
-    console.log(data, 'data')
-    console.log(error, 'error')
     return { data, mutateAsync, error, status }
 }
 

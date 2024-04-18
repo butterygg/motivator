@@ -1,3 +1,4 @@
+'use server'
 // Send Rewards to specifics users based on their actions
 
 import { NextRequest } from 'next/server'
@@ -22,47 +23,26 @@ export async function addReward({
 }) {
     const isRewardAlreadyAssigned = await db.query.reward.findFirst({
         where: and(
-            eq(reward.assessor_slot_ID, assessorSlot),
+            eq(reward.assessor_slot_id, assessorSlot),
             eq(reward.user_address, userAddr)
         ),
     })
 
     if (isRewardAlreadyAssigned) {
-        const rewardSent = await db
+        return await db
             .update(reward)
             .set({
-                amount: value,
+                amount: value ? value : 0,
                 user_address: userAddr,
                 date: new Date().toISOString(),
             })
             .where(eq(reward.id, isRewardAlreadyAssigned.id))
-        console.log('rewardSent', rewardSent)
-        if (rewardSent) {
-            toast.success(`Update: Reward of ${value} sent to ${userAddr}`)
-            return {
-                status: 'ok',
-                message: `Reward of ${value} sent to ${userAddr}`,
-            }
-        }
     }
 
-    const rewardSent = await db.insert(reward).values({
+    return await db.insert(reward).values({
         amount: value,
         user_address: userAddr,
         date: new Date().toISOString(),
-        assessor_slot_ID: assessorSlot,
+        assessor_slot_id: assessorSlot,
     })
-
-    if (rewardSent) {
-        toast.success(`New: Reward of ${value} sent to ${userAddr}`)
-        return {
-            status: 'ok',
-            message: `Reward of ${value} sent to ${userAddr}`,
-        }
-    } else {
-        return {
-            status: 'ko',
-            message: 'Error while sending the reward',
-        }
-    }
 }

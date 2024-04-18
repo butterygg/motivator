@@ -1,10 +1,11 @@
 'use server'
-import { and, eq, inArray, isNull, ne } from 'drizzle-orm'
+import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user, reward, stats } from '@db/schema'
-import { NextRequest } from 'next/server'
-import { stat } from 'fs'
-import { AssessorSlot } from '@/types/data/assessorSlot'
+import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
+import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
+import { getTotalsVolPnlActions } from '../statistics/getTotalsVolPnlActions'
+import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
+import { getTotalsForUser } from '../globals/getTotalsForUser'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -13,7 +14,6 @@ import { AssessorSlot } from '@/types/data/assessorSlot'
  */
 export async function getAssessorSlot(address: string) {
     const assessorAddr = address
-    console.log('assessorAddr', assessorAddr)
     // grab an assessor slot that is not done and has the assessor assigned
     const assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
         where: and(
@@ -21,7 +21,6 @@ export async function getAssessorSlot(address: string) {
             eq(assessor_slot.assessor_ID, assessorAddr as string)
         ),
     })
-    console.log('assessorSlotOfAssessor', assessorSlotOfAssessor)
     if (!assessorSlotOfAssessor) {
         return {
             status: 'ko',
@@ -33,7 +32,7 @@ export async function getAssessorSlot(address: string) {
         await db.query.assessor_slot_user.findMany({
             columns: { user_address: true },
             where: eq(
-                assessor_slot_user.assessor_slot_ID,
+                assessor_slot_user.assessor_slot_id,
                 assessorSlotOfAssessor.id
             ),
         })
@@ -52,24 +51,30 @@ export async function getAssessorSlot(address: string) {
         .from(reward)
         .where(
             and(
-                eq(reward.assessor_slot_ID, assessorSlotOfAssessor.id),
+                eq(reward.assessor_slot_id, assessorSlotOfAssessor.id),
                 ne(reward.amount, 0)
             )
         )
         .execute()
-
-    // Get the stats for the users present in array usersOfAssessorSlot
-    const getStatsUsers = await db
-        .select()
-        .from(stats)
-        .where(inArray(stats.user_address, usersOfAssessorSlot))
-
-    if (!getStatsUsers) {
-        return {
-            status: 'ko',
-            message: 'No stats for the users',
-        }
+    const totalsForUsersPromised = async () => {
+        const res = usersOfAssessorSlot.map((userAddr) => {
+            return getTotalsForUser({ userAddr })
+        })
+        return await Promise.all(res)
     }
+    const userTotals = await totalsForUsersPromised()
+
+    const statisticsPromised = async () => {
+        const res = usersOfAssessorSlot.map(async (userAddr) => {
+            return (await getPNLAndVolume({ userAddr })).stats
+        })
+        if (!res) {
+            return []
+        }
+        return await Promise.all(res)
+    }
+    const statistics = await statisticsPromised()
+
     //build the response
     const assessorSlot: AssessorSlot = {
         id: assessorSlotOfAssessor.id,
@@ -78,9 +83,15 @@ export async function getAssessorSlot(address: string) {
         week: assessorSlotOfAssessor.week as number,
         users: usersOfAssessorSlot,
         rewards: getRewardsUsers,
-        stats: getStatsUsers,
+        totals: userTotals as Totals[],
+        statistics: statistics.flat() as Statistics[],
     }
-
+    if (!assessorSlot) {
+        return {
+            status: 'ko',
+            message: 'No assessor slot available',
+        }
+    }
     return {
         status: 'ok',
         message: 'Assessor slot available',

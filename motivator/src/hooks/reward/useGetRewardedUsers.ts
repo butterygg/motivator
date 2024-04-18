@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getRewardedUsers } from '@/server/actions/reward/getRewardedUsers'
 import { Answer } from '@/types/data/answer'
 type Props = {
-    assessorAddr: string
+    assessorSlotId: string
 }
 
 /**
@@ -11,17 +11,15 @@ type Props = {
  *
  *
  */
-const useGetRewardedUsers = ({ assessorAddr }: Props) => {
+const useGetRewardedUsers = ({ assessorSlotId }: Props) => {
     const { data, refetch, status, error } = useQuery({
         queryKey: ['getRewardUsers'],
         queryFn: async () => {
-            return getRewardedUsers(assessorAddr)
+            return getRewardedUsers(assessorSlotId)
         },
         // enabled: false,
         retry: 1,
     })
-    console.log(data, 'data')
-    console.log(error, 'error')
     return { data, refetch, error, status }
 }
 

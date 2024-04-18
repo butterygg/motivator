@@ -1,3 +1,4 @@
+'use server'
 import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor, assessor_slot, assessor_slot_user } from '@db/schema'

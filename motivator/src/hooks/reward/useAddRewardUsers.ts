@@ -25,8 +25,6 @@ const useAddRewardUsers = ({ assessorSlot, userAddr, value }: Props) => {
         // enabled: false,
         retry: 1,
     })
-    console.log(data, 'data')
-    console.log(error, 'error')
     return { data, mutate, error, status, mutateAsync }
 }
 

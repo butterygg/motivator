@@ -6,10 +6,15 @@ type Props = {}
 
 const ConnectWalletCard = (props: Props) => {
     return (
-        <Card className="items-center p-4 rounded-lg mx-auto">
-            <CardHeader>Welcome to Motivator</CardHeader>
-            <CardContent>Sign in to participate as an Assessor</CardContent>
-            <div className="flex m-auto">
+        <Card className="flex flex-col items-center p-4 rounded-lg mx-auto">
+            <CardHeader className="font-bold text-2xl">
+                Welcome to Motivator
+            </CardHeader>
+            <CardContent>
+                Connect the wallet you’re using on the testnet to start
+                Motivating
+            </CardContent>
+            <div className="flex justify-center ">
                 <ConnectButton />
             </div>
         </Card>
