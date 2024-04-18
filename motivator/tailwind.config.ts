@@ -29,7 +29,8 @@ export const theme = {
                     subtle: colors.blue[400],
                     DEFAULT: colors.blue[500],
                     emphasis: colors.blue[700],
-                    inverted: colors.white,
+                    inverted: colors.red[600],
+                    text: colors.blue[900],
                 },
                 background: {
                     muted: colors.gray[50],
@@ -54,7 +55,7 @@ export const theme = {
             // dark mode
             'dark-tremor': {
                 brand: {
-                    faint: '#0B1229',
+                    faint: colors.white,
                     muted: colors.blue[950],
                     subtle: colors.blue[800],
                     DEFAULT: colors.blue[500],
@@ -62,7 +63,7 @@ export const theme = {
                     inverted: colors.blue[950],
                 },
                 background: {
-                    muted: '#131A2B',
+                    muted: colors.white,
                     subtle: colors.gray[800],
                     DEFAULT: colors.gray[900],
                     emphasis: colors.gray[300],

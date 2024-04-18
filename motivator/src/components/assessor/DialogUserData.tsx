@@ -144,7 +144,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setVolumeTradingDataPoolEth(result)
-            console.log(result, 'result')
         } else {
             const result: DataSetChartTrading[] =
                 user.stat.stats.statsPoolDAI.map((element) => {
@@ -155,7 +154,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setVolumeTradingDataPoolDai(result)
-            console.log(result, 'result')
         }
     }
 
@@ -182,7 +180,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setLP_VolumeTradingDataPoolEth(result)
-            console.log(result, 'result')
         } else {
             const result: DataSetChartVolumeLP[] =
                 user.stat.stats.statsPoolDAI.map((element) => {
@@ -192,7 +189,6 @@ export function DialogUserData({ user }: Props) {
                     }
                 })
             setLP_VolumeTradingDataPoolDai(result)
-            console.log(result, 'result')
         }
     }
     return (
@@ -252,11 +248,11 @@ export function DialogUserData({ user }: Props) {
                             <DataCard
                                 title="Volume Pool ETH"
                                 value={
-                                    user.stat.totals.totalVolumePoolETH
+                                    user.stat.totals.totalVolumePoolEth
                                         ? transformNumberK(
                                               Number(
                                                   user.stat.totals
-                                                      .totalVolumePoolETH
+                                                      .totalVolumePoolEth
                                               )
                                           )
                                         : 0
@@ -305,7 +301,7 @@ export function DialogUserData({ user }: Props) {
                                 )}
                                 {LP_VolumeTradingDataPoolEth.length > 0 && (
                                     <LP_VolumeChart
-                                        title={'Liquidity Providing'}
+                                        title={'Liquidity Provision'}
                                         dataset={
                                             LP_VolumeTradingDataPoolEth
                                                 ? LP_VolumeTradingDataPoolEth
@@ -337,7 +333,7 @@ export function DialogUserData({ user }: Props) {
                                 )}
                                 {LP_VolumeTradingDataPoolDai.length > 0 && (
                                     <LP_VolumeChart
-                                        title={'Liquidity Providing'}
+                                        title={'Liquidity Provision'}
                                         dataset={
                                             LP_VolumeTradingDataPoolDai
                                                 ? LP_VolumeTradingDataPoolDai

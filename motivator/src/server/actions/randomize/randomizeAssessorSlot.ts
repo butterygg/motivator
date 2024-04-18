@@ -49,8 +49,11 @@ export async function randomizeAssessorSlot({
                     (element?.totalActions
                         ? element?.totalActions
                         : 0 * ratioActions) +
-                    (element?.totalVolume
-                        ? element.totalVolume
+                    (element?.totalVolumePoolDai
+                        ? element.totalVolumePoolDai
+                        : 0 * ratioVolume) +
+                    (element?.totalVolumePoolEth
+                        ? element.totalVolumePoolEth
                         : 0 * ratioVolume),
                 address: element.user_address as Address,
             })

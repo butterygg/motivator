@@ -79,8 +79,9 @@ export const totals = pgTable('totals', {
     user_address: text('user_address').references(() => user.address),
     week: integer('week').default(1),
     totalActions: doublePrecision('total_actions'),
-    totalVolume: doublePrecision('total_volume'),
-    totalPnl: doublePrecision('total_pnl'),
+    totalVolumePoolEth: doublePrecision('total_volume_pool_Eth'),
+    totalVolumePoolDai: doublePrecision('total_volume_pool_Dai'),
+    // totalPnl: doublePrecision('total_pnl'),
 })
 
 export const offChainActions = pgTable('off_chain_actions', {

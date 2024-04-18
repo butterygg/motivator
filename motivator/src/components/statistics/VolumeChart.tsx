@@ -10,6 +10,7 @@ export function VolumeChart({ title, dataset }: Props) {
     const valueFormatter = function (number: number) {
         return transformNumberK(Number(number.toFixed(2))).toString()
     }
+    console.log('dataset', dataset)
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
