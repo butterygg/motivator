@@ -9654,6 +9654,146 @@
             "base_amount": "2000000000000000000000"
         },
         {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T16:21:36.000Z",
+            "block_number": "5718972",
+            "address": "0xf9e4e4f706dbf642cc68bc7afaa75d63e493e590",
+            "base_amount": "5000000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T18:01:12.000Z",
+            "block_number": "5719439",
+            "address": "0xf625f123356271baef26fd08015897eaf8968ba5",
+            "base_amount": "400000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T20:03:24.000Z",
+            "block_number": "5720014",
+            "address": "0xb76d6ff42c6c264a7a91985700258876b47bd254",
+            "base_amount": "66000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T20:36:12.000Z",
+            "block_number": "5720168",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1523751572390250807296"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T21:13:12.000Z",
+            "block_number": "5720334",
+            "address": "0x459e41e8f1c1adc08162c4806dd3037b1963d884",
+            "base_amount": "200000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T21:15:48.000Z",
+            "block_number": "5720346",
+            "address": "0xb72c003b28b1fe5d7d355118b8bfc60ac71188c4",
+            "base_amount": "6017316859841836776000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T07:16:12.000Z",
+            "block_number": "5723134",
+            "address": "0x7a911f6a284f70ec3910b4e7487e13fa011d5330",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T08:29:36.000Z",
+            "block_number": "5723482",
+            "address": "0xc94903ad65733314041a647f48e570677b7f2579",
+            "base_amount": "2006106605057614116000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T12:52:24.000Z",
+            "block_number": "5724776",
+            "address": "0x84a431eb5758ce2601c441c46a5e7fdeeabe030c",
+            "base_amount": "1504677781983398331000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T13:47:36.000Z",
+            "block_number": "5725047",
+            "address": "0x401282e8e3717f661b5c17db1e5a726ef6e9f002",
+            "base_amount": "100313222113477035100"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:05:24.000Z",
+            "block_number": "5725135",
+            "address": "0x14726d8d2776e47ad2bcdf7b4bb7b1c1e92b0b6b",
+            "base_amount": "100313663818405919000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:19:12.000Z",
+            "block_number": "5725204",
+            "address": "0x265eaf68c5029cf4002b7898327cadce573144ff",
+            "base_amount": "200000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:24:24.000Z",
+            "block_number": "5725230",
+            "address": "0x112302c3651093de1f9e767f75604a405e288d3f",
+            "base_amount": "100314135475751445500"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:24:24.000Z",
+            "block_number": "5725230",
+            "address": "0x9596df3ce3c64bbfa99bea047a60ec00e6363a39",
+            "base_amount": "2999000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:46:00.000Z",
+            "block_number": "5725336",
+            "address": "0x8b3164a816e18327cf87057e84ff9b464c136087",
+            "base_amount": "100314671601214350900"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T15:25:24.000Z",
+            "block_number": "5725524",
+            "address": "0x37df61751a52c1e20ff485dc12dce98775308c36",
+            "base_amount": "4777000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T15:29:12.000Z",
+            "block_number": "5725542",
+            "address": "0xf52f853969865cdbe1483d316ca1f2e1cc7506f0",
+            "base_amount": "50000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T15:36:00.000Z",
+            "block_number": "5725575",
+            "address": "0xd4dacc44d4dd84b94ef182ff9118e1b57b67f247",
+            "base_amount": "100315912491191428300"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T16:47:24.000Z",
+            "block_number": "5725913",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T16:50:24.000Z",
+            "block_number": "5725927",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "501588795616783199000"
+        },
+        {
             "_type": "CloseLong",
             "block_timestamp": "2024-04-10T14:41:48.000Z",
             "block_number": "5668671",
@@ -11227,6 +11367,27 @@
             "block_number": "5717142",
             "address": "0xc18a008010ed352bd1c2ef1ac1c1981690e1d907",
             "base_amount": "49341266844537787143"
+        },
+        {
+            "_type": "CloseLong",
+            "block_timestamp": "2024-04-17T20:32:00.000Z",
+            "block_number": "5720147",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1963888612867891205876"
+        },
+        {
+            "_type": "CloseLong",
+            "block_timestamp": "2024-04-18T07:56:12.000Z",
+            "block_number": "5723321",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "1002911869843459433696"
+        },
+        {
+            "_type": "CloseLong",
+            "block_timestamp": "2024-04-18T07:58:48.000Z",
+            "block_number": "5723333",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "1003438981462430055346"
         },
         {
             "_type": "OpenShort",
@@ -18803,6 +18964,181 @@
             "base_amount": "13371492261463811498"
         },
         {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T16:23:12.000Z",
+            "block_number": "5718979",
+            "address": "0xf9e4e4f706dbf642cc68bc7afaa75d63e493e590",
+            "base_amount": "13369869057360437176"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T18:02:00.000Z",
+            "block_number": "5719443",
+            "address": "0xf625f123356271baef26fd08015897eaf8968ba5",
+            "base_amount": "4018526379818903859"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T18:13:00.000Z",
+            "block_number": "5719493",
+            "address": "0xd10eb292c4cb3bffc060a22c0e25d661a686a4ad",
+            "base_amount": "53617413730643277490"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T19:36:36.000Z",
+            "block_number": "5719893",
+            "address": "0x8f4881246e630a64f5c5e875e42c0c74bfa65bda",
+            "base_amount": "20150316919583310746"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T19:59:00.000Z",
+            "block_number": "5719993",
+            "address": "0x88c2a1907663b529f4469b49b6ea8860e345dac7",
+            "base_amount": "31528535249957536328"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T20:12:24.000Z",
+            "block_number": "5720057",
+            "address": "0x48dca1d5617b2070d578553985c5c3da50c48778",
+            "base_amount": "2690414374884398847"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T20:35:00.000Z",
+            "block_number": "5720162",
+            "address": "0xa83235fd4e8891c5bca67e26a4d8e67fa6d702be",
+            "base_amount": "67345281764836184936"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T21:11:48.000Z",
+            "block_number": "5720327",
+            "address": "0x005bb73fddb8ce049ee366b50d2f48763e9dc0de",
+            "base_amount": "436465747825031778819"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T07:17:12.000Z",
+            "block_number": "5723139",
+            "address": "0x7a911f6a284f70ec3910b4e7487e13fa011d5330",
+            "base_amount": "4633069241904628960"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T10:39:12.000Z",
+            "block_number": "5724120",
+            "address": "0x14e9c618bcf0f9520896bc3d34683582e544d429",
+            "base_amount": "66635675975973050611"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T13:09:36.000Z",
+            "block_number": "5724859",
+            "address": "0x115ddb37c336f114c06165d18d46e3fea3ed4ca7",
+            "base_amount": "37440882405014077932"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T13:49:12.000Z",
+            "block_number": "5725055",
+            "address": "0x401282e8e3717f661b5c17db1e5a726ef6e9f002",
+            "base_amount": "1338577331970609631"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:02:36.000Z",
+            "block_number": "5725121",
+            "address": "0xd8d496ceb009ccda9322b5d6c1077ed9480b91a5",
+            "base_amount": "2677910745483912855"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:04:24.000Z",
+            "block_number": "5725130",
+            "address": "0xe7b710657ed160d8c31b3db2be23f19312c319a4",
+            "base_amount": "37504973325521041452"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:06:00.000Z",
+            "block_number": "5725138",
+            "address": "0x14726d8d2776e47ad2bcdf7b4bb7b1c1e92b0b6b",
+            "base_amount": "1339927913956974241"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:21:00.000Z",
+            "block_number": "5725213",
+            "address": "0x265eaf68c5029cf4002b7898327cadce573144ff",
+            "base_amount": "8042066799903854410"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:21:48.000Z",
+            "block_number": "5725217",
+            "address": "0x265eaf68c5029cf4002b7898327cadce573144ff",
+            "base_amount": "8043310696403532618"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:25:36.000Z",
+            "block_number": "5725236",
+            "address": "0x112302c3651093de1f9e767f75604a405e288d3f",
+            "base_amount": "1339775982375557685"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:46:48.000Z",
+            "block_number": "5725340",
+            "address": "0x8b3164a816e18327cf87057e84ff9b464c136087",
+            "base_amount": "1340300131484953352"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T15:05:48.000Z",
+            "block_number": "5725433",
+            "address": "0x40b9b17aca14882317ef3ead9f8b73992bcb8e3e",
+            "base_amount": "67077812458111601967"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T15:37:12.000Z",
+            "block_number": "5725581",
+            "address": "0xd4dacc44d4dd84b94ef182ff9118e1b57b67f247",
+            "base_amount": "1341581786405303238"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T16:17:24.000Z",
+            "block_number": "5725769",
+            "address": "0xadd42611e68838763e914928f71e6b9f6518c6fe",
+            "base_amount": "60447611702831748200"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T16:40:00.000Z",
+            "block_number": "5725877",
+            "address": "0xc55e7d80ec215130ebec62680d450cb49b064cc3",
+            "base_amount": "48423490226889647798"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T16:48:24.000Z",
+            "block_number": "5725918",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "13457093487030038213"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T16:51:24.000Z",
+            "block_number": "5725932",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "13459368768031319994"
+        },
+        {
             "_type": "CloseShort",
             "block_timestamp": "2024-04-10T14:41:36.000Z",
             "block_number": "5668670",
@@ -20194,6 +20530,27 @@
             "block_number": "5717166",
             "address": "0x140c3c3122228886ef55813a1b48c32d5eb3c9b6",
             "base_amount": "1960661709353892569"
+        },
+        {
+            "_type": "CloseShort",
+            "block_timestamp": "2024-04-17T20:39:48.000Z",
+            "block_number": "5720184",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "202290614630093872822"
+        },
+        {
+            "_type": "CloseShort",
+            "block_timestamp": "2024-04-18T07:57:00.000Z",
+            "block_number": "5723325",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "10826392033725572115"
+        },
+        {
+            "_type": "CloseShort",
+            "block_timestamp": "2024-04-18T07:57:24.000Z",
+            "block_number": "5723327",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "12491682949541768985"
         },
         {
             "_type": "Initialize",
@@ -27364,6 +27721,265 @@
             "base_amount": "500000000000000000000"
         },
         {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T16:24:12.000Z",
+            "block_number": "5718984",
+            "address": "0xf9e4e4f706dbf642cc68bc7afaa75d63e493e590",
+            "base_amount": "1918112297035402321936"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T18:02:48.000Z",
+            "block_number": "5719447",
+            "address": "0xf625f123356271baef26fd08015897eaf8968ba5",
+            "base_amount": "902554432387041483000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T18:12:48.000Z",
+            "block_number": "5719492",
+            "address": "0xd10eb292c4cb3bffc060a22c0e25d661a686a4ad",
+            "base_amount": "4444000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T19:37:24.000Z",
+            "block_number": "5719897",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1652875396378211123200"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T19:41:00.000Z",
+            "block_number": "5719912",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1331801033337375555584"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T19:59:48.000Z",
+            "block_number": "5719997",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1366131112410074054656"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:00:48.000Z",
+            "block_number": "5720001",
+            "address": "0x88c2a1907663b529f4469b49b6ea8860e345dac7",
+            "base_amount": "4011470145038029352000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:01:00.000Z",
+            "block_number": "5720002",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1100757402021220450304"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:04:24.000Z",
+            "block_number": "5720019",
+            "address": "0xb76d6ff42c6c264a7a91985700258876b47bd254",
+            "base_amount": "90000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:15:36.000Z",
+            "block_number": "5720072",
+            "address": "0x48dca1d5617b2070d578553985c5c3da50c48778",
+            "base_amount": "200000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:36:12.000Z",
+            "block_number": "5720168",
+            "address": "0xa83235fd4e8891c5bca67e26a4d8e67fa6d702be",
+            "base_amount": "3000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:51:12.000Z",
+            "block_number": "5720231",
+            "address": "0xd48a54d2363003fb59fd6336596129cdcc2f40ee",
+            "base_amount": "1290954155205162172416"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T21:14:48.000Z",
+            "block_number": "5720342",
+            "address": "0x459e41e8f1c1adc08162c4806dd3037b1963d884",
+            "base_amount": "200000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T21:17:24.000Z",
+            "block_number": "5720354",
+            "address": "0xb72c003b28b1fe5d7d355118b8bfc60ac71188c4",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T05:58:12.000Z",
+            "block_number": "5722777",
+            "address": "0x93617280d57564241b4ad4f4e09e02968f3f2d76",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T06:03:12.000Z",
+            "block_number": "5722800",
+            "address": "0x93617280d57564241b4ad4f4e09e02968f3f2d76",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T07:19:24.000Z",
+            "block_number": "5723149",
+            "address": "0x7a911f6a284f70ec3910b4e7487e13fa011d5330",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T08:31:00.000Z",
+            "block_number": "5723489",
+            "address": "0xc94903ad65733314041a647f48e570677b7f2579",
+            "base_amount": "14555000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T10:40:24.000Z",
+            "block_number": "5724126",
+            "address": "0x14e9c618bcf0f9520896bc3d34683582e544d429",
+            "base_amount": "300000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T12:53:24.000Z",
+            "block_number": "5724781",
+            "address": "0x84a431eb5758ce2601c441c46a5e7fdeeabe030c",
+            "base_amount": "501559384714897484500"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T13:10:36.000Z",
+            "block_number": "5724864",
+            "address": "0x115ddb37c336f114c06165d18d46e3fea3ed4ca7",
+            "base_amount": "501561519017388202000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T13:50:00.000Z",
+            "block_number": "5725059",
+            "address": "0x401282e8e3717f661b5c17db1e5a726ef6e9f002",
+            "base_amount": "100313281660123835500"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:05:00.000Z",
+            "block_number": "5725133",
+            "address": "0xd8d496ceb009ccda9322b5d6c1077ed9480b91a5",
+            "base_amount": "200000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:05:12.000Z",
+            "block_number": "5725134",
+            "address": "0xe7b710657ed160d8c31b3db2be23f19312c319a4",
+            "base_amount": "501568294280813829500"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:07:12.000Z",
+            "block_number": "5725144",
+            "address": "0x14726d8d2776e47ad2bcdf7b4bb7b1c1e92b0b6b",
+            "base_amount": "100313708478603624100"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:26:48.000Z",
+            "block_number": "5725242",
+            "address": "0x112302c3651093de1f9e767f75604a405e288d3f",
+            "base_amount": "199625248095680753674"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:27:48.000Z",
+            "block_number": "5725247",
+            "address": "0x265eaf68c5029cf4002b7898327cadce573144ff",
+            "base_amount": "850000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:27:48.000Z",
+            "block_number": "5725247",
+            "address": "0x9596df3ce3c64bbfa99bea047a60ec00e6363a39",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:47:48.000Z",
+            "block_number": "5725345",
+            "address": "0x8b3164a816e18327cf87057e84ff9b464c136087",
+            "base_amount": "100314716261838143300"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:07:48.000Z",
+            "block_number": "5725442",
+            "address": "0x40b9b17aca14882317ef3ead9f8b73992bcb8e3e",
+            "base_amount": "601891275732346632600"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:25:48.000Z",
+            "block_number": "5725526",
+            "address": "0x37df61751a52c1e20ff485dc12dce98775308c36",
+            "base_amount": "4569378286192955145315"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:30:12.000Z",
+            "block_number": "5725547",
+            "address": "0xf52f853969865cdbe1483d316ca1f2e1cc7506f0",
+            "base_amount": "50000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:38:12.000Z",
+            "block_number": "5725586",
+            "address": "0xd4dacc44d4dd84b94ef182ff9118e1b57b67f247",
+            "base_amount": "200631934154109203600"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T16:18:48.000Z",
+            "block_number": "5725775",
+            "address": "0xadd42611e68838763e914928f71e6b9f6518c6fe",
+            "base_amount": "600000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T16:41:36.000Z",
+            "block_number": "5725885",
+            "address": "0xc55e7d80ec215130ebec62680d450cb49b064cc3",
+            "base_amount": "501587703881253252000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T16:49:24.000Z",
+            "block_number": "5725923",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "1000000000000000000000"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T16:52:24.000Z",
+            "block_number": "5725937",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "1003178087478066415000"
+        },
+        {
             "_type": "RemoveLiquidity",
             "block_timestamp": "2024-04-10T00:18:24.000Z",
             "block_number": "5664528",
@@ -28944,6 +29560,27 @@
             "block_number": "5717273",
             "address": "0xc18a008010ed352bd1c2ef1ac1c1981690e1d907",
             "base_amount": "120831706917365649870"
+        },
+        {
+            "_type": "RemoveLiquidity",
+            "block_timestamp": "2024-04-18T05:54:36.000Z",
+            "block_number": "5722759",
+            "address": "0x93617280d57564241b4ad4f4e09e02968f3f2d76",
+            "base_amount": "1404739772681280523931"
+        },
+        {
+            "_type": "RemoveLiquidity",
+            "block_timestamp": "2024-04-18T05:58:36.000Z",
+            "block_number": "5722779",
+            "address": "0x93617280d57564241b4ad4f4e09e02968f3f2d76",
+            "base_amount": "1000000037086949343525"
+        },
+        {
+            "_type": "RemoveLiquidity",
+            "block_timestamp": "2024-04-18T07:57:48.000Z",
+            "block_number": "5723328",
+            "address": "0x2bd37c50625ab82b03b3887306816a94bdb97119",
+            "base_amount": "4991652119623827030501"
         }
     ],
     "stETH": [
@@ -34877,6 +35514,209 @@
             "base_amount": "98995690854911862920"
         },
         {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T16:33:48.000Z",
+            "block_number": "5719028",
+            "address": "0xf9e4e4f706dbf642cc68bc7afaa75d63e493e590",
+            "base_amount": "179998308210059588559"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T17:53:00.000Z",
+            "block_number": "5719403",
+            "address": "0xb8cf4b75f663f252d9a26d17b8d5fa8d96903776",
+            "base_amount": "49998701885167701751"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T18:07:12.000Z",
+            "block_number": "5719465",
+            "address": "0xf625f123356271baef26fd08015897eaf8968ba5",
+            "base_amount": "54992622995164160572"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T18:14:12.000Z",
+            "block_number": "5719498",
+            "address": "0xd10eb292c4cb3bffc060a22c0e25d661a686a4ad",
+            "base_amount": "54992650388566477331"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T18:41:00.000Z",
+            "block_number": "5719625",
+            "address": "0xdc51f48464b3fececa23486e743721c35bdd6cd4",
+            "base_amount": "110996296388995126380"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T19:20:12.000Z",
+            "block_number": "5719813",
+            "address": "0x08495957b2faef8e0b23ff9a7862e86db64ed513",
+            "base_amount": "499990121407474154810"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T19:42:24.000Z",
+            "block_number": "5719918",
+            "address": "0x46ec1b25a4c4fa4165080998753470a40c345b46",
+            "base_amount": "99998182256402128435"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T20:14:00.000Z",
+            "block_number": "5720064",
+            "address": "0xb76d6ff42c6c264a7a91985700258876b47bd254",
+            "base_amount": "99998407122022414786"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T20:22:24.000Z",
+            "block_number": "5720102",
+            "address": "0xfe18fe47156245570f864ff392e4e2250922a877",
+            "base_amount": "87462617501690746197"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T20:48:48.000Z",
+            "block_number": "5720220",
+            "address": "0x48dca1d5617b2070d578553985c5c3da50c48778",
+            "base_amount": "29993591704766857515"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T21:34:24.000Z",
+            "block_number": "5720436",
+            "address": "0xb90af00c9c1a0f3d1ea48da85937eb227d9b53dc",
+            "base_amount": "4250006657671773131473"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T23:29:24.000Z",
+            "block_number": "5720963",
+            "address": "0xb90af00c9c1a0f3d1ea48da85937eb227d9b53dc",
+            "base_amount": "4250001405833998238555"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-17T23:31:48.000Z",
+            "block_number": "5720975",
+            "address": "0xb90af00c9c1a0f3d1ea48da85937eb227d9b53dc",
+            "base_amount": "7249996571931244849130"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T08:46:00.000Z",
+            "block_number": "5723562",
+            "address": "0xedd41220e5bf2c3225b918b31ab647a517c3781e",
+            "base_amount": "499997981902301046036"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T12:58:00.000Z",
+            "block_number": "5724804",
+            "address": "0x84a431eb5758ce2601c441c46a5e7fdeeabe030c",
+            "base_amount": "199990618095302511110"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T13:16:24.000Z",
+            "block_number": "5724893",
+            "address": "0x115ddb37c336f114c06165d18d46e3fea3ed4ca7",
+            "base_amount": "99995434467406856398"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T13:20:12.000Z",
+            "block_number": "5724912",
+            "address": "0xaed8a1e7eeb8e351c04c771a65f84e643ad4de62",
+            "base_amount": "99995460369338326012"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T13:55:12.000Z",
+            "block_number": "5725084",
+            "address": "0x401282e8e3717f661b5c17db1e5a726ef6e9f002",
+            "base_amount": "19997138072452246313"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:12:48.000Z",
+            "block_number": "5725172",
+            "address": "0x14726d8d2776e47ad2bcdf7b4bb7b1c1e92b0b6b",
+            "base_amount": "19997162063490592394"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:16:36.000Z",
+            "block_number": "5725191",
+            "address": "0xe7b710657ed160d8c31b3db2be23f19312c319a4",
+            "base_amount": "99995844809106327789"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:17:00.000Z",
+            "block_number": "5725193",
+            "address": "0x61873a2ffe5c7d3f08eceb40be7e7a7f3f32c4fd",
+            "base_amount": "43997772571980564303"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:35:12.000Z",
+            "block_number": "5725284",
+            "address": "0x112302c3651093de1f9e767f75604a405e288d3f",
+            "base_amount": "29995788896371576920"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:46:36.000Z",
+            "block_number": "5725339",
+            "address": "0x265eaf68c5029cf4002b7898327cadce573144ff",
+            "base_amount": "77997118625503153366"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T14:53:00.000Z",
+            "block_number": "5725370",
+            "address": "0x8b3164a816e18327cf87057e84ff9b464c136087",
+            "base_amount": "99996092923616135870"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T15:13:36.000Z",
+            "block_number": "5725469",
+            "address": "0x40b9b17aca14882317ef3ead9f8b73992bcb8e3e",
+            "base_amount": "199992466680624589296"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T15:48:48.000Z",
+            "block_number": "5725635",
+            "address": "0xf52f853969865cdbe1483d316ca1f2e1cc7506f0",
+            "base_amount": "32998535921463537280"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T15:56:00.000Z",
+            "block_number": "5725669",
+            "address": "0xd4dacc44d4dd84b94ef182ff9118e1b57b67f247",
+            "base_amount": "24991624093470679160"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T16:26:12.000Z",
+            "block_number": "5725811",
+            "address": "0xadd42611e68838763e914928f71e6b9f6518c6fe",
+            "base_amount": "99996728208477516850"
+        },
+        {
+            "_type": "OpenLong",
+            "block_timestamp": "2024-04-18T16:45:48.000Z",
+            "block_number": "5725905",
+            "address": "0xc55e7d80ec215130ebec62680d450cb49b064cc3",
+            "base_amount": "249997158871177325829"
+        },
+        {
             "_type": "CloseLong",
             "block_timestamp": "2024-04-10T14:43:36.000Z",
             "block_number": "5668680",
@@ -35883,6 +36723,13 @@
             "block_number": "5717107",
             "address": "0x140c3c3122228886ef55813a1b48c32d5eb3c9b6",
             "base_amount": "147811156759089977832"
+        },
+        {
+            "_type": "CloseLong",
+            "block_timestamp": "2024-04-17T20:35:48.000Z",
+            "block_number": "5720166",
+            "address": "0xfe18fe47156245570f864ff392e4e2250922a877",
+            "base_amount": "87437396928198619218"
         },
         {
             "_type": "OpenShort",
@@ -41156,6 +42003,90 @@
             "base_amount": "15187502971089007341"
         },
         {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T16:35:24.000Z",
+            "block_number": "5719036",
+            "address": "0xf9e4e4f706dbf642cc68bc7afaa75d63e493e590",
+            "base_amount": "15268215473439305789"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T18:08:24.000Z",
+            "block_number": "5719471",
+            "address": "0xf625f123356271baef26fd08015897eaf8968ba5",
+            "base_amount": "766984392624870344"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T19:26:36.000Z",
+            "block_number": "5719845",
+            "address": "0x08495957b2faef8e0b23ff9a7862e86db64ed513",
+            "base_amount": "3052229845824735799"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T19:47:36.000Z",
+            "block_number": "5719942",
+            "address": "0x8f4881246e630a64f5c5e875e42c0c74bfa65bda",
+            "base_amount": "839659566391250472"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T20:05:36.000Z",
+            "block_number": "5720025",
+            "address": "0xfe18fe47156245570f864ff392e4e2250922a877",
+            "base_amount": "1459052447502875046"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T20:42:24.000Z",
+            "block_number": "5720194",
+            "address": "0xa83235fd4e8891c5bca67e26a4d8e67fa6d702be",
+            "base_amount": "2290577351907082735"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-17T21:28:48.000Z",
+            "block_number": "5720409",
+            "address": "0xb72c003b28b1fe5d7d355118b8bfc60ac71188c4",
+            "base_amount": "1345246444683143362"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T13:57:36.000Z",
+            "block_number": "5725096",
+            "address": "0x401282e8e3717f661b5c17db1e5a726ef6e9f002",
+            "base_amount": "1370608854480397085"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:12:48.000Z",
+            "block_number": "5725172",
+            "address": "0xd8d496ceb009ccda9322b5d6c1077ed9480b91a5",
+            "base_amount": "548405706007058266"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:37:00.000Z",
+            "block_number": "5725293",
+            "address": "0x112302c3651093de1f9e767f75604a405e288d3f",
+            "base_amount": "1370536483761751234"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T14:55:24.000Z",
+            "block_number": "5725382",
+            "address": "0x8b3164a816e18327cf87057e84ff9b464c136087",
+            "base_amount": "1096097134910527436"
+        },
+        {
+            "_type": "OpenShort",
+            "block_timestamp": "2024-04-18T15:59:24.000Z",
+            "block_number": "5725684",
+            "address": "0xd4dacc44d4dd84b94ef182ff9118e1b57b67f247",
+            "base_amount": "369716951721349478"
+        },
+        {
             "_type": "CloseShort",
             "block_timestamp": "2024-04-10T14:44:00.000Z",
             "block_number": "5668682",
@@ -41854,6 +42785,13 @@
             "block_number": "5717128",
             "address": "0x6d0680b23c57242bb3f8137309c02214ce3fe3b0",
             "base_amount": "9728135239609810"
+        },
+        {
+            "_type": "CloseShort",
+            "block_timestamp": "2024-04-17T20:29:36.000Z",
+            "block_number": "5720135",
+            "address": "0xfe18fe47156245570f864ff392e4e2250922a877",
+            "base_amount": "1427904863011828742"
         },
         {
             "_type": "Initialize",
@@ -47281,6 +48219,202 @@
             "base_amount": "23998351620218143695"
         },
         {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T16:36:12.000Z",
+            "block_number": "5719040",
+            "address": "0xf9e4e4f706dbf642cc68bc7afaa75d63e493e590",
+            "base_amount": "77599639991516194228"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T17:53:36.000Z",
+            "block_number": "5719406",
+            "address": "0xb8cf4b75f663f252d9a26d17b8d5fa8d96903776",
+            "base_amount": "99997408039898496919"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T18:08:48.000Z",
+            "block_number": "5719473",
+            "address": "0xf625f123356271baef26fd08015897eaf8968ba5",
+            "base_amount": "46996430753154536457"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T18:14:36.000Z",
+            "block_number": "5719500",
+            "address": "0xd10eb292c4cb3bffc060a22c0e25d661a686a4ad",
+            "base_amount": "184993479775782092364"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T19:26:00.000Z",
+            "block_number": "5719842",
+            "address": "0x08495957b2faef8e0b23ff9a7862e86db64ed513",
+            "base_amount": "450001302806679451946"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T19:46:00.000Z",
+            "block_number": "5719934",
+            "address": "0x46ec1b25a4c4fa4165080998753470a40c345b46",
+            "base_amount": "99998207873981682114"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T19:49:12.000Z",
+            "block_number": "5719948",
+            "address": "0x8f4881246e630a64f5c5e875e42c0c74bfa65bda",
+            "base_amount": "21997208862898520170"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:17:24.000Z",
+            "block_number": "5720081",
+            "address": "0xb76d6ff42c6c264a7a91985700258876b47bd254",
+            "base_amount": "89990581905282696842"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:44:00.000Z",
+            "block_number": "5720201",
+            "address": "0xa83235fd4e8891c5bca67e26a4d8e67fa6d702be",
+            "base_amount": "59997170787836452899"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T20:52:00.000Z",
+            "block_number": "5720234",
+            "address": "0x48dca1d5617b2070d578553985c5c3da50c48778",
+            "base_amount": "29993598534786231145"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-17T21:33:36.000Z",
+            "block_number": "5720432",
+            "address": "0xb72c003b28b1fe5d7d355118b8bfc60ac71188c4",
+            "base_amount": "54993430714561080894"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T08:48:48.000Z",
+            "block_number": "5723576",
+            "address": "0xedd41220e5bf2c3225b918b31ab647a517c3781e",
+            "base_amount": "499998077334435411144"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T13:00:12.000Z",
+            "block_number": "5724814",
+            "address": "0x84a431eb5758ce2601c441c46a5e7fdeeabe030c",
+            "base_amount": "74993990897592564413"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T13:18:00.000Z",
+            "block_number": "5724901",
+            "address": "0x115ddb37c336f114c06165d18d46e3fea3ed4ca7",
+            "base_amount": "34999907163554055467"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T13:21:00.000Z",
+            "block_number": "5724916",
+            "address": "0xaed8a1e7eeb8e351c04c771a65f84e643ad4de62",
+            "base_amount": "149998203010706942860"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T13:56:12.000Z",
+            "block_number": "5725089",
+            "address": "0x401282e8e3717f661b5c17db1e5a726ef6e9f002",
+            "base_amount": "29995709153368301641"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:14:12.000Z",
+            "block_number": "5725179",
+            "address": "0xd8d496ceb009ccda9322b5d6c1077ed9480b91a5",
+            "base_amount": "39994327943740378215"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:15:24.000Z",
+            "block_number": "5725185",
+            "address": "0x14726d8d2776e47ad2bcdf7b4bb7b1c1e92b0b6b",
+            "base_amount": "24991452713832754872"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:17:48.000Z",
+            "block_number": "5725197",
+            "address": "0x61873a2ffe5c7d3f08eceb40be7e7a7f3f32c4fd",
+            "base_amount": "110995296731523157417"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:18:24.000Z",
+            "block_number": "5725200",
+            "address": "0xe7b710657ed160d8c31b3db2be23f19312c319a4",
+            "base_amount": "38993480049825460144"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:36:00.000Z",
+            "block_number": "5725288",
+            "address": "0x112302c3651093de1f9e767f75604a405e288d3f",
+            "base_amount": "39994387376170643707"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:50:36.000Z",
+            "block_number": "5725358",
+            "address": "0x265eaf68c5029cf4002b7898327cadce573144ff",
+            "base_amount": "24991512679541455366"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T14:54:24.000Z",
+            "block_number": "5725377",
+            "address": "0x8b3164a816e18327cf87057e84ff9b464c136087",
+            "base_amount": "19997218769698475300"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:16:12.000Z",
+            "block_number": "5725482",
+            "address": "0x40b9b17aca14882317ef3ead9f8b73992bcb8e3e",
+            "base_amount": "54997437652911015098"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:54:48.000Z",
+            "block_number": "5725663",
+            "address": "0xf52f853969865cdbe1483d316ca1f2e1cc7506f0",
+            "base_amount": "32998549417751218191"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T15:58:12.000Z",
+            "block_number": "5725678",
+            "address": "0xd4dacc44d4dd84b94ef182ff9118e1b57b67f247",
+            "base_amount": "26993360147424512312"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T16:28:48.000Z",
+            "block_number": "5725823",
+            "address": "0xadd42611e68838763e914928f71e6b9f6518c6fe",
+            "base_amount": "34990353695831765340"
+        },
+        {
+            "_type": "AddLiquidity",
+            "block_timestamp": "2024-04-18T16:46:36.000Z",
+            "block_number": "5725909",
+            "address": "0xc55e7d80ec215130ebec62680d450cb49b064cc3",
+            "base_amount": "299990601788356538707"
+        },
+        {
             "_type": "RemoveLiquidity",
             "block_timestamp": "2024-04-10T06:24:00.000Z",
             "block_number": "5666316",
@@ -48280,6 +49414,20 @@
             "block_number": "5716608",
             "address": "0x03d9b1b2daefcba5c0aa86ae6ff41e037bd9589e",
             "base_amount": "100510161404062356842"
+        },
+        {
+            "_type": "RemoveLiquidity",
+            "block_timestamp": "2024-04-17T20:01:48.000Z",
+            "block_number": "5720006",
+            "address": "0xfe18fe47156245570f864ff392e4e2250922a877",
+            "base_amount": "78154860650875748135"
+        },
+        {
+            "_type": "RemoveLiquidity",
+            "block_timestamp": "2024-04-18T01:35:24.000Z",
+            "block_number": "5721550",
+            "address": "0xd1f2739ad714045be6146915275d0a2b822ec1cc",
+            "base_amount": "200939092363469563166"
         }
     ]
 }
