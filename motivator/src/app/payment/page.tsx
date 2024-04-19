@@ -166,7 +166,7 @@ const Payment = (props: Props) => {
                 <Label className="font-bold">Purchase Motivator Slot</Label>
                 <div className="mt-2 gap-4 items-center flex flex-col">
                     <Label className="font-light">
-                        To purchase a Motivator slot, pay ${value} $SETH
+                        To purchase a Motivator slot, pay {value} $SETH
                     </Label>
                     <Button
                         onClick={handleOnClick}
