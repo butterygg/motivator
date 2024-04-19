@@ -38,6 +38,7 @@ export const useGetTotalPointsDistributed = () => {
     }, [refreshPointsNeeded])
 
     useEffect(() => {
+        console.log('SUM POINTS')
         if (data?.res)
             setTotalPoints(
                 sumPoints(
