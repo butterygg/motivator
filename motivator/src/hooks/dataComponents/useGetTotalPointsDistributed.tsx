@@ -11,10 +11,6 @@ export const useGetTotalPointsDistributed = () => {
     })
     const [totalPoints, setTotalPoints] = useState(0)
 
-    // data?.res?.forEach((element) => {
-    //     setTotalPoints((prev) => (prev += element.amount ? element.amount : 0))
-    // })
-
     const sumPoints = (values: number[]) => {
         let total = 0
         values.forEach((element) => {
@@ -26,19 +22,13 @@ export const useGetTotalPointsDistributed = () => {
     useEffect(() => {
         if (refreshPointsNeeded) {
             refetch()
-            // // setTotalPoints(0)
-            // let total = 0
-            // data?.res?.forEach((element) => {
-            //     total += element.amount ? element.amount : 0
-            // })
-            // setTotalPoints(total)
+
             refreshPoints(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refreshPointsNeeded])
 
     useEffect(() => {
-        console.log('SUM POINTS')
         if (data?.res)
             setTotalPoints(
                 sumPoints(
