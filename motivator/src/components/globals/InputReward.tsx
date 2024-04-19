@@ -17,7 +17,7 @@ const InputReward = ({ val, assessorSlot, userAddr }: Props) => {
     // to avoid unessesary mutate we need to define an initial value on mount
     const initialVal = val ? val : 0
     const [value, setValue] = useState(initialVal)
-    const debouncedValue = useDebounce(value, 500)
+    const debouncedValue = useDebounce(value, 200)
     const { mutateAsync, status } = useAddRewardUsers({
         assessorSlot: assessorSlot,
         userAddr: userAddr,

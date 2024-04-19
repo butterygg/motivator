@@ -178,7 +178,7 @@ const Payment = (props: Props) => {
                         )}
                         disabled={statusAssessorSlot == 'pending'}
                     >
-                        Send ${value} $SETH
+                        Send {value} $SETH
                     </Button>
                     {statusTransaction === 'error' && (
                         <Label className="text-orange-500">

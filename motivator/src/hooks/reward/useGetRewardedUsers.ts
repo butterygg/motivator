@@ -17,8 +17,7 @@ const useGetRewardedUsers = ({ assessorSlotId }: Props) => {
         queryFn: async () => {
             return getRewardedUsers(assessorSlotId)
         },
-        // enabled: false,
-        retry: 1,
+        refetchInterval: 1000 * 3,
     })
     return { data, refetch, error, status }
 }
