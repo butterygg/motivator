@@ -184,7 +184,7 @@ export type Props = {
     users: UserDatatable[]
 }
 
-export function DataTable({ users }: Props) {
+export function DataTableAssessor({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
         data: users,
