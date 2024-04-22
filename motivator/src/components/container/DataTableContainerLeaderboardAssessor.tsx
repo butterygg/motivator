@@ -1,6 +1,9 @@
 'use client'
 import React, { useEffect } from 'react'
-import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
+import {
+    DataTableAssessor,
+    UserDatatable,
+} from '@/components/assessor/DataTableAssessor'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
@@ -87,5 +90,9 @@ export const DataTableContainerLeaderboardAssessor = () => {
         )
     }
 
-    return <DataTable users={prepareDataForTable(data.res as AssessorSlot)} />
+    return (
+        <DataTableAssessor
+            users={prepareDataForTable(data.res as AssessorSlot)}
+        />
+    )
 }
