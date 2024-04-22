@@ -2,13 +2,12 @@
 import React, { useEffect } from 'react'
 import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
-import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
 import { RoundSpinner } from '../ui/spinner'
-import { usePathname, useRouter } from 'next/navigation'
-import { useGetAssessorSlotWithID } from '../../hooks/assessorSlot/useGetAssessorSlotWithID'
-const DataTableContainer = () => {
+import { useRouter } from 'next/navigation'
+export const DataTableContainerLeaderboardTestnet = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
         assessorSlot?.users.forEach((element, index) => {
@@ -58,34 +57,26 @@ const DataTableContainer = () => {
     }
 
     const { address, status: statusAccount } = useAccount()
-    const pathname = usePathname()
-    // Extract id from the pathname
-    // http://localhost:3000/assessor/slot/7677e331-29eb-4c54-8e7a-d44a816fe423
-    const slotID = pathname.split('/').slice(2)[1]
-
-    const { data, error, status, refetch } = useGetAssessorSlotWithID({
-        assessorSlotID: slotID as string,
+    const { data, error, status, refetch } = useGetAssessorSlot({
+        assessorAddr: address as string,
     })
 
-    // const { data, error, status, refetch } = useGetAssessorSlotWithAddr({
-    //     assessorAddr: address as string,
-    // })
-
+    const { push } = useRouter()
     // Refresh the data when the account is connected
     useEffect(() => {
         if (statusAccount === 'connected' && refetch) refetch()
     }, [refetch, statusAccount])
 
-    // // Redirecting to avoid error
-    // useEffect(() => {
-    //     if (data?.status == 'ko' || data?.res === undefined) {
-    //         // if (statusAccount === 'connected' && refetch) refetch()
+    // Redirecting to avoid error
+    useEffect(() => {
+        if (data?.status == 'ko' || data?.res === undefined) {
+            // if (statusAccount === 'connected' && refetch) refetch()
 
-    //         if ((data?.res as AssessorSlot) === undefined) {
-    //             push(`/`)
-    //         }
-    //     }
-    // }, [data?.res])
+            if ((data?.res as AssessorSlot) === undefined) {
+                push(`/`)
+            }
+        }
+    }, [data?.res])
 
     // Implement Skeletton
     if (status != 'success' || (data.res as AssessorSlot) === undefined) {
@@ -98,5 +89,3 @@ const DataTableContainer = () => {
 
     return <DataTable users={prepareDataForTable(data.res as AssessorSlot)} />
 }
-
-export default DataTableContainer
