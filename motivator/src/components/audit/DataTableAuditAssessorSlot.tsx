@@ -19,18 +19,24 @@ import { Address } from 'viem'
 import { useGetAssessorSlotIDFromURL } from '@/hooks/global/useGetAssessorSlotIDFromURL'
 import Link from 'next/link'
 import { Grade } from '@/types/enum/grade'
+import { transformNumberK } from '../../utils/utils'
+import { UserDatatable } from '../assessor/DataTable'
+import EthLogo from '~/ethereum-eth-logo.svg'
+import DaiLogo from '~/dai.svg'
+import { Statistics, Totals } from '../../types/data/assessorSlot'
 
-export type AssessorsSlotsDatatable = {
+export type AuditAssessorsSlotsDatatable = {
     id: string
     assessorSlotID: string
-    assessorAddress: Address
+    assessorAddress: string
+    rewardsSent: number
     audit: {
-        auditGrade: Grade
-        auditorAddress: Address
+        auditGrade?: Grade
+        auditorAddress?: Address
     }
 }
 
-export const columns: ColumnDef<AssessorsSlotsDatatable>[] = [
+export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
     {
         accessorKey: 'id',
         id: 'id',
@@ -48,7 +54,7 @@ export const columns: ColumnDef<AssessorsSlotsDatatable>[] = [
         cell: ({ row }) => {
             const assessorAddress = row.getValue(
                 'assessorAddress'
-            ) as AssessorsSlotsDatatable['assessorAddress']
+            ) as AuditAssessorsSlotsDatatable['assessorAddress']
             return (
                 <div className="flex gap-6 items-center">
                     <AddrAvatar
@@ -65,7 +71,7 @@ export const columns: ColumnDef<AssessorsSlotsDatatable>[] = [
         cell: ({ row }) => {
             const assessorSlotID = row.getValue(
                 'assessorSlotID'
-            ) as AssessorsSlotsDatatable['assessorSlotID']
+            ) as AuditAssessorsSlotsDatatable['assessorSlotID']
             return (
                 <div className="flex gap-6 items-center justify-evenly">
                     <div className="flex flex-col">
@@ -88,18 +94,43 @@ export const columns: ColumnDef<AssessorsSlotsDatatable>[] = [
         },
     },
     {
+        accessorKey: 'rewardsSent',
+        cell: ({ row }) => {
+            const rewardsSent = row.getValue(
+                'rewardsSent'
+            ) as AuditAssessorsSlotsDatatable['rewardsSent']
+
+            return (
+                <div className="flex gap-6 items-center justify-evenly">
+                    <div className="flex flex-col">
+                        <div className="items-center flex-col flex">
+                            <p className="font-extralight text-center text-xs">
+                                Pool ETH
+                            </p>
+                            <div className="flex items-center gap-1">
+                                <EthLogo className="h-4 w-4" />
+                                <p className="font-bold">{rewardsSent}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        },
+    },
+    {
         accessorKey: 'audit',
         enableHiding: true,
         cell: ({ row }) => {
             const audit = row.getValue(
                 'audit'
-            ) as AssessorsSlotsDatatable['audit']
+            ) as AuditAssessorsSlotsDatatable['audit']
             return (
                 <div className="flex-col">
                     <div className="items-center flex">
                         <p className="font-extralight text-center text-xs">
                             Grade
                         </p>
+                        {/* INSERT SELECT GRADE COMPONENT */}
                         <div className="flex items-center gap-1">
                             <p className="font-bold">{audit.auditGrade}</p>
                         </div>
@@ -119,10 +150,10 @@ export const columns: ColumnDef<AssessorsSlotsDatatable>[] = [
 ]
 
 export type Props = {
-    users: AssessorsSlotsDatatable[]
+    users: AuditAssessorsSlotsDatatable[]
 }
 
-export function DataTableAssessorSlot({ users }: Props) {
+export function DataTableAuditAssessorSlot({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
         data: users,

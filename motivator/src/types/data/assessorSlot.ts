@@ -1,3 +1,5 @@
+import { Address } from 'viem'
+import { Grade } from '../enum/grade'
 import { User } from './user'
 
 export type AssessorSlot = {
@@ -9,6 +11,10 @@ export type AssessorSlot = {
     rewards: Reward[]
     totals: Totals[]
     statistics: Statistics[]
+    audit?: {
+        auditGrade: Grade
+        auditorAddress: Address
+    }
 }
 
 export type Totals = {
