@@ -12,7 +12,7 @@ import { getTotalsForUser } from './getTotalsForUser'
  * @param request Will contain an Array of [{assessorAddr: string}]
  * @param response Send the status of the transaction
  */
-export async function getAllAssessorSlots() {
+export async function getAllAssessorSlotsAudit() {
     // grab an assessor slot that is not done and has the assessor assigned
     const assessorSlots = await db.query.assessor_slot.findMany({
         where: eq(assessor_slot.done, true),

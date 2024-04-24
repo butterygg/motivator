@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getAllAssessorSlots } from '../../server/actions/globals/getAllAssessorSlots'
+import { getAllAssessorSlotsAudit } from '../../server/actions/globals/getAllAssessorSlotsAudit'
 
 type Props = {
     assessorAddr: string
@@ -15,7 +15,7 @@ const useGetAllAssessorSlots = () => {
     const { data, refetch, status, error } = useQuery({
         queryKey: ['assessorSlot'],
         queryFn: async () => {
-            return getAllAssessorSlots()
+            return getAllAssessorSlotsAudit()
         },
         // staleTime: 1000 * 6,
         retry: true,
