@@ -54,12 +54,12 @@ const DataTableAuditContainer = () => {
         if (statusAccount === 'connected' && refetch) refetch()
     }, [refetch, statusAccount])
 
-    // Redirecting to avoid error
-    useEffect(() => {
-        if (data === undefined) {
-            push(`/`)
-        }
-    }, [data])
+    // // Redirecting to avoid error
+    // useEffect(() => {
+    //     if (data === undefined) {
+    //         push(`/`)
+    //     }
+    // }, [data])
 
     // Implement Skeletton
     if (status != 'success' || data === undefined) {
