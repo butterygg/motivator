@@ -1,14 +1,12 @@
 'use client'
 import React, { useEffect } from 'react'
-import { DataTable, UserDatatable } from '@/components/assessor/DataTable'
 import { DataTableAuditAssessorSlot } from '@/components/audit/DataTableAuditAssessorSlot'
-import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
-import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
+import { AssessorSlot } from '@/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
-import { RoundSpinner } from '../ui/spinner'
+import { RoundSpinner } from '@/components/ui/spinner'
 import { useRouter } from 'next/navigation'
-import { AuditAssessorsSlotsDatatable } from '../audit/DataTableAuditAssessorSlot'
-import { useGetAllAssessorSlots } from '../../hooks/global/useGetAllAssessorSlots'
+import { AuditAssessorsSlotsDatatable } from '@/components/audit/DataTableAuditAssessorSlot'
+import { useGetAllAssessorSlotsAudit } from '@/hooks/global/useGetAllAssessorSlotsAudit'
 const DataTableAuditContainer = () => {
     const prepareDataForTable = (assessorSlots: AssessorSlot[]) => {
         const res: AuditAssessorsSlotsDatatable[] = []
@@ -48,7 +46,7 @@ const DataTableAuditContainer = () => {
     }
 
     const { address, status: statusAccount } = useAccount()
-    const { data, error, status, refetch } = useGetAllAssessorSlots()
+    const { data, error, status, refetch } = useGetAllAssessorSlotsAudit()
 
     const { push } = useRouter()
     // Refresh the data when the account is connected

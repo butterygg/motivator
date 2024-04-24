@@ -11,7 +11,7 @@ type Props = {
  *
  *
  */
-const useGetAllAssessorSlots = () => {
+const useGetAllAssessorSlotsAudit = () => {
     const { data, refetch, status, error } = useQuery({
         queryKey: ['assessorSlot'],
         queryFn: async () => {
@@ -29,4 +29,4 @@ const useGetAllAssessorSlots = () => {
     return { error, status }
 }
 
-export { useGetAllAssessorSlots }
+export { useGetAllAssessorSlotsAudit }
