@@ -24,6 +24,7 @@ import { UserDatatable } from '../assessor/DataTable'
 import EthLogo from '~/ethereum-eth-logo.svg'
 import DaiLogo from '~/dai.svg'
 import { Statistics, Totals } from '../../types/data/assessorSlot'
+import GradeAudit from './GradeAudit'
 
 export type AuditAssessorsSlotsDatatable = {
     id: string
@@ -56,7 +57,10 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                 'assessorAddress'
             ) as AuditAssessorsSlotsDatatable['assessorAddress']
             return (
-                <div className="flex gap-6 items-center">
+                <div className="flex flex-col items-center">
+                    {/* <p className="font-extralight text-center text-xs">
+                        Assessor Addr
+                    </p> */}
                     <AddrAvatar
                         addressName={assessorAddress}
                         isDatatableStyle
@@ -105,11 +109,10 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                     <div className="flex flex-col">
                         <div className="items-center flex-col flex">
                             <p className="font-extralight text-center text-xs">
-                                Pool ETH
+                                Rewards attributed
                             </p>
                             <div className="flex items-center gap-1">
-                                <EthLogo className="h-4 w-4" />
-                                <p className="font-bold">{rewardsSent}</p>
+                                <p className="font-bold">{rewardsSent} pts</p>
                             </div>
                         </div>
                     </div>
@@ -127,18 +130,16 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             return (
                 <div className="flex-col">
                     <div className="items-center flex">
-                        <p className="font-extralight text-center text-xs">
-                            Grade
-                        </p>
                         {/* INSERT SELECT GRADE COMPONENT */}
                         <div className="flex items-center gap-1">
-                            <p className="font-bold">{audit.auditGrade}</p>
+                            <GradeAudit
+                                auditor={audit.auditorAddress as string}
+                                grade={audit.auditGrade as Grade}
+                            />
+                            {/* <p className="font-bold">{audit.auditGrade}</p> */}
                         </div>
                     </div>
                     <div className="items-center flex">
-                        <p className="font-extralight text-center text-xs">
-                            Auditor
-                        </p>
                         <div className="flex items-center gap-1">
                             <p className="font-bold">{audit.auditorAddress}</p>
                         </div>
@@ -181,7 +182,7 @@ export function DataTableAuditAssessorSlot({ users }: Props) {
                                     }
                                 >
                                     <Link
-                                        href={`/audit/${row.getValue('assessorSlotID')}`}
+                                        href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
                                     >
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>
