@@ -1,5 +1,5 @@
 import { useAccount } from 'wagmi'
-import { useGetAssessorSlot } from '../assessorSlot/useGetAssessorSlot'
+import { useGetAssessorSlot } from '../assessorSlot/useGetAssessorSlotWithAddr'
 
 export const useHomeAssessorData = () => {
     console.log('Hook HomeAssessor')
