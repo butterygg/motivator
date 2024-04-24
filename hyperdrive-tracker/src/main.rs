@@ -18,7 +18,6 @@ use futures::StreamExt;
 use hex_literal::hex;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use tokio::time::{self, Duration};
 use tracing::{debug, info};
 use uuid::Uuid;
 
@@ -667,9 +666,9 @@ async fn load_hyperdrive_events(
     );
 
     let mut stream = contract_events.stream_with_meta().await?;
-    let timeout_duration = Duration::from_secs(TIMEOUT_DURATION);
+    //let timeout_duration = Duration::from_secs(TIMEOUT_DURATION);
 
-    while let Ok(Some(event_result)) = time::timeout(timeout_duration, stream.next()).await {
+    while let Some(event_result) = stream.next().await {
         match event_result {
             Ok((evt, meta)) => {
                 debug!(
