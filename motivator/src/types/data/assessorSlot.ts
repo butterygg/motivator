@@ -12,9 +12,9 @@ export type AssessorSlot = {
     totals: Totals[]
     statistics: Statistics[]
     audit?: {
-        auditGrade: Grade
-        auditorAddress: Address
-    }
+        auditGrade: Grade | null
+        auditorAddress: Address | null
+    } | null
 }
 
 export type Totals = {
