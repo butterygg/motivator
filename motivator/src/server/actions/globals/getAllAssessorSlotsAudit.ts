@@ -7,6 +7,7 @@ import { getTotalsVolPnlActions } from '../statistics/getTotalsVolPnlActions'
 import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
 import { getTotalsForUser } from './getTotalsForUser'
 import { Grade } from '../../../types/enum/grade'
+import { Address } from 'viem'
 // Send Rewards to specifics users based on their actions
 /**
  *
@@ -46,10 +47,13 @@ export async function getAllAssessorSlotsAudit() {
                 totals: [],
                 statistics: [],
                 audit: {
-                    auditGrade: getAudit?.audit_grade ? getAudit.audit_grade as Grade : null,
-                    auditorAddress: getAudit?.auditor_address,
+                    auditGrade: getAudit?.audit_grade
+                        ? (getAudit.audit_grade as Grade)
+                        : null,
+                    auditorAddress: getAudit?.auditor_address
+                        ? (getAudit.auditor_address as Address)
+                        : null,
                 },
-                }
             }
             result.push(assessor)
         })
