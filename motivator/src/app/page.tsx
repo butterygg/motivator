@@ -6,7 +6,7 @@ import { useAccount } from 'wagmi'
 import ConnectWalletCard from '@/components/signup/connectWalletCard'
 import StartAssessmentSlot from '@/components/signup/startAssessmentSlot'
 import { useRouter } from 'next/navigation'
-import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
+import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Label } from '@/components/ui/label'
 import { Card } from '../components/ui/card'
@@ -23,7 +23,7 @@ const Signup = (props: Props) => {
         data: assessorSlotID,
         refetch,
         status,
-    } = useGetAssessorSlot({
+    } = useGetAssessorSlotWithAddr({
         assessorAddr: address ? address : '',
     })
     const { push } = useRouter()
