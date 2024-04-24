@@ -21,8 +21,7 @@ export async function getAllAssessorSlotsAudit() {
     })
 
     const buildAssessorSlot = async () => {
-        const result: AssessorSlot[] = []
-        assessorSlots.forEach(async (assessorSlot) => {
+        const result = assessorSlots.map(async (assessorSlot) => {
             // Get the rewards for the assessor slot
             const getRewardsUsers = await db
                 .select()
@@ -55,8 +54,9 @@ export async function getAllAssessorSlotsAudit() {
                         : null,
                 },
             }
-            result.push(assessor)
+            return assessor
         })
+        console.log('result', result)
         return result
     }
     const assessorsSlotsFilled = await buildAssessorSlot()
