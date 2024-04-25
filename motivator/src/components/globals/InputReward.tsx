@@ -22,12 +22,16 @@ const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
     const initialVal = val ? val : 0
     const [value, setValue] = useState(initialVal)
     const debouncedValue = useDebounce(value, 200)
-    const { mutateAsync, status } = useAddRewardUsers({
+    const {
+        mutateAsync,
+        status,
+        data: isRewarded,
+    } = useAddRewardUsers({
         assessorSlotID: assessorSlotID,
         userAddr: userAddr,
         value: debouncedValue,
     })
-
+    const rewarded = isRewarded ? isRewarded : false
     const { address } = useAccount()
 
     const { data, status: statusISYoursAssessorSlots } =

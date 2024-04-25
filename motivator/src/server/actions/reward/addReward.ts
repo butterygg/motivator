@@ -3,7 +3,7 @@
 
 import { NextRequest } from 'next/server'
 import { db } from '@db/dbRouter'
-import { reward, user } from '@db/schema'
+import { assessor_slot, reward, user } from '@db/schema'
 import { and, eq } from 'drizzle-orm'
 import { toast } from 'sonner'
 
@@ -21,6 +21,18 @@ export async function addReward({
     value: number
     assessorSlotID: string
 }) {
+    const isAssessorSlotDone = await db.query.assessor_slot.findFirst({
+        where: and(
+            eq(assessor_slot.id, assessorSlotID),
+            eq(assessor_slot.done, true)
+        ),
+    })
+    if (isAssessorSlotDone) {
+        toast.error(
+            'This slot is already done you cannot assign a reward to it'
+        )
+        return false
+    }
     const isRewardAlreadyAssigned = await db.query.reward.findFirst({
         where: and(
             eq(reward.assessor_slot_id, assessorSlotID),

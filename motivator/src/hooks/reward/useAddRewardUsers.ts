@@ -16,7 +16,7 @@ const useAddRewardUsers = ({ assessorSlotID, userAddr, value }: Props) => {
     const { data, mutate, status, error, mutateAsync } = useMutation({
         mutationKey: ['addRewardUsers'],
         mutationFn: async () => {
-            return addReward({
+            return await addReward({
                 assessorSlotID: assessorSlotID,
                 userAddr: userAddr,
                 value: value,

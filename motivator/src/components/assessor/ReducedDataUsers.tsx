@@ -26,7 +26,7 @@ const ReducedDataUsers = ({
         setPoints(parseInt(e.target.value))
     }
     const { mutateAsync } = useAddRewardUsers({
-        assessorSlot: assessorSlot,
+        assessorSlotID: assessorSlot,
         userAddr: userAddr,
         value: points ? points : 0,
     })
