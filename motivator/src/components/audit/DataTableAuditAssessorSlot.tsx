@@ -43,7 +43,9 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
         id: 'id',
         cell: ({ row }) => (
             <>
-                <p className="font-bold"># {row.index + 1} </p>
+                <Link href={`/assessor/slot/${row.getValue('assessorSlotID')}`}>
+                    <p className="font-bold"># {row.index + 1} </p>
+                </Link>
             </>
         ),
         enableSorting: false,
@@ -58,13 +60,17 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             ) as AuditAssessorsSlotsDatatable['assessorAddress']
             return (
                 <div className="flex flex-col items-center">
-                    {/* <p className="font-extralight text-center text-xs">
+                    <Link
+                        href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
+                    >
+                        {/* <p className="font-extralight text-center text-xs">
                         Assessor Addr
                     </p> */}
-                    <AddrAvatar
-                        addressName={assessorAddress}
-                        isDatatableStyle
-                    />
+                        <AddrAvatar
+                            addressName={assessorAddress}
+                            isDatatableStyle
+                        />
+                    </Link>
                 </div>
             )
         },
@@ -79,7 +85,9 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             return (
                 <div className="flex gap-6 items-center justify-evenly">
                     <div className="flex flex-col">
-                        <Link href={`/audit/${assessorSlotID}`}>
+                        <Link
+                            href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
+                        >
                             <div className="items-center flex-col flex">
                                 <p className="font-extralight text-center text-xs">
                                     Assessor Slot ID
@@ -106,16 +114,22 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
 
             return (
                 <div className="flex gap-6 items-center justify-evenly">
-                    <div className="flex flex-col">
-                        <div className="items-center flex-col flex">
-                            <p className="font-extralight text-center text-xs">
-                                Rewards attributed
-                            </p>
-                            <div className="flex items-center gap-1">
-                                <p className="font-bold">{rewardsSent} pts</p>
+                    <Link
+                        href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
+                    >
+                        <div className="flex flex-col">
+                            <div className="items-center flex-col flex">
+                                <p className="font-extralight text-center text-xs">
+                                    Rewards attributed
+                                </p>
+                                <div className="flex items-center gap-1">
+                                    <p className="font-bold">
+                                        {rewardsSent} pts
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             )
         },
@@ -181,18 +195,18 @@ export function DataTableAuditAssessorSlot({ users }: Props) {
                                         row.getIsSelected() && 'selected'
                                     }
                                 >
-                                    <Link
+                                    {/* <Link
                                         href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                    </Link>
+                                    > */}
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext()
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                    {/* </Link> */}
                                 </TableRow>
                             ))
                         ) : (
