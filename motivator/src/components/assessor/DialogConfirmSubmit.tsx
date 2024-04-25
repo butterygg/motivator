@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Card } from '@/components/ui/card'
 import { Address } from 'viem'
+import { useGetAssessorSlotWithID } from '../../hooks/assessorSlot/useGetAssessorSlotWithID'
 
 type Props = {
     assessorSlotId: string
@@ -43,7 +44,13 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     const { push } = useRouter()
 
     const points = useGetTotalPointsDistributed()
-
+    const {
+        data: AssessorSlot,
+        refetch,
+        status: statusAssessorSlotRQT,
+    } = useGetAssessorSlotWithID({
+        assessorSlotID: assessorSlotId,
+    })
     const getPointsAvailable = (val: number) => {
         return 100 - val
     }
@@ -54,18 +61,22 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
         setTimeout(async () => {
             await mutateAsync()
         }, 2000)
+        if (refetch) refetch()
     }
 
     useEffect(() => {
-        console.log(status, data, 'USEFFECT')
         if (status === 'success' && data?.status === 'ok') {
-            push(`/`)
+            if (AssessorSlot?.res?.done) {
+                push(`/`)
+            } else {
+                if (refetch) refetch()
+            }
         }
         if (status === 'error' || data?.status === 'ko') {
             toast.error('Error on Submit')
             setIsSubmited(false)
         }
-    }, [status])
+    }, [status, statusAssessorSlotRQT, AssessorSlot])
 
     return (
         <>

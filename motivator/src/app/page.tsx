@@ -26,6 +26,7 @@ const Signup = (props: Props) => {
     } = useGetAssessorSlotWithAddr({
         assessorAddr: address ? address : '',
     })
+
     const { push } = useRouter()
     useEffect(() => {
         if (refetch) {
@@ -35,7 +36,10 @@ const Signup = (props: Props) => {
 
     useEffect(() => {
         setTimeout(() => {
-            if (assessorSlotID?.res?.id) {
+            if (
+                assessorSlotID?.res?.done == false &&
+                assessorSlotID?.res?.rewards.length == 0
+            ) {
                 push(`/assessor/slot/${assessorSlotID?.res?.id}`)
             }
         }, 2000)
