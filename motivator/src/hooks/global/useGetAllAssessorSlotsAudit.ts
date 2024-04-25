@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { getPNLAndVolume } from '@/server/actions/statistics/getPNLAndVolume'
+import { getAllAssessorSlotsAudit } from '../../server/actions/globals/getAllAssessorSlotsAudit'
 
 type Props = {
-    userAddr: string
+    assessorAddr: string
 }
 
 /**
@@ -11,14 +11,14 @@ type Props = {
  *
  *
  */
-const useGetPNLAndVolume = ({ userAddr }: Props) => {
+const useGetAllAssessorSlotsAudit = () => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['useGetPNLAndVolume'],
+        queryKey: ['useGetAllAssessorSlotsAudit'],
         queryFn: async () => {
-            return getPNLAndVolume({ userAddr })
+            return getAllAssessorSlotsAudit()
         },
         // staleTime: 1000 * 6,
-        retry: 5,
+        retry: true,
         // enabled: false,
     })
 
@@ -29,4 +29,4 @@ const useGetPNLAndVolume = ({ userAddr }: Props) => {
     return { error, status }
 }
 
-export { useGetPNLAndVolume }
+export { useGetAllAssessorSlotsAudit }

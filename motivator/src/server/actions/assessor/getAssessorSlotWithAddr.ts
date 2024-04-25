@@ -3,7 +3,6 @@ import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
-import { getTotalsVolPnlActions } from '../statistics/getTotalsVolPnlActions'
 import { getPNLAndVolume } from '../statistics/getPNLAndVolume'
 import { getTotalsForUser } from '../globals/getTotalsForUser'
 // Send Rewards to specifics users based on their actions
@@ -12,7 +11,7 @@ import { getTotalsForUser } from '../globals/getTotalsForUser'
  * @param request Will contain an Array of [{assessorAddr: string}]
  * @param response Send the status of the transaction
  */
-export async function getAssessorSlot(address: string) {
+export async function getAssessorSlotWithAddr(address: string) {
     const assessorAddr = address
     // grab an assessor slot that is not done and has the assessor assigned
     const assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({

@@ -1,24 +1,25 @@
 import { useQuery } from '@tanstack/react-query'
-import { getPNLAndVolume } from '@/server/actions/statistics/getPNLAndVolume'
+import { getAllAssessorSlotsAudit } from '../../server/actions/globals/getAllAssessorSlotsAudit'
+import { isAuditor } from '../../server/actions/audit/isAuditor'
 
 type Props = {
-    userAddr: string
+    assessorAddr: string
 }
 
 /**
- * This hook is used to fetch the assessor slot of the assessor
+ * This hook is used to verify the auditor address
  * @param {Props} props
  *
  *
  */
-const useGetPNLAndVolume = ({ userAddr }: Props) => {
+const useIsAuditor = (auditorAddr: string) => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['useGetPNLAndVolume'],
+        queryKey: ['useIsAuditor'],
         queryFn: async () => {
-            return getPNLAndVolume({ userAddr })
+            return isAuditor({ auditorAddr: auditorAddr })
         },
         // staleTime: 1000 * 6,
-        retry: 5,
+        retry: true,
         // enabled: false,
     })
 
@@ -29,4 +30,4 @@ const useGetPNLAndVolume = ({ userAddr }: Props) => {
     return { error, status }
 }
 
-export { useGetPNLAndVolume }
+export { useIsAuditor }

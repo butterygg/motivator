@@ -3,7 +3,7 @@ import { addReward } from '@/server/actions/reward/addReward'
 type Props = {
     userAddr: string
     value: number
-    assessorSlot: string
+    assessorSlotID: string
 }
 
 /**
@@ -12,12 +12,12 @@ type Props = {
  *
  *
  */
-const useAddRewardUsers = ({ assessorSlot, userAddr, value }: Props) => {
+const useAddRewardUsers = ({ assessorSlotID, userAddr, value }: Props) => {
     const { data, mutate, status, error, mutateAsync } = useMutation({
         mutationKey: ['addRewardUsers'],
         mutationFn: async () => {
-            return addReward({
-                assessorSlot: assessorSlot,
+            return await addReward({
+                assessorSlotID: assessorSlotID,
                 userAddr: userAddr,
                 value: value,
             })

@@ -92,3 +92,16 @@ export const offChainActions = pgTable('off_chain_actions', {
     communityEngagement: boolean('community_engagement').default(false),
     isBot: boolean('is_bot').default(false),
 })
+
+export const audit = pgTable('audit', {
+    id: uuid('id').defaultRandom().unique().primaryKey(),
+    assessor_slot_id: uuid('assessor_slot_id').references(
+        () => assessor_slot.id
+    ),
+    auditor_address: text('auditor_address').references(() => auditor.address),
+    audit_grade: text('audit_grade'),
+})
+
+export const auditor = pgTable('auditor', {
+    address: text('address').unique().primaryKey(),
+})

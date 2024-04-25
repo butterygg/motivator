@@ -3,7 +3,8 @@ import { Address } from 'viem'
 import { assignAssessorSlot } from '@/server/actions/assessor/assignAssessorSlot'
 import { submitAssessorSlot } from '../../server/actions/assessor/submitAssessorSlot'
 type Props = {
-    assessorAddr: Address | undefined
+    assessorSlotID: string
+    assessorAddr: Address
 }
 
 /**
@@ -12,15 +13,18 @@ type Props = {
  *
  *
  */
-const useSubmitAssessorSlot = ({ assessorAddr }: Props) => {
+const useSubmitAssessorSlot = ({ assessorSlotID, assessorAddr }: Props) => {
     const { data, mutateAsync, status, error } = useMutation({
-        mutationKey: ['assignAssessor'],
+        mutationKey: ['useSubmitAssessorSlot'],
         mutationFn: async () => {
-            return submitAssessorSlot({
+            return await submitAssessorSlot({
+                assessorSlotID: assessorSlotID,
                 assessorAddr: assessorAddr as string,
             })
         },
+
         // enabled: false,
+
         retry: 1,
     })
     return { data, mutateAsync, error, status }
