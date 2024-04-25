@@ -25,8 +25,10 @@ const DataTableAuditContainer = () => {
             assessorSlots.length == 0 ||
             assessorSlots == null ||
             assessorSlots.map == null
-        )
+        ) {
+            if (refetch) refetch()
             return []
+        }
         assessorSlots.map((assessorSlot, index) => {
             if (assessorSlot == null) return
             const rewardSent =

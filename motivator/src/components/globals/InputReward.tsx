@@ -5,24 +5,40 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
 import { Label } from '../ui/label'
 import { useGlobalState } from '../../store/globalStore'
+import { useAccount } from 'wagmi'
+import { useIsThisAssessorSlotYours } from '../../hooks/global/useIsThisAssessorSlotYours'
+import { toast } from 'sonner'
+import { cn } from '../../utils/utils'
 
 type Props = {
     val: number
     userAddr: string
-    assessorSlot: string
+    assessorSlotID: string
 }
 
-const InputReward = ({ val, assessorSlot, userAddr }: Props) => {
+const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
     const { refreshPoints, refreshPointsNeeded } = useGlobalState()
     // to avoid unessesary mutate we need to define an initial value on mount
     const initialVal = val ? val : 0
     const [value, setValue] = useState(initialVal)
     const debouncedValue = useDebounce(value, 200)
     const { mutateAsync, status } = useAddRewardUsers({
-        assessorSlot: assessorSlot,
+        assessorSlotID: assessorSlotID,
         userAddr: userAddr,
         value: debouncedValue,
     })
+
+    const { address } = useAccount()
+
+    const { data, status: statusISYoursAssessorSlots } =
+        useIsThisAssessorSlotYours({
+            assessorAddr: address as string,
+            assessorSlotID: assessorSlotID,
+        })
+    const isAuthorized =
+        statusISYoursAssessorSlots === 'success' && data?.status === 'ok'
+            ? true
+            : false
 
     useEffect(() => {
         // updateValue into DB
@@ -41,9 +57,19 @@ const InputReward = ({ val, assessorSlot, userAddr }: Props) => {
             <Input
                 placeholder="pts"
                 type="number"
-                className="w-20 text-center"
+                className={cn(
+                    isAuthorized ? 'cursor-pointer' : 'cursor-not-allowed',
+                    'w-20 text-center'
+                )}
                 min={0}
-                onChange={(e) => setValue(parseInt(e.target.value))}
+                onChange={(e) => {
+                    isAuthorized
+                        ? setValue(parseInt(e.target.value))
+                        : toast.error(
+                              'You are not authorized to reward this user'
+                          )
+                }}
+                disabled={!isAuthorized}
                 value={value}
                 step={5}
             />
