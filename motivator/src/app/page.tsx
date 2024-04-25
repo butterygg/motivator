@@ -36,10 +36,7 @@ const Signup = (props: Props) => {
 
     useEffect(() => {
         setTimeout(() => {
-            if (
-                assessorSlotID?.res?.done == false &&
-                assessorSlotID?.res?.rewards.length == 0
-            ) {
+            if (assessorSlotID?.res?.done == false) {
                 push(`/assessor/slot/${assessorSlotID?.res?.id}`)
             }
         }, 2000)
