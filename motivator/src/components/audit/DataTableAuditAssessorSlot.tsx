@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { AiOutlineAudit } from 'react-icons/ai'
 import {
     ColumnDef,
     flexRender,
@@ -93,7 +92,7 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                                     Assessor Slot ID
                                 </p>
                                 <div className="flex items-center gap-1">
-                                    <AiOutlineAudit className="h-4 w-4" />
+                                    {/* <AiOutlineAudit className="h-4 w-4" /> */}
                                     <p className="font-bold">
                                         {assessorSlotID}
                                     </p>
