@@ -1,23 +1,31 @@
 import React, { useState } from 'react'
 import { Button } from '../ui/button'
 import { setGrade } from '../../server/actions/audit/setGrade'
-import { cn } from '../../utils/utils'
+import { cn, formatAddress } from '../../utils/utils'
+import { useAccount } from 'wagmi'
+import { toast } from 'sonner'
 
 type Props = {
     auditor: string
     grade: string
+    assessorSlotID: string
 }
 
-const GradeAudit = ({ auditor, grade }: Props) => {
+const GradeAudit = ({ auditor, grade, assessorSlotID }: Props) => {
     const [localGrade, setLocalGrade] = useState(grade)
-
-    const updateGrade = async (grade: string) => {
-        setLocalGrade(grade)
-        await setGrade({
-            auditorAddr: auditor,
-            assessorSlotId: '',
-            grade: grade,
+    const [localAuditor, setLocalAuditor] = useState(auditor)
+    const { address } = useAccount()
+    const updateGrade = async (gradeParam: string) => {
+        setLocalGrade(gradeParam)
+        const response = await setGrade({
+            auditorAddr: address as string,
+            assessorSlotID: assessorSlotID as string,
+            grade: gradeParam,
         })
+        if (response.status === 'ko') {
+            toast.error(response.message)
+        }
+        setLocalAuditor(address as string)
     }
     return (
         <div className="border p-2 flex flex-col items-center rounded-xl">
@@ -45,7 +53,8 @@ const GradeAudit = ({ auditor, grade }: Props) => {
                     C
                 </Button>
             </div>
-            <p>Auditor: {}</p>
+
+            {localAuditor && <p>{formatAddress(localAuditor)}</p>}
         </div>
     )
 }

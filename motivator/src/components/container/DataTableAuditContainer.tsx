@@ -7,21 +7,48 @@ import { RoundSpinner } from '@/components/ui/spinner'
 import { useRouter } from 'next/navigation'
 import { AuditAssessorsSlotsDatatable } from '@/components/audit/DataTableAuditAssessorSlot'
 import { useGetAllAssessorSlotsAudit } from '@/hooks/global/useGetAllAssessorSlotsAudit'
+import { Grade } from '../../types/enum/grade'
+import { Address } from 'viem'
 const DataTableAuditContainer = () => {
+    const { address, status: statusAccount } = useAccount()
+    const { data, error, status, refetch } = useGetAllAssessorSlotsAudit()
+
+    // Refresh the data when the account is connected
+    useEffect(() => {
+        if (statusAccount === 'connected' && refetch) refetch()
+    }, [refetch, statusAccount])
+
     const prepareDataForTable = (assessorSlots: AssessorSlot[]) => {
         const res: AuditAssessorsSlotsDatatable[] = []
-        assessorSlots.forEach((assessorSlot, index) => {
-            const rewardSent = assessorSlot.rewards.reduce((acc, curr) => {
-                return {
-                    date: curr.date,
-                    user_address: curr.user_address,
-                    amount:
-                        (acc?.amount ? acc.amount : 0) +
-                        (curr?.amount ? curr.amount : 0),
-                    assessor_slot_id: curr.assessor_slot_id,
-                    id: curr.id,
-                }
-            })
+        if (
+            assessorSlots === undefined ||
+            assessorSlots.length == 0 ||
+            assessorSlots == null ||
+            assessorSlots.map == null
+        )
+            return []
+        assessorSlots.map((assessorSlot, index) => {
+            if (assessorSlot == null) return
+            const rewardSent =
+                assessorSlot.rewards.length > 0
+                    ? assessorSlot?.rewards?.reduce((acc, curr) => {
+                          return {
+                              date: curr.date,
+                              user_address: curr.user_address,
+                              amount:
+                                  (acc?.amount ? acc.amount : 0) +
+                                  (curr?.amount ? curr.amount : 0),
+                              assessor_slot_id: curr.assessor_slot_id,
+                              id: curr.id,
+                          }
+                      })
+                    : {
+                          date: new Date(),
+                          user_address: '0x0',
+                          amount: 0,
+                          assessor_slot_id: '0x0',
+                          id: '0x0',
+                      }
 
             const auditGrade = assessorSlot.audit?.auditGrade
             const auditAddress = assessorSlot.audit?.auditorAddress
@@ -30,10 +57,14 @@ const DataTableAuditContainer = () => {
                 id: index.toString(),
                 assessorSlotID: assessorSlot.id,
                 assessorAddress: assessorSlot.assessorID,
-                rewardsSent: rewardSent.amount as number,
+                rewardsSent: rewardSent.amount
+                    ? (rewardSent.amount as number)
+                    : 0,
                 audit: {
-                    auditGrade: auditGrade ? auditGrade : undefined,
-                    auditorAddress: auditAddress ? auditAddress : undefined,
+                    auditGrade: auditGrade ? (auditGrade as Grade) : undefined,
+                    auditorAddress: auditAddress
+                        ? (auditAddress as Address)
+                        : undefined,
                 },
             })
         })
@@ -45,32 +76,20 @@ const DataTableAuditContainer = () => {
         })
     }
 
-    const { address, status: statusAccount } = useAccount()
-    const { data, error, status, refetch } = useGetAllAssessorSlotsAudit()
-
-    const { push } = useRouter()
-    // Refresh the data when the account is connected
-    useEffect(() => {
-        if (statusAccount === 'connected' && refetch) refetch()
-    }, [refetch, statusAccount])
-
-    // // Redirecting to avoid error
-    // useEffect(() => {
-    //     if (data === undefined) {
-    //         push(`/`)
-    //     }
-    // }, [data])
-
     // Implement Skeletton
-    if (status != 'success' || data === undefined) {
+    if (status != 'success' || data == undefined || data.length == 0) {
         return (
             <div className="mx-auto">
                 <RoundSpinner size="triplexl" />
             </div>
         )
+    } else {
+        return (
+            <DataTableAuditAssessorSlot
+                users={prepareDataForTable(data ? data : [])}
+            />
+        )
     }
-
-    return <DataTableAuditAssessorSlot users={prepareDataForTable(data)} />
 }
 
 export default DataTableAuditContainer

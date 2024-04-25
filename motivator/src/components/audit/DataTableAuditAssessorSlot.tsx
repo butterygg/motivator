@@ -141,6 +141,7 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             const audit = row.getValue(
                 'audit'
             ) as AuditAssessorsSlotsDatatable['audit']
+            const assessorSlotID = row.getValue('assessorSlotID')
             return (
                 <div className="flex-col">
                     <div className="items-center flex">
@@ -149,13 +150,9 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                             <GradeAudit
                                 auditor={audit.auditorAddress as string}
                                 grade={audit.auditGrade as Grade}
+                                assessorSlotID={assessorSlotID as string}
                             />
                             {/* <p className="font-bold">{audit.auditGrade}</p> */}
-                        </div>
-                    </div>
-                    <div className="items-center flex">
-                        <div className="flex items-center gap-1">
-                            <p className="font-bold">{audit.auditorAddress}</p>
                         </div>
                     </div>
                 </div>
@@ -180,6 +177,12 @@ export function DataTableAuditAssessorSlot({ users }: Props) {
         onRowSelectionChange: setRowSelection,
         state: {
             rowSelection,
+            pagination: {
+                pageIndex: 0,
+                // ! Just to avoid to do a pagination for now , we will change this later
+                // ! And setup a pagination on bottom of the table
+                pageSize: 5000,
+            },
         },
     })
     return (
