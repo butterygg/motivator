@@ -10,16 +10,36 @@ type Props = {}
 
 const NavBar = (props: Props) => {
     return (
-        <div className="items-center max-md:flex-col w-full p-8 justify-between flex">
-            <div className="flex items-center gap-4">
+        <div className="items-center max-md:gap-4 max-md:flex-col w-full p-8 justify-between flex">
+            <div className="flex md:items-center gap-2 md:gap-4 max-md:flex-col">
                 <Link href={'/'}>
-                    <h1 className="font-bold text-2xl">Motivator</h1>
-                    <h2 className="font-semibold text-xl">
+                    <h1 className="font-bold text-2xl text-primary">
+                        Motivator
+                    </h1>
+                    <h2 className="hover:text-primary font-semibold text-xl">
                         A Buttery Good Game
                     </h2>
                 </Link>
-                <Link href={'/payment'}>Purchase Slot</Link>
-                <Link href={'/audit'}>Audit</Link>
+                <div className="flex md:items-center md:ml-14 gap-1 md:gap-8 max-md:flex-col">
+                    <Link
+                        className="hover:text-primary font-semibold text-lg"
+                        href={'/payment'}
+                    >
+                        <h3>Purchase Slot</h3>
+                    </Link>
+                    <Link
+                        className="hover:text-primary font-semibold text-lg"
+                        href={'/audit'}
+                    >
+                        <h3>Audit</h3>
+                    </Link>
+                    <Link
+                        className="hover:text-primary font-semibold text-lg"
+                        href={'https://motivator-docs.buttery.gg'}
+                    >
+                        <h3>Documentation</h3>
+                    </Link>
+                </div>
             </div>
             <div className="flex items-center gap-2">
                 <ToggleTheme />
