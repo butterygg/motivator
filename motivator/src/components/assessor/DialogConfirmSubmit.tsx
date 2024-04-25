@@ -27,6 +27,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Card } from '@/components/ui/card'
+import { Address } from 'viem'
 
 type Props = {
     assessorSlotId: string
@@ -35,8 +36,9 @@ type Props = {
 export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     const [isSubmited, setIsSubmited] = useState(false)
     const { address } = useAccount()
-    const { mutateAsync, status } = useSubmitAssessorSlot({
-        assessorAddr: address,
+    const { data, mutateAsync, status } = useSubmitAssessorSlot({
+        assessorSlotID: assessorSlotId,
+        assessorAddr: address as Address,
     })
     const { push } = useRouter()
 
@@ -55,8 +57,13 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
     }
 
     useEffect(() => {
-        if (status === 'success') {
+        console.log(status, data, 'USEFFECT')
+        if (status === 'success' && data?.status === 'ok') {
             push(`/`)
+        }
+        if (status === 'error' || data?.status === 'ko') {
+            toast.error('Error on Submit')
+            setIsSubmited(false)
         }
     }, [status])
 
@@ -90,8 +97,8 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
                                 <div className=" flex flex-col gap-4 items-center justify-center">
                                     <RoundSpinner size="triplexl" />
                                     <Label className="font-bold">
-                                        Motivator Slot Submitted with success,
-                                        you will be redirected quickly.
+                                        Sending Motivator Slot, you will be
+                                        redirected quickly.
                                     </Label>
                                 </div>
                             </Card>
