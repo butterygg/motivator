@@ -56,7 +56,6 @@ export async function getAllAssessorSlotsAudit() {
             }
             return assessor
         })
-        console.log('result', result)
         return result
     }
     const assessorsSlotsFilled = await buildAssessorSlot()
