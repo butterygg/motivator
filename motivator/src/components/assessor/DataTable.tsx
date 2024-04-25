@@ -67,7 +67,6 @@ export const columns: ColumnDef<UserDatatable>[] = [
         accessorKey: 'addressName',
         header: 'addressName',
         cell: ({ row }) => {
-            const reward = row.getValue('reward') as UserDatatable['reward']
             return (
                 <div className="flex gap-6 items-center">
                     <AddrAvatar
@@ -83,21 +82,9 @@ export const columns: ColumnDef<UserDatatable>[] = [
         accessorKey: 'stat',
         cell: ({ row }) => {
             const stat = row.getValue('stat') as UserDatatable['stat']
-            const pnl = row.getValue('pnl') as UserDatatable['pnl']
 
             return (
                 <div className="flex gap-6 items-center justify-evenly">
-                    {/* <div className="items-center flex-col flex">
-                        <p className="font-extralight text-center text-xs">
-                            PnL
-                        </p>
-                        <div className="flex items-center gap-1">
-                            <DaiLogo className="h-4 w-4" />
-                            <p className="font-bold">
-                                {transformNumberK(Number(stat.totals.totalPnl))}
-                            </p>
-                        </div>
-                    </div> */}
                     <div className="flex items-center">
                         {' '}
                         <p className="[writing-mode:vertical-lr] rotate-180">
@@ -152,18 +139,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             )
         },
     },
-    // {
-    //     accessorKey: 'pnl',
-    //     cell: ({ row }) => {
-    //         ;<>
-    //             {/* <p className="font-extralight pl-1 text-xs">pnl</p>
-    //             <div className="flex">
-    //                 <EthLogo className="h-4 w-4" />
-    //                 <p className="font-bold">{row.getValue('pnl')}K</p>
-    //             </div> */}
-    //         </>
-    //     },
-    // },
+
     {
         accessorKey: 'pnl',
         enableHiding: false,
@@ -171,11 +147,6 @@ export const columns: ColumnDef<UserDatatable>[] = [
             const stat = row.getValue('stat') as UserDatatable['stat']
             const pnl = row.getValue('pnl') as UserDatatable['pnl']
             const reward = row.getValue('reward') as UserDatatable['reward']
-            // const stat = {
-            //     volume: 50,
-            //     actions: 50,
-            //     user_address: '0xEdC0aa5A93992965EaeF1efeEE3c424F304ff102',
-            // }
 
             return (
                 <DialogUserData
@@ -202,7 +173,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
                 <InputReward
                     val={reward?.reward?.amount as number}
                     userAddr={userAddr}
-                    assessorSlot={id.assessorSlotId}
+                    assessorSlotID={id.assessorSlotId}
                 />
             )
         },

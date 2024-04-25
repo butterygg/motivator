@@ -7,7 +7,7 @@ import { useAccount, useSendTransaction, useTransaction } from 'wagmi'
 import { Address, parseEther } from 'viem'
 import { handlePayment } from '@/server/actions/payment/handlePayment'
 import { useRouter } from 'next/navigation'
-import { useGetAssessorSlot } from '../../hooks/assessorSlot/useGetAssessorSlot'
+import { useGetAssessorSlotWithAddr } from '../../hooks/assessorSlot/useGetAssessorSlotWithAddr'
 import { useSession } from 'next-auth/react'
 import { RoundSpinner, SpokeSpinner } from '@/components/ui/spinner'
 import { ethers } from 'ethers'
@@ -29,7 +29,7 @@ const Payment = (props: Props) => {
         data: assessorSlot,
         refetch,
         status: statusAssessorSlot,
-    } = useGetAssessorSlot({
+    } = useGetAssessorSlotWithAddr({
         assessorAddr: address ? address : '',
     })
     const { push } = useRouter()
