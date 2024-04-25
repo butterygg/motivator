@@ -15,15 +15,15 @@ import { toast } from 'sonner'
 export async function addReward({
     userAddr,
     value,
-    assessorSlot,
+    assessorSlotID,
 }: {
     userAddr: string
     value: number
-    assessorSlot: string
+    assessorSlotID: string
 }) {
     const isRewardAlreadyAssigned = await db.query.reward.findFirst({
         where: and(
-            eq(reward.assessor_slot_id, assessorSlot),
+            eq(reward.assessor_slot_id, assessorSlotID),
             eq(reward.user_address, userAddr)
         ),
     })
@@ -43,6 +43,6 @@ export async function addReward({
         amount: value,
         user_address: userAddr,
         date: new Date().toISOString(),
-        assessor_slot_id: assessorSlot,
+        assessor_slot_id: assessorSlotID,
     })
 }
