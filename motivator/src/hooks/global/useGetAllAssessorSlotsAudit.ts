@@ -13,7 +13,7 @@ type Props = {
  */
 const useGetAllAssessorSlotsAudit = () => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['assessorSlot'],
+        queryKey: ['useGetAllAssessorSlotsAudit'],
         queryFn: async () => {
             return getAllAssessorSlotsAudit()
         },

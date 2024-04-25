@@ -12,7 +12,7 @@ type Props = {
  */
 const useGetOffChainActions = ({ user_address }: Props) => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['getRewardUsers'],
+        queryKey: ['useGetOffChainActions'],
         queryFn: async () => {
             return getOffChainActions(user_address)
         },

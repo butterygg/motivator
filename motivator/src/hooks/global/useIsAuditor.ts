@@ -1,21 +1,22 @@
 import { useQuery } from '@tanstack/react-query'
-import { getAssessorSlotWithID } from '../../server/actions/assessor/getAssessorSlotWithID'
+import { getAllAssessorSlotsAudit } from '../../server/actions/globals/getAllAssessorSlotsAudit'
+import { isAuditor } from '../../server/actions/audit/isAuditor'
 
 type Props = {
-    assessorSlotID: string
+    assessorAddr: string
 }
 
 /**
- * This hook is used to fetch the assessor slot of the assessor
+ * This hook is used to verify the auditor address
  * @param {Props} props
  *
  *
  */
-const useGetAssessorSlotWithID = ({ assessorSlotID }: Props) => {
+const useIsAuditor = (auditorAddr: string) => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['useGetAssessorSlotWithID'],
+        queryKey: ['useIsAuditor'],
         queryFn: async () => {
-            return await getAssessorSlotWithID(assessorSlotID)
+            return isAuditor({ auditorAddr: auditorAddr })
         },
         // staleTime: 1000 * 6,
         retry: true,
@@ -29,4 +30,4 @@ const useGetAssessorSlotWithID = ({ assessorSlotID }: Props) => {
     return { error, status }
 }
 
-export { useGetAssessorSlotWithID }
+export { useIsAuditor }

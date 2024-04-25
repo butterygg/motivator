@@ -15,7 +15,7 @@ type Props = {
  */
 const useSubmitAssessorSlot = ({ assessorSlotID, assessorAddr }: Props) => {
     const { data, mutateAsync, status, error } = useMutation({
-        mutationKey: ['assignAssessor'],
+        mutationKey: ['useSubmitAssessorSlot'],
         mutationFn: async () => {
             return await submitAssessorSlot({
                 assessorSlotID: assessorSlotID,

@@ -13,7 +13,7 @@ type Props = {
  */
 const useGetAssessorSlotWithAddr = ({ assessorAddr }: Props) => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['assessorSlot'],
+        queryKey: ['useGetAssessorSlotWithAddr'],
         queryFn: async () => {
             // if (!assessorAddr)
             // return { error: 'No address provided', status: 'error' }

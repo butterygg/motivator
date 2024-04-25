@@ -12,7 +12,7 @@ type Props = {
  */
 const useGetNumberAssessorSlotAvailable = () => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['assessorSlot'],
+        queryKey: ['useGetNumberAssessorSlotAvailable'],
         queryFn: async () => {
             return getNumberAssessorSlotAvailable()
         },

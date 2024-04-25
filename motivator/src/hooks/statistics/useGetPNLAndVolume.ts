@@ -13,7 +13,7 @@ type Props = {
  */
 const useGetPNLAndVolume = ({ userAddr }: Props) => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['assessorSlot'],
+        queryKey: ['useGetPNLAndVolume'],
         queryFn: async () => {
             return getPNLAndVolume({ userAddr })
         },
