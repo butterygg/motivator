@@ -1,6 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import React from 'react'
-import { AssessorSlot } from '../../types/data/assessorSlot'
 import { getAssessorSlotWithAddr } from '../../server/actions/assessor/getAssessorSlotWithAddr'
 
 type Props = {
@@ -17,10 +15,14 @@ const useGetAssessorSlotWithAddr = ({ assessorAddr }: Props) => {
     const { data, refetch, status, error } = useQuery({
         queryKey: ['assessorSlot'],
         queryFn: async () => {
-            return getAssessorSlotWithAddr(assessorAddr)
+            // if (!assessorAddr)
+            // return { error: 'No address provided', status: 'error' }
+            return await getAssessorSlotWithAddr(assessorAddr)
         },
-        // staleTime: 1000 * 6,
+        staleTime: 1,
         retry: true,
+        gcTime: 1,
+        refetchOnMount: false,
         // enabled: false,
     })
 
