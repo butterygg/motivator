@@ -56,11 +56,11 @@ impl Display for LongKey {
 
 /// All Debits are considered from the point of view of player wallets with respect to their
 /// base-token holdings.
-type Long = Vec<LongDebit>;
+type Long = Vec<PositionDebit>;
 
 ///Closes are negative, Opens are positive.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct LongDebit {
+struct PositionDebit {
     block_number: U64,
     timestamp: U256,
     base_amount: I256,
@@ -78,15 +78,7 @@ impl Display for ShortKey {
     }
 }
 
-type Short = Vec<ShortDebit>;
-
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-struct ShortDebit {
-    block_number: U64,
-    timestamp: U256,
-    base_amount: I256,
-    bond_amount: I256,
-}
+type Short = Vec<PositionDebit>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct LpKey {
@@ -337,7 +329,7 @@ async fn write_open_long(
         .await?
         .unwrap()
         .timestamp;
-    let opening = LongDebit {
+    let opening = PositionDebit {
         block_number: meta.block_number,
         timestamp: block_timestamp,
         base_amount: I256::from_raw(event.base_amount),
@@ -378,7 +370,7 @@ async fn write_close_long(
         .await?
         .unwrap()
         .timestamp;
-    let closing = LongDebit {
+    let closing = PositionDebit {
         block_number: meta.block_number,
         timestamp: block_timestamp,
         base_amount: -I256::from_raw(event.base_amount),
@@ -419,7 +411,7 @@ async fn write_open_short(
         .await?
         .unwrap()
         .timestamp;
-    let opening = ShortDebit {
+    let opening = PositionDebit {
         block_number: meta.block_number,
         timestamp: block_timestamp,
         base_amount: I256::from_raw(event.base_amount),
@@ -530,7 +522,7 @@ async fn write_close_short(
         .await?
         .unwrap()
         .timestamp;
-    let closing = ShortDebit {
+    let closing = PositionDebit {
         block_number: meta.block_number,
         timestamp: block_timestamp,
         base_amount: -I256::from_raw(event.base_amount),
@@ -877,15 +869,19 @@ fn calc_pnls(
 
             let cumulative_debit = longs_cumul_debits.get(&long_key).unwrap();
 
-            // [XXX] Are we calling this fn correctly?
-            let calculated_close_shares = hyperdrive_state.calculate_close_long(
-                cumulative_debit.bond_amount,
-                long_key.maturity_time,
-                at_timestamp,
-            );
-            // Knowing `calculate_close_long` returns vault share amounts:
-            let calculated_close_base_amount = calculated_close_shares.normalized()
-                * hyperdrive_state.info.vault_share_price.normalized();
+            let calculated_close_base_amount = if cumulative_debit.bond_amount != U256::zero() {
+                // [XXX] Are we calling this fn correctly?
+                let calculated_close_shares = hyperdrive_state.calculate_close_long(
+                    cumulative_debit.bond_amount,
+                    long_key.maturity_time,
+                    at_timestamp,
+                );
+                // Knowing `calculate_close_long` returns vault share amounts:
+                calculated_close_shares.normalized()
+                    * hyperdrive_state.info.vault_share_price.normalized()
+            } else {
+                U256::zero().normalized()
+            };
 
             let cumulative_base_debit = cumulative_debit.base_amount.normalized();
 
@@ -948,18 +944,22 @@ fn calc_pnls(
                 .expect(maturity_share_errmsg)
                 .price;
 
-            // [XXX] Are we calling this fn correctly?
-            let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
-                cumulative_debit.bond_amount,
-                open_share_price,
-                // [FIXME] This one is to replace with "maturity or current":
-                maturity_share_price,
-                // This argument is maturity time, wheter already happened or not:
-                short_key.maturity_time,
-                at_timestamp,
-            );
-            let calculated_maturity_base_amount = calculated_maturity_shares.normalized()
-                * hyperdrive_state.info.vault_share_price.normalized();
+            let calculated_maturity_base_amount = if cumulative_debit.bond_amount != U256::zero() {
+                // [XXX] Are we calling this fn correctly?
+                let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
+                    cumulative_debit.bond_amount,
+                    open_share_price,
+                    // [FIXME] This one is to replace with "maturity or current":
+                    maturity_share_price,
+                    // This argument is maturity time, wheter already happened or not:
+                    short_key.maturity_time,
+                    at_timestamp,
+                );
+                calculated_maturity_shares.normalized()
+                    * hyperdrive_state.info.vault_share_price.normalized()
+            } else {
+                U256::zero().normalized()
+            };
 
             let cumulative_base_debit = cumulative_debit.base_amount.normalized();
 
@@ -972,7 +972,6 @@ fn calc_pnls(
                 timestamp=timestamp_to_string(at_timestamp),
                 short_key=?short_key,
                 pos_statement=?pos_statement,
-                calc_matu_shares=?calculated_maturity_shares,
                 calc_matu_base=?calculated_maturity_base_amount,
                 h_state=?hyperdrive_state,
                 "ShortPnL"
