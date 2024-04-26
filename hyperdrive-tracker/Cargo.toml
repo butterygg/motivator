@@ -6,8 +6,7 @@ edition = "2021"
 
 [dependencies]
 
-ethers = { version = "2.0.8", features = ["ws"] }
-futures = "0.3"
+ethers = { version = "2.0.9", features = ["ws", "rustls"] }
 hex-literal = "0.4.1"
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1.40"
@@ -24,3 +23,4 @@ dotenv = "0.15.0"
 hyperdrive-wrappers = { git = "https://github.com/delvtech/hyperdrive.git", tag = "v1.0.0", package = "hyperdrive-wrappers" }
 hyperdrive-math = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "hyperdrive-math" }
 fixed-point = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "fixed-point" }
+lazy_static = "1.4.0"
