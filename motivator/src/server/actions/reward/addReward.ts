@@ -28,10 +28,7 @@ export async function addReward({
         ),
     })
     if (isAssessorSlotDone) {
-        toast.error(
-            'This slot is already done you cannot assign a reward to it'
-        )
-        return false
+        return true
     }
     const isRewardAlreadyAssigned = await db.query.reward.findFirst({
         where: and(
