@@ -1,7 +1,7 @@
 'use server'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, between, eq, gte, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, totals, user } from '@db/schema'
+import { assessor_slot, statistics, totals, user } from '@db/schema'
 import { Address } from 'viem'
 // import { v4 as uuid } from 'uuid'
 import { sql } from 'drizzle-orm'
@@ -33,6 +33,23 @@ interface PoolVolume {
     [poolName: string]: number
 }
 
+const HardWeek = (val: string) => {
+    switch (val) {
+        case '1':
+            return '2024-04-9 00:00:00'
+        case '2':
+            return '2024-04-18 00:00:00'
+        case '3':
+            return '2024-04-25 00:00:00'
+        case '4':
+            return '2024-05-02 00:00:00'
+        case '5':
+            return '2024-05-09 00:00:00'
+        default:
+            return '2024-04-9 00:00:00'
+    }
+}
+
 export const setTotals = async () => {
     type totalVolUser = {
         user_address: Address
@@ -41,7 +58,43 @@ export const setTotals = async () => {
     }
     let totalVolUsers: totalVolUser[] = []
     // Get all Statistics for every user
-    const stats = await db.query.statistics.findMany({
+    const lastStats = await db.query.statistics.findMany({
+        where: and(
+            between(
+                statistics.timestamp,
+                HardWeek(
+                    Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL).toString()
+                ),
+                HardWeek(
+                    (Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL) + 1).toString()
+                )
+            )
+        ),
+        columns: {
+            poolType: true,
+            timestamp: true,
+            user_address: true,
+            action_count_longs: true,
+            action_count_lps: true,
+            action_count_shorts: true,
+            volume_longs: true,
+            volume_lps: true,
+            volume_shorts: true,
+            // pnl_lps: true,
+            // pnl_shorts: true,
+            // pnl_longs: true,
+        },
+    })
+    const previousWeekStats = await db.query.statistics.findMany({
+        where: and(
+            between(
+                statistics.timestamp,
+                HardWeek(
+                    (Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL) - 1).toString()
+                ),
+                HardWeek(Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL).toString())
+            )
+        ),
         columns: {
             poolType: true,
             timestamp: true,
@@ -66,9 +119,9 @@ export const setTotals = async () => {
         totalActions: number
     }
     // Set the last stat for each user
-    let arrayOfStats: Stat[] = []
+    let lastArrayOfStats: Stat[] = []
     // Sort the stats by user_address
-    stats.sort((a, b) => {
+    lastStats.sort((a, b) => {
         if (a?.user_address === null || b.user_address === null) {
             return 0
         }
@@ -83,7 +136,7 @@ export const setTotals = async () => {
     const userVolumes: Record<string, PoolVolume> = {}
 
     // Extract the last stat for each user
-    stats.forEach((element) => {
+    lastStats.forEach((element) => {
         const sumVol = Number(
             (
                 (element?.volume_longs
@@ -122,7 +175,7 @@ export const setTotals = async () => {
             totalActions: 0,
         }
 
-        let previousStat = arrayOfStats.find(
+        let previousStat = lastArrayOfStats.find(
             (stat) =>
                 stat.user_address === element.user_address &&
                 stat.pool_type === element.poolType
@@ -135,37 +188,65 @@ export const setTotals = async () => {
         ) {
             // Update the last stat with new Date
             lastStat.timestamp = new Date(element.timestamp)
-
-            // Sum the total Actions
-            lastStat.totalActions = Number(
-                (
-                    (element?.action_count_longs
-                        ? (element?.action_count_longs as number)
-                        : 0) +
-                    (element?.action_count_shorts
-                        ? (element?.action_count_shorts as number)
-                        : 0) +
-                    (element?.action_count_lps
-                        ? (element?.action_count_lps as number)
-                        : 0)
-                ).toFixed(2)
-            )
-
-            // Push the new stat
-            arrayOfStats.push({
-                ...lastStat,
-            })
+            let closestPreviousStat: any
+            // Find the previous stat for the user of the last week
+            for (const stat of previousWeekStats) {
+                if (
+                    stat.user_address === element.user_address &&
+                    stat.poolType === element.poolType &&
+                    stat.timestamp
+                ) {
+                    const targetDate = new Date(
+                        HardWeek(process.env.NEXT_PUBLIC_WEEK_ACTUAL as string)
+                    )
+                    const statDate = new Date(stat.timestamp)
+                    const difference = Math.abs(
+                        statDate.getTime() - targetDate.getTime()
+                    )
+                    if (
+                        !closestPreviousStat ||
+                        difference <
+                            Math.abs(
+                                closestPreviousStat.timestamp.getTime() -
+                                    targetDate.getTime()
+                            )
+                    ) {
+                        closestPreviousStat = stat
+                    }
+                }
+                // Sum the total Actions
+                lastStat.totalActions = Number(
+                    (
+                        (element?.action_count_longs
+                            ? (element?.action_count_longs as number)
+                            : 0) +
+                        (element?.action_count_shorts
+                            ? (element?.action_count_shorts as number)
+                            : 0) +
+                        (element?.action_count_lps
+                            ? (element?.action_count_lps as number)
+                            : 0)
+                    ).toFixed(2)
+                )
+                // We substract the previous totalActions to get the totalActions of the week
+                lastStat.totalActions =
+                    lastStat.totalActions - closestPreviousStat.totalActions
+                // Push the new stat
+                lastArrayOfStats.push({
+                    ...lastStat,
+                })
+            }
         } else {
-            arrayOfStats.push({
+            lastArrayOfStats.push({
                 ...(previousStat as Stat),
             })
         }
         // Delete previous Val
         if (previousStat !== undefined) {
-            arrayOfStats.splice(arrayOfStats.indexOf(previousStat), 1)
+            lastArrayOfStats.splice(lastArrayOfStats.indexOf(previousStat), 1)
         }
     })
-    const buildValuesForTotal = arrayOfStats.map((stat) => {
+    const buildValuesForTotal = lastArrayOfStats.map((stat) => {
         return {
             week: Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL),
             user_address: stat.user_address,
