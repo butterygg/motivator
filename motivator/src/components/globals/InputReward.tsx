@@ -1,3 +1,4 @@
+'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 import { Input } from '../ui/input'
@@ -19,19 +20,22 @@ type Props = {
 const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
     const { refreshPoints, refreshPointsNeeded } = useGlobalState()
     // to avoid unessesary mutate we need to define an initial value on mount
-    const initialVal = val ? val : 0
-    const [value, setValue] = useState(initialVal)
+    const [value, setValue] = useState(val ? val : 0)
+    // Counter caching when you spam the page
+    useEffect(() => {
+        setValue(val)
+    }, [val])
     const debouncedValue = useDebounce(value, 200)
     const {
         mutateAsync,
         status,
-        data: isRewarded,
+        data: isAssessorSlotDone,
     } = useAddRewardUsers({
         assessorSlotID: assessorSlotID,
         userAddr: userAddr,
         value: debouncedValue,
     })
-    const rewarded = isRewarded ? isRewarded : false
+    const rewarded = isAssessorSlotDone == true ? true : false
     const { address } = useAccount()
 
     const { data, status: statusISYoursAssessorSlots } =
@@ -46,7 +50,8 @@ const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
 
     useEffect(() => {
         // updateValue into DB
-        if (debouncedValue != initialVal) mutateAsync()
+        if (rewarded) return
+        if (debouncedValue != val) mutateAsync()
     }, [debouncedValue])
 
     useEffect(() => {
