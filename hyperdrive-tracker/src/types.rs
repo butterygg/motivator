@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-use std::fmt::{self, Display, Formatter};
-use std::sync::Arc;
 
 use dashmap::DashMap;
 use ethers::{
@@ -23,7 +21,7 @@ pub struct HyperdriveConfig {
     pub hyperdrive: Hyperdrive,
     pub contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pub pool_config: i_hyperdrive::PoolConfig,
-    pub events: Arc<Events>,
+    pub ser_events: SerializableEvents,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -34,15 +32,10 @@ pub struct Timeframe {
     pub end_timestamp: U256,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct LongKey {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct PositionKey {
     pub trader: H160,
     pub maturity_time: U256,
-}
-impl Display for LongKey {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "0x{:x}-0x{:x}", self.trader, self.maturity_time)
-    }
 }
 
 /// All Debits are considered from the point of view of player wallets with respect to their
@@ -58,27 +51,11 @@ pub struct PositionDebit {
     pub bond_amount: I256,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct ShortKey {
-    pub trader: H160,
-    pub maturity_time: U256,
-}
-impl Display for ShortKey {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "0x{:x}-0x{:x}", self.trader, self.maturity_time)
-    }
-}
-
 pub type Short = Vec<PositionDebit>;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LpKey {
     pub provider: H160,
-}
-impl Display for LpKey {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "0x{:x}", self.provider)
-    }
 }
 
 pub type Lp = Vec<LpDebit>;
@@ -100,16 +77,16 @@ pub struct SharePrice {
 
 #[derive(Debug, Clone)]
 pub struct Events {
-    pub longs: DashMap<LongKey, Long>,
-    pub shorts: DashMap<ShortKey, Short>,
+    pub longs: DashMap<PositionKey, Long>,
+    pub shorts: DashMap<PositionKey, Short>,
     pub lps: DashMap<LpKey, Lp>,
     pub share_prices: DashMap<U256, SharePrice>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SerializableEvents {
-    pub longs: HashMap<LongKey, Long>,
-    pub shorts: HashMap<ShortKey, Short>,
+    pub longs: HashMap<PositionKey, Long>,
+    pub shorts: HashMap<PositionKey, Short>,
     pub lps: HashMap<LpKey, Lp>,
     pub share_prices: HashMap<U256, SharePrice>,
 }

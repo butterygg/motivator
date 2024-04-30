@@ -31,7 +31,7 @@ async fn write_open_long(
         "OpenLong",
     );
 
-    let key = LongKey {
+    let key = PositionKey {
         trader: event.trader,
         maturity_time: event.maturity_time,
     };
@@ -71,7 +71,7 @@ async fn write_close_long(
         "CloseLong"
     );
 
-    let key = LongKey {
+    let key = PositionKey {
         trader: event.trader,
         maturity_time: event.maturity_time,
     };
@@ -103,7 +103,7 @@ async fn write_open_short(
     events: Arc<Events>,
     event: i_hyperdrive::OpenShortFilter,
     meta: LogMeta,
-) -> Result<ShortKey, Box<dyn Error>> {
+) -> Result<PositionKey, Box<dyn Error>> {
     debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
@@ -113,7 +113,7 @@ async fn write_open_short(
         "OpenShort"
     );
 
-    let key = ShortKey {
+    let key = PositionKey {
         trader: event.trader,
         maturity_time: event.maturity_time,
     };
@@ -145,7 +145,7 @@ async fn write_share_price(
     hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pool_config: &i_hyperdrive::PoolConfig,
     timeframe: &Timeframe,
-    short_key: ShortKey,
+    short_key: PositionKey,
 ) -> Result<(), Box<dyn Error>> {
     let open_checkpoint_time = short_key.maturity_time - pool_config.position_duration;
     let open_block_num = find_block_by_timestamp(
@@ -223,7 +223,7 @@ async fn write_close_short(
         "CloseShort"
     );
 
-    let key = ShortKey {
+    let key = PositionKey {
         trader: event.trader,
         maturity_time: event.maturity_time,
     };

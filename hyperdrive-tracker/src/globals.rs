@@ -24,3 +24,5 @@ lazy_static! {
         deployment_block: U64::from(5663018)
     };
 }
+
+pub const AGGREGATES_FILEPATH: &str = &"hourly.csv";

@@ -43,8 +43,8 @@ struct LpStatement {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct TimeData {
     timestamp: U256,
-    longs: HashMap<LongKey, PositionStatement>,
-    shorts: HashMap<ShortKey, PositionStatement>,
+    longs: HashMap<PositionKey, PositionStatement>,
+    shorts: HashMap<PositionKey, PositionStatement>,
     lps: HashMap<LpKey, LpStatement>,
 }
 
@@ -110,21 +110,19 @@ struct CsvRecord {
 }
 
 fn calc_pnls(
-    events: Arc<Events>,
+    sevents: &SerializableEvents,
     hyperdrive_state: hyperdrive_math::State,
     at_timestamp: U256,
 ) -> (
-    HashMap<LongKey, PositionStatement>,
-    HashMap<ShortKey, PositionStatement>,
+    HashMap<PositionKey, PositionStatement>,
+    HashMap<PositionKey, PositionStatement>,
     HashMap<LpKey, LpStatement>,
 ) {
     // [PERF] We could build these cumulatively in Debit objects.
-    let longs_cumul_debits: HashMap<LongKey, PositionCumulativeDebit> = events
+    let longs_cumul_debits: HashMap<PositionKey, PositionCumulativeDebit> = sevents
         .longs
         .iter()
-        .map(|entry| {
-            let key = *entry.key();
-            let long = entry.value().clone();
+        .map(|(key, long)| {
             let cumul_debits_2 = long.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
@@ -135,7 +133,7 @@ fn calc_pnls(
                     }
                 },
             );
-            (key, cumul_debits_2)
+            (*key, cumul_debits_2)
         })
         .map(|(key, (base_cumul_debit, bond_cumul_credit))| {
             (
@@ -150,12 +148,10 @@ fn calc_pnls(
         })
         .collect();
 
-    let shorts_cumul_debits: HashMap<ShortKey, PositionCumulativeDebit> = events
+    let shorts_cumul_debits: HashMap<PositionKey, PositionCumulativeDebit> = sevents
         .shorts
         .iter()
-        .map(|entry| {
-            let key = *entry.key();
-            let short = entry.value().clone();
+        .map(|(key, short)| {
             let cumul_debits_2 = short.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
@@ -166,7 +162,7 @@ fn calc_pnls(
                     }
                 },
             );
-            (key, cumul_debits_2)
+            (*key, cumul_debits_2)
         })
         .map(|(key, (base_cumul_debit, bond_cumul_credit))| {
             (
@@ -181,12 +177,10 @@ fn calc_pnls(
         })
         .collect();
 
-    let lps_cumul_debits: HashMap<LpKey, LpCumulativeDebit> = events
+    let lps_cumul_debits: HashMap<LpKey, LpCumulativeDebit> = sevents
         .lps
         .iter()
-        .map(|entry| {
-            let key = *entry.key();
-            let lp = entry.value().clone();
+        .map(|(key, lp)| {
             let cumul_debits_2 =
                 lp.iter()
                     .fold((I256::zero(), I256::zero()), |(acc_base, acc_lp), debit| {
@@ -196,7 +190,7 @@ fn calc_pnls(
                             (acc_base, acc_lp)
                         }
                     });
-            (key, cumul_debits_2)
+            (*key, cumul_debits_2)
         })
         .map(|(key, (base_cumul_debit, lp_shares_credit))| {
             (
@@ -209,12 +203,10 @@ fn calc_pnls(
         })
         .collect();
 
-    let longs_pnls: HashMap<LongKey, PositionStatement> = events
+    let longs_pnls: HashMap<PositionKey, PositionStatement> = sevents
         .longs
         .iter()
-        .map(|entry| {
-            let long_key = *entry.key();
-
+        .map(|(long_key, _)| {
             let cumulative_debit = longs_cumul_debits.get(&long_key).unwrap();
 
             let calculated_close_base_amount = if cumulative_debit.bond_amount != U256::zero() {
@@ -246,16 +238,14 @@ fn calc_pnls(
                 pnl: calculated_close_base_amount - cumulative_base_debit,
             };
 
-            (long_key, pos_statement)
+            (*long_key, pos_statement)
         })
         .collect();
 
-    let shorts_pnls: HashMap<ShortKey, PositionStatement> = events
+    let shorts_pnls: HashMap<PositionKey, PositionStatement> = sevents
         .shorts
         .iter()
-        .map(|entry| {
-            let short_key = *entry.key();
-
+        .map(|(short_key, _)| {
             let cumulative_debit = shorts_cumul_debits.get(&short_key).unwrap();
 
             let open_checkpoint_time =
@@ -267,9 +257,9 @@ fn calc_pnls(
                 short_key,
                 hyperdrive_state.config.position_duration,
                 open_checkpoint_time,
-                events.share_prices
+                sevents.share_prices
             );
-            let open_share_price = events
+            let open_share_price = sevents
                 .share_prices
                 .get(&open_checkpoint_time)
                 .expect(open_share_errmsg)
@@ -284,9 +274,9 @@ fn calc_pnls(
                 short_key,
                 hyperdrive_state.config.position_duration,
                 maturity_checkpoint_time,
-                events.share_prices
+                sevents.share_prices
             );
-            let maturity_share_price = events
+            let maturity_share_price = sevents
                 .share_prices
                 .get(&maturity_checkpoint_time)
                 .expect(maturity_share_errmsg)
@@ -325,16 +315,14 @@ fn calc_pnls(
                 "ShortPnL"
             );
 
-            (short_key, pos_statement)
+            (*short_key, pos_statement)
         })
         .collect();
 
-    let lps_pnls: HashMap<LpKey, LpStatement> = events
+    let lps_pnls: HashMap<LpKey, LpStatement> = sevents
         .lps
         .iter()
-        .map(|entry| {
-            let lp_key = *entry.key();
-
+        .map(|(lp_key, _)| {
             let cumulative_debit = lps_cumul_debits.get(&lp_key).unwrap();
 
             let lp_base_amount = cumulative_debit.lp_amount.normalized()
@@ -353,7 +341,7 @@ fn calc_pnls(
                 "LpPnL"
             );
 
-            (lp_key, lp_statement)
+            (*lp_key, lp_statement)
         })
         .collect();
 
@@ -361,7 +349,7 @@ fn calc_pnls(
 }
 
 fn aggregate_per_user_over_period(
-    events: Arc<Events>,
+    sevents: &SerializableEvents,
     last_time_data: TimeData,
     start_timestamp: U256,
     end_timestamp: U256,
@@ -376,10 +364,8 @@ fn aggregate_per_user_over_period(
         "Agg"
     );
 
-    for entry in events.longs.iter() {
-        let long_key = entry.key();
-        let filtered_entries: Vec<_> = entry
-            .value()
+    for (long_key, long) in sevents.longs.iter() {
+        let filtered_entries: Vec<_> = long
             .iter()
             .filter(|debit| {
                 (start_timestamp <= debit.timestamp) && (debit.timestamp < end_timestamp)
@@ -399,16 +385,14 @@ fn aggregate_per_user_over_period(
             .sum::<I256>();
         debug!(
            long_key=?long_key,
-           long=?entry.value(),
+           long=?long,
            action_count_long=%agg.action_count.long,
            volume_long=%agg.volume.long,
            "LongEventInAgg"
         );
     }
-    for entry in events.shorts.iter() {
-        let short_key = entry.key();
-        let filtered_entries: Vec<_> = entry
-            .value()
+    for (short_key, short) in sevents.shorts.iter() {
+        let filtered_entries: Vec<_> = short
             .iter()
             .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
             .collect();
@@ -425,10 +409,8 @@ fn aggregate_per_user_over_period(
             })
             .sum::<I256>();
     }
-    for entry in events.lps.iter() {
-        let lp_key = entry.key();
-        let filtered_entries: Vec<_> = entry
-            .value()
+    for (lp_key, lp) in sevents.lps.iter() {
+        let filtered_entries: Vec<_> = lp
             .iter()
             .filter(|debit| start_timestamp <= debit.timestamp && debit.timestamp < end_timestamp)
             .collect();
@@ -479,10 +461,8 @@ async fn calc_period_aggs(
         .await?;
     let hyperdrive_state =
         hyperdrive_math::State::new(hyperdrive_config.pool_config.clone(), pool_info);
-    // [XXX] What happens if period_end > maturity_date?
     let (longs_stmts, shorts_stmts, lps_stmts) =
-        // [TODO] Try to pass events as reference.
-        calc_pnls(hyperdrive_config.events.clone(), hyperdrive_state, period_end);
+        calc_pnls(&hyperdrive_config.ser_events, hyperdrive_state, period_end);
     let end_time_data = TimeData {
         timestamp: period_end,
         longs: longs_stmts,
@@ -491,8 +471,7 @@ async fn calc_period_aggs(
     };
 
     Ok(aggregate_per_user_over_period(
-        // [TODO] Try to pass events as reference. If ok, remove Arc from events.
-        hyperdrive_config.events.clone(),
+        &hyperdrive_config.ser_events,
         end_time_data,
         period_start,
         period_end,
