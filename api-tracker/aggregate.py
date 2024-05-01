@@ -14,8 +14,10 @@ from decimal import Decimal, getcontext
 from enum import Enum, auto
 from typing import Dict, Iterator, List
 
-START_DATE = datetime.strptime(os.environ['START_DATE'], '%Y-%m-%d').date()
-END_DATE = datetime.strptime(os.environ['END_DATE'], '%Y-%m-%d').date()
+# Start block: 5663018, Apr-09-2024 06:56:48 PM +UTC.
+START_TIME = datetime(2024, 4, 9, 0, 0).replace(tzinfo=timezone.utc)
+# End: at noon Eastern on Thu 17th.
+END_TIME = datetime(2024, 4, 18, 0, 0).replace(tzinfo=timezone.utc)
 
 
 class EventType(Enum):
@@ -159,8 +161,8 @@ def aggregate_day(events: Dict[str, List[Event]], day: date) -> Iterator[Row]:
 
 
 def aggregate(events: Dict[str, List[Event]]) -> Iterator[Row]:
-    day = START_DATE
-    while day < END_DATE:
+    day = START_TIME.date()
+    while day < END_TIME.date():
         yield from aggregate_day(events, day)
 
         day += timedelta(days=1)
