@@ -205,9 +205,9 @@ fn calc_pnls(
 
     let longs_pnls: HashMap<PositionKey, PositionStatement> = sevents
         .longs
-        .iter()
-        .map(|(long_key, _)| {
-            let cumulative_debit = longs_cumul_debits.get(&long_key).unwrap();
+        .keys()
+        .map(|long_key| {
+            let cumulative_debit = longs_cumul_debits.get(long_key).unwrap();
 
             let calculated_close_base_amount = if cumulative_debit.bond_amount != U256::zero() {
                 // [XXX] Are we calling this fn correctly?
@@ -244,9 +244,9 @@ fn calc_pnls(
 
     let shorts_pnls: HashMap<PositionKey, PositionStatement> = sevents
         .shorts
-        .iter()
-        .map(|(short_key, _)| {
-            let cumulative_debit = shorts_cumul_debits.get(&short_key).unwrap();
+        .keys()
+        .map(|short_key| {
+            let cumulative_debit = shorts_cumul_debits.get(short_key).unwrap();
 
             let open_checkpoint_time =
                 short_key.maturity_time - hyperdrive_state.config.position_duration;
@@ -321,9 +321,9 @@ fn calc_pnls(
 
     let lps_pnls: HashMap<LpKey, LpStatement> = sevents
         .lps
-        .iter()
-        .map(|(lp_key, _)| {
-            let cumulative_debit = lps_cumul_debits.get(&lp_key).unwrap();
+        .keys()
+        .map(|lp_key| {
+            let cumulative_debit = lps_cumul_debits.get(lp_key).unwrap();
 
             let lp_base_amount = cumulative_debit.lp_amount.normalized()
                 * hyperdrive_state.info.lp_share_price.normalized();
@@ -461,6 +461,13 @@ async fn calc_period_aggs(
         .await?;
     let hyperdrive_state =
         hyperdrive_math::State::new(hyperdrive_config.pool_config.clone(), pool_info);
+    info!(
+        period_start=?period_start,
+        period_end=?period_end,
+        period_end_block_num=?period_end_block_num,
+        hyperdrive_state=?hyperdrive_state,
+        "CalculatingPeriodPnLs"
+    );
     let (longs_stmts, shorts_stmts, lps_stmts) =
         calc_pnls(&hyperdrive_config.ser_events, hyperdrive_state, period_end);
     let end_time_data = TimeData {

@@ -162,6 +162,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (client, timeframe) = setup().await?;
 
+    // [FIXME] Use the 6 testnet hyperdrive addresses.
     let hyperdrives = vec![*HYPERDRIVE_4626, *HYPERDRIVE_STETH];
 
     if let Some(("acq", _)) = matches.subcommand() {
