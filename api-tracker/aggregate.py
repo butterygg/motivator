@@ -167,24 +167,6 @@ def aggregate(events: Dict[str, List[Event]]) -> Iterator[Row]:
         day += timedelta(days=1)
 
 
-def cumulate_action_counts(rows: List[Row]) -> List[Row]:
-    pool_type = [r.pool_type for r in rows]
-    addresses = [r.user_address for r in rows]
-
-    struct = defaultdict(lambda: {"longs": 0, "shorts": 0, "lps": 0})
-
-    for row in rows:
-        counts = struct[(row.pool_type, row.user_address)]
-        counts["longs"] += row.action_count_longs
-        counts["shorts"] += row.action_count_shorts
-        counts["lps"] += row.action_count_lps
-        row.action_count_longs = counts["longs"]
-        row.action_count_shorts = counts["shorts"]
-        row.action_count_lps = counts["lps"]
-
-    return rows
-
-
 def main():
     with open("./events.json", "r", encoding="utf-8") as f:
         events_data = json.load(f)
@@ -195,7 +177,6 @@ def main():
     }
 
     rows = aggregate(events)
-    rows = cumulate_action_counts(list(rows))
 
     with open("./rows.csv", mode="w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
