@@ -30,7 +30,7 @@ import { Tag } from './Tag'
 import { OffChainActions } from '../../types/enum/status'
 import { Card } from '../ui/card'
 import { transformNumberK } from '../../utils/utils'
-import Link from 'next/link'
+import { WeekSelector } from '../globals/WeekSelector'
 type Props = {
     user: User
 }
@@ -227,9 +227,12 @@ export function DialogUserData({ user }: Props) {
                 </DialogHeader>
                 <div className="flex flex-col items-center lg:flex-row justify-between gap-4 p-4">
                     <div>
-                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Statistics
-                        </Label>
+                        <div className="flex gap-2 justify-between items-center p-3">
+                            <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
+                                Statistics
+                            </Label>
+                            <WeekSelector />
+                        </div>
                         <div className="grid grid-cols-3 items-center gap-2">
                             <DataCard
                                 title="Volume Pool Dai"
