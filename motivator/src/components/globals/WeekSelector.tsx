@@ -27,14 +27,13 @@ export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
                 <SelectItem
                     key={i}
                     value={i.toString()}
-                    onChange={() => handleSelect(i)}
                 >{`Week ${i}`}</SelectItem>
             )
         }
         return items
     }
     return (
-        <Select>
+        <Select onValueChange={(val) => handleSelect(Number(val))}>
             <div className="flex flex-col gap-2">
                 <Label>Week selected</Label>
                 <SelectTrigger className="w-[180px]">
