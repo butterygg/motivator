@@ -27,7 +27,7 @@ export async function getTotals() {
         return await setTotals()
     }
 
-    return await db.query.totals.findMany({})
+    return await db.query.totals.findMany()
 }
 
 interface PoolValue {
@@ -200,14 +200,14 @@ export const setTotals = async () => {
                 }
                 const totalActions = stEthActions + daiActions
                 totalsUsersNbActions[user] = totalActions
-                console.log(
-                    'totalsUsersNbActions[user]',
-                    totalsUsersNbActions[user],
-                    '4626',
-                    userActions[user]['4626'],
-                    'stETH',
-                    userActions[user]['stETH']
-                )
+                // console.log(
+                //     'totalsUsersNbActions[user]',
+                //     totalsUsersNbActions[user],
+                //     '4626',
+                //     userActions[user]['4626'],
+                //     'stETH',
+                //     userActions[user]['stETH']
+                // )
             }
         }
     }
@@ -226,21 +226,24 @@ export const setTotals = async () => {
         }[] = []
         // For each user, build the result
         for (const user in totalsUsersNbActions) {
-            resultDB.push({
-                week: Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL),
-                user_address: user as string,
-                totalActions: totalsUsersNbActions[user] as number,
-                totalVolumePoolEth: userVolumes[user as string]['stETH'],
-                totalVolumePoolDai: userVolumes[user as string]['4626'],
-            })
+            if (!resultDB.find((el) => el.user_address === user)) {
+                resultDB.push({
+                    week: Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL),
+                    user_address: user as string,
+                    totalActions: totalsUsersNbActions[user] as number,
+                    totalVolumePoolEth: userVolumes[user as string]['stETH'],
+                    totalVolumePoolDai: userVolumes[user as string]['4626'],
+                })
+            }
         }
         return resultDB
     }
-
-    const insertTotals = await db
-        .insert(totals)
-        .values(buildTotals())
-        .returning()
-
-    return insertTotals
+    const pushToDB = async () => {
+        const insertTotals = await db
+            .insert(totals)
+            .values(buildTotals())
+            .returning()
+        return insertTotals
+    }
+    return await pushToDB()
 }
