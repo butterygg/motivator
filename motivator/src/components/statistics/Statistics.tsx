@@ -40,10 +40,11 @@ const Statistics = ({ user }: Props) => {
         totalVolumePoolDai: user.stat.totals.totalVolumePoolDai,
     })
 
-    const { data: dataTotals } = useGetTotalsForUserAndWeek({
-        userAddr: user.addressName,
-        weekNumber: weekSelected,
-    })
+    const { data: dataTotals, refetch: refetchTotals } =
+        useGetTotalsForUserAndWeek({
+            userAddr: user.addressName,
+            weekNumber: weekSelected,
+        })
 
     const { data: dataOffChainActions } = useGetOffChainActions({
         user_address: user.addressName,
@@ -63,6 +64,10 @@ const Statistics = ({ user }: Props) => {
             })
         }
     }, [dataTotals])
+
+    useEffect(() => {
+        if (refetchTotals) refetchTotals()
+    }, [refetchTotals, weekSelected])
 
     const buildTags = () => {
         if (!dataOffChainActions?.res) return null

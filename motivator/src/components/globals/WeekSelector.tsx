@@ -17,6 +17,9 @@ type Props = {
 }
 
 export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
+    const handleSelect = (value: number) => {
+        setWeekSelected(value)
+    }
     const buildItems = () => {
         const items = []
         for (let i = 1; i <= Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL); i++) {
@@ -24,14 +27,11 @@ export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
                 <SelectItem
                     key={i}
                     value={i.toString()}
-                    onSelect={() => handleSelect(i)}
+                    onChange={() => handleSelect(i)}
                 >{`Week ${i}`}</SelectItem>
             )
         }
         return items
-    }
-    const handleSelect = (value: number) => {
-        setWeekSelected(value)
     }
     return (
         <Select>
@@ -40,7 +40,7 @@ export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
                 <SelectTrigger className="w-[180px]">
                     <SelectValue
                         defaultValue={weekSelected}
-                        placeholder={` ${weekSelected}`}
+                        placeholder={`Week ${weekSelected}`}
                     />
                 </SelectTrigger>
             </div>
