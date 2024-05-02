@@ -9,20 +9,45 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import { Label } from '../ui/label'
 
-export function WeekSelector() {
+type Props = {
+    weekSelected: string
+    setWeekSelected: (week: string) => void
+}
+
+export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
+    const buildItems = () => {
+        const items = []
+        for (let i = 1; i <= Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL); i++) {
+            items.push(
+                <SelectItem
+                    key={i}
+                    value={`Week ${i}`}
+                    onSelect={() => handleSelect(`Week ${i}`)}
+                >{`Week ${i}`}</SelectItem>
+            )
+        }
+        return items
+    }
+    const handleSelect = (value: string) => {
+        setWeekSelected(value)
+    }
     return (
         <Select>
-            <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Totals for this week" />
-            </SelectTrigger>
+            <div className="flex flex-col gap-2">
+                <Label>Week selected</Label>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue
+                        defaultValue={weekSelected}
+                        placeholder={` ${weekSelected}`}
+                    />
+                </SelectTrigger>
+            </div>
             <SelectContent>
                 <SelectGroup>
                     <SelectLabel>Week</SelectLabel>
-                    <SelectItem value="apple">Week 1</SelectItem>
-                    <SelectItem value="banana">Week 2</SelectItem>
-                    <SelectItem value="blueberry">Week 3</SelectItem>
-                    <SelectItem value="grapes">Week 4</SelectItem>
+                    {buildItems()}
                 </SelectGroup>
             </SelectContent>
         </Select>

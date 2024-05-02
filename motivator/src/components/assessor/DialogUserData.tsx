@@ -78,6 +78,10 @@ export function DialogUserData({ user }: Props) {
     const [LP_VolumeTradingDataPoolDai, setLP_VolumeTradingDataPoolDai] =
         useState<DataSetChartVolumeLP[]>([])
 
+    const [weekSelected, setWeekSelected] = useState(
+        `Week ${Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)}`
+    )
+
     useEffect(() => {
         if (user.stat.stats) {
             // preparePNLTradingData()
@@ -231,7 +235,10 @@ export function DialogUserData({ user }: Props) {
                             <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                                 Statistics
                             </Label>
-                            <WeekSelector />
+                            <WeekSelector
+                                weekSelected={weekSelected}
+                                setWeekSelected={setWeekSelected}
+                            />
                         </div>
                         <div className="grid grid-cols-3 items-center gap-2">
                             <DataCard
