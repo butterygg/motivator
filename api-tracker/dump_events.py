@@ -13,9 +13,11 @@ from moralis import evm_api
 from web3 import Web3
 
 # Prev values: 5663018
+
 START_BLOCK = int(os.environ["START_BLOCK"])
 # Prev values: 5726087, 5775406
 END_BLOCK = int(os.environ["END_BLOCK"])
+
 
 
 MORALIS_API_KEY = os.environ["MORALIS_API_KEY"]
