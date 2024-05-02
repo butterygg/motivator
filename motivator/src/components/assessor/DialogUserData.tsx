@@ -30,7 +30,8 @@ import { Tag } from './Tag'
 import { OffChainActions } from '../../types/enum/status'
 import { Card } from '../ui/card'
 import { transformNumberK } from '../../utils/utils'
-import Link from 'next/link'
+import { WeekSelector } from '../globals/WeekSelector'
+import Statistics from '../statistics/Statistics'
 type Props = {
     user: User
 }
@@ -77,6 +78,10 @@ export function DialogUserData({ user }: Props) {
         useState<DataSetChartVolumeLP[]>([])
     const [LP_VolumeTradingDataPoolDai, setLP_VolumeTradingDataPoolDai] =
         useState<DataSetChartVolumeLP[]>([])
+
+    const [weekSelected, setWeekSelected] = useState(
+        `Week ${Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)}`
+    )
 
     useEffect(() => {
         if (user.stat.stats) {
@@ -225,56 +230,7 @@ export function DialogUserData({ user }: Props) {
                     </DialogTitle>
                     <DialogDescription>Hyperdrive Data</DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center lg:flex-row justify-between gap-4 p-4">
-                    <div>
-                        <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                            Statistics
-                        </Label>
-                        <div className="grid grid-cols-3 items-center gap-2">
-                            <DataCard
-                                title="Volume Pool Dai"
-                                value={
-                                    user.stat.totals.totalVolumePoolDai
-                                        ? transformNumberK(
-                                              Number(
-                                                  user.stat.totals
-                                                      .totalVolumePoolDai
-                                              )
-                                          )
-                                        : 0
-                                }
-                                icon={<DaiLogo className="h-4 w-4" />}
-                            />
-                            <DataCard
-                                title="Volume Pool ETH"
-                                value={
-                                    user.stat.totals.totalVolumePoolEth
-                                        ? transformNumberK(
-                                              Number(
-                                                  user.stat.totals
-                                                      .totalVolumePoolEth
-                                              )
-                                          )
-                                        : 0
-                                }
-                                icon={<EthLogo className="h-4 w-4" />}
-                            />
-                            {/* <DataCard
-                                title="Pnl"
-                                value={Number(user.stat.totals.totalPnl) + 'K$'}
-                            /> */}
-                            <DataCard
-                                title="Actions"
-                                value={
-                                    user.stat.totals.totalActions
-                                        ? Number(user.stat.totals.totalActions)
-                                        : 0
-                                }
-                            />
-                        </div>
-                    </div>
-                    <Card className="items-center gap-2">{buildTags()}</Card>
-                </div>
+                <Statistics user={user} />
                 <>
                     {(VolumeTradingDataPoolEth.length > 0 ||
                         LP_VolumeTradingDataPoolEth.length > 0) && (

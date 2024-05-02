@@ -1,15 +1,15 @@
 'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
-import { Input } from '../ui/input'
+import { Input } from '@/components/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useAddRewardUsers } from '../../hooks/reward/useAddRewardUsers'
-import { Label } from '../ui/label'
-import { useGlobalState } from '../../store/globalStore'
+import { useAddRewardUsers } from '@/hooks/reward/useAddRewardUsers'
+import { Label } from '@/components/ui/label'
+import { useGlobalState } from '@/store/globalStore'
 import { useAccount } from 'wagmi'
-import { useIsThisAssessorSlotYours } from '../../hooks/global/useIsThisAssessorSlotYours'
+import { useIsThisAssessorSlotYours } from '@/hooks/global/useIsThisAssessorSlotYours'
 import { toast } from 'sonner'
-import { cn } from '../../utils/utils'
+import { cn } from '@/utils/utils'
 
 type Props = {
     val: number

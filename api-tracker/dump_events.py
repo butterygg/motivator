@@ -13,16 +13,26 @@ from moralis import evm_api
 from web3 import Web3
 
 # Prev values: 5663018
-START_BLOCK = int(os.environ['START_BLOCK'])
+
+START_BLOCK = int(os.environ["START_BLOCK"])
 # Prev values: 5726087, 5775406
-END_BLOCK = int(os.environ['END_BLOCK'])
+END_BLOCK = int(os.environ["END_BLOCK"])
+
 
 
 MORALIS_API_KEY = os.environ["MORALIS_API_KEY"]
 
 CONTRACT = {
-    "4626": "0x392839da0dacac790bd825c81ce2c5e264d793a8",
-    "stETH": "0xff33bd6d7ed4119c99c310f3e5f0fa467796ee23",
+    "4626": [
+        "0x392839da0dacac790bd825c81ce2c5e264d793a8",
+        "0x0436b07823da988484b70309b0d1b509eadd2173",
+        "0xb932f8085399c228b16a9f7fc3219d47ffa2810d",
+    ],
+    "stETH": [
+        "0xff33bd6d7ed4119c99c310f3e5f0fa467796ee23",
+        "0x72e19347512c194a6812c72934bf0439ffb31a26",
+        "0x4e38fd41c03ff11b3426efae53138b86116797b8",
+    ],
 }
 
 
@@ -491,20 +501,20 @@ def events():
     web3 = Web3()
     es = {}
 
-    for contract_name, contract_addr in CONTRACT.items():
+    for contract_name, contract_addrs in CONTRACT.items():
         es[contract_name] = []
-
-        for event_type, event_struct in EVENTS_STRUCT.items():
-            new_events, cursor = result_and_cursor(
-                web3, contract_addr, event_type, event_struct
-            )
-            es[contract_name] += new_events
-
-            while cursor:
+        for contract_addr in contract_addrs:
+            for event_type, event_struct in EVENTS_STRUCT.items():
                 new_events, cursor = result_and_cursor(
-                    web3, contract_addr, event_type, event_struct, cursor
+                    web3, contract_addr, event_type, event_struct
                 )
                 es[contract_name] += new_events
+
+                while cursor:
+                    new_events, cursor = result_and_cursor(
+                        web3, contract_addr, event_type, event_struct, cursor
+                    )
+                    es[contract_name] += new_events
 
     return es
 
