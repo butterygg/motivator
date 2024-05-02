@@ -27,7 +27,9 @@ export async function getTotals() {
         return await setTotals()
     }
 
-    return await db.query.totals.findMany()
+    return await db.query.totals.findMany({
+        where: eq(totals.week, Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)),
+    })
 }
 
 interface PoolValue {
