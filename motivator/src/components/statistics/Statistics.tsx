@@ -106,10 +106,10 @@ const Statistics = ({ user }: Props) => {
                     <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                         Statistics
                     </Label>
-                    <WeekSelector
+                    {/* <WeekSelector
                         weekSelected={weekSelected}
                         setWeekSelected={setWeekSelected}
-                    />
+                    /> */}
                 </div>
                 <div className="grid grid-cols-3 items-center gap-2">
                     <DataCard
