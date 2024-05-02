@@ -53,7 +53,13 @@ const Statistics = ({ user }: Props) => {
     useEffect(() => {
         // Check if the dataTotals are different from the user data
         // It means that another week of stats has been selected
-        if (dataTotals && dataTotals.week !== user.stat.totals.week) {
+        console.log('dataTotalsk', dataTotals, user.stat.totals.week)
+        if (dataTotals && dataTotals.week != user.stat.totals.week) {
+            console.log(
+                'Updating dataTotals',
+                dataTotals,
+                user.stat.totals.week
+            )
             setUserFreshData({
                 id: user.id,
                 week: dataTotals.week,
@@ -106,10 +112,10 @@ const Statistics = ({ user }: Props) => {
                     <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                         Statistics
                     </Label>
-                    {/* <WeekSelector
+                    <WeekSelector
                         weekSelected={weekSelected}
                         setWeekSelected={setWeekSelected}
-                    /> */}
+                    />
                 </div>
                 <div className="grid grid-cols-3 items-center gap-2">
                     <DataCard
