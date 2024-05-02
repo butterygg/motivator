@@ -12,8 +12,8 @@ import {
 import { Label } from '../ui/label'
 
 type Props = {
-    weekSelected: string
-    setWeekSelected: (week: string) => void
+    weekSelected: number
+    setWeekSelected: (week: number) => void
 }
 
 export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
@@ -23,14 +23,14 @@ export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
             items.push(
                 <SelectItem
                     key={i}
-                    value={`Week ${i}`}
-                    onSelect={() => handleSelect(`Week ${i}`)}
+                    value={i.toString()}
+                    onSelect={() => handleSelect(i)}
                 >{`Week ${i}`}</SelectItem>
             )
         }
         return items
     }
-    const handleSelect = (value: string) => {
+    const handleSelect = (value: number) => {
         setWeekSelected(value)
     }
     return (

@@ -31,6 +31,7 @@ import { OffChainActions } from '../../types/enum/status'
 import { Card } from '../ui/card'
 import { transformNumberK } from '../../utils/utils'
 import { WeekSelector } from '../globals/WeekSelector'
+import Statistics from '../statistics/Statistics'
 type Props = {
     user: User
 }
@@ -229,62 +230,7 @@ export function DialogUserData({ user }: Props) {
                     </DialogTitle>
                     <DialogDescription>Hyperdrive Data</DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center lg:flex-row justify-between gap-4 p-4">
-                    <div>
-                        <div className="flex gap-2 justify-between items-center p-3">
-                            <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
-                                Statistics
-                            </Label>
-                            <WeekSelector
-                                weekSelected={weekSelected}
-                                setWeekSelected={setWeekSelected}
-                            />
-                        </div>
-                        <div className="grid grid-cols-3 items-center gap-2">
-                            <DataCard
-                                title="Volume Pool Dai"
-                                value={
-                                    user.stat.totals.totalVolumePoolDai
-                                        ? transformNumberK(
-                                              Number(
-                                                  user.stat.totals
-                                                      .totalVolumePoolDai
-                                              )
-                                          )
-                                        : 0
-                                }
-                                icon={<DaiLogo className="h-4 w-4" />}
-                            />
-                            <DataCard
-                                title="Volume Pool ETH"
-                                value={
-                                    user.stat.totals.totalVolumePoolEth
-                                        ? transformNumberK(
-                                              Number(
-                                                  user.stat.totals
-                                                      .totalVolumePoolEth
-                                              )
-                                          )
-                                        : 0
-                                }
-                                icon={<EthLogo className="h-4 w-4" />}
-                            />
-                            {/* <DataCard
-                                title="Pnl"
-                                value={Number(user.stat.totals.totalPnl) + 'K$'}
-                            /> */}
-                            <DataCard
-                                title="Actions"
-                                value={
-                                    user.stat.totals.totalActions
-                                        ? Number(user.stat.totals.totalActions)
-                                        : 0
-                                }
-                            />
-                        </div>
-                    </div>
-                    <Card className="items-center gap-2">{buildTags()}</Card>
-                </div>
+                <Statistics user={user} />
                 <>
                     {(VolumeTradingDataPoolEth.length > 0 ||
                         LP_VolumeTradingDataPoolEth.length > 0) && (
