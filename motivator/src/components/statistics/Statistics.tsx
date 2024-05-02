@@ -1,6 +1,6 @@
 'use client'
 import { Card } from '@/components/ui/card'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { transformNumberK } from '@/utils/utils'
 import { DataCard } from '@/components/assessor/DataCard'
 import { WeekSelector } from '@/components/globals/WeekSelector'
@@ -16,12 +16,31 @@ type Props = {
     user: User
 }
 
+type DataTotals = {
+    id: string
+    week: number | null
+    user_address: string | null
+    totalActions: number | null
+    totalVolumePoolEth: number | null
+    totalVolumePoolDai: number | null
+}
+
 const Statistics = ({ user }: Props) => {
     const [weekSelected, setWeekSelected] = useState(
         Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)
     )
 
-    const {} = useGetTotalsForUserAndWeek({
+    // This State contain the last data fetched from the server or given by the parent component
+    const [userFreshData, setUserFreshData] = useState<DataTotals>({
+        id: user.id,
+        week: user.stat.totals.week,
+        user_address: user.addressName,
+        totalActions: user.stat.totals.totalActions,
+        totalVolumePoolEth: user.stat.totals.totalVolumePoolEth,
+        totalVolumePoolDai: user.stat.totals.totalVolumePoolDai,
+    })
+
+    const { data: dataTotals } = useGetTotalsForUserAndWeek({
         userAddr: user.addressName,
         weekNumber: weekSelected,
     })
@@ -29,6 +48,21 @@ const Statistics = ({ user }: Props) => {
     const { data: dataOffChainActions } = useGetOffChainActions({
         user_address: user.addressName,
     })
+
+    useEffect(() => {
+        // Check if the dataTotals are different from the user data
+        // It means that another week of stats has been selected
+        if (dataTotals && dataTotals.week !== user.stat.totals.week) {
+            setUserFreshData({
+                id: user.id,
+                week: dataTotals.week,
+                user_address: user.addressName,
+                totalActions: dataTotals.totalActions,
+                totalVolumePoolEth: dataTotals.totalVolumePoolEth,
+                totalVolumePoolDai: dataTotals.totalVolumePoolDai,
+            })
+        }
+    }, [dataTotals])
 
     const buildTags = () => {
         if (!dataOffChainActions?.res) return null
@@ -76,11 +110,9 @@ const Statistics = ({ user }: Props) => {
                     <DataCard
                         title="Volume Pool Dai"
                         value={
-                            user.stat.totals.totalVolumePoolDai
+                            userFreshData.totalVolumePoolDai
                                 ? transformNumberK(
-                                      Number(
-                                          user.stat.totals.totalVolumePoolDai
-                                      )
+                                      Number(userFreshData.totalVolumePoolDai)
                                   )
                                 : 0
                         }
@@ -89,11 +121,9 @@ const Statistics = ({ user }: Props) => {
                     <DataCard
                         title="Volume Pool ETH"
                         value={
-                            user.stat.totals.totalVolumePoolEth
+                            userFreshData.totalVolumePoolEth
                                 ? transformNumberK(
-                                      Number(
-                                          user.stat.totals.totalVolumePoolEth
-                                      )
+                                      Number(userFreshData.totalVolumePoolEth)
                                   )
                                 : 0
                         }
@@ -106,8 +136,8 @@ const Statistics = ({ user }: Props) => {
                     <DataCard
                         title="Actions"
                         value={
-                            user.stat.totals.totalActions
-                                ? Number(user.stat.totals.totalActions)
+                            userFreshData.totalActions
+                                ? Number(userFreshData.totalActions)
                                 : 0
                         }
                     />
