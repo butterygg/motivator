@@ -497,7 +497,7 @@ class CustomEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def events():
+def get_events():
     web3 = Web3()
     es = {}
 
@@ -520,9 +520,9 @@ def events():
 
 
 def main():
-    es = events()
+    es = get_events()
 
-    with open("events.json", "w", encoding="utf-8") as f:
+    with open(f"events-{START_BLOCK}-{END_BLOCK}.json", "w", encoding="utf-8") as f:
         json.dump(
             {
                 cname: [asdict(cevent) for cevent in cevents]
