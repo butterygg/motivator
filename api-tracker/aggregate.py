@@ -170,7 +170,7 @@ def aggregate(events: Dict[str, List[Event]]) -> Iterator[Row]:
 
 
 def main():
-    with open("./events.json", "r", encoding="utf-8") as f:
+    with open(os.environ["EVENTS"], "r", encoding="utf-8") as f:
         events_data = json.load(f)
 
     events = {
