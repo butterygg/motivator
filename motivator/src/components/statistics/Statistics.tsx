@@ -51,15 +51,7 @@ const Statistics = ({ user }: Props) => {
     })
 
     useEffect(() => {
-        // Check if the dataTotals are different from the user data
-        // It means that another week of stats has been selected
-        console.log('dataTotalsk', dataTotals, user.stat.totals.week)
-        if (dataTotals && dataTotals.week != user.stat.totals.week) {
-            console.log(
-                'Updating dataTotals',
-                dataTotals,
-                user.stat.totals.week
-            )
+        if (dataTotals) {
             setUserFreshData({
                 id: user.id,
                 week: dataTotals.week,
