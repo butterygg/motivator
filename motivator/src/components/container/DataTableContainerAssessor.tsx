@@ -5,11 +5,10 @@ import {
     UserDatatable,
 } from '@/components/assessor/DataTableAssessor'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
-import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
 import { RoundSpinner } from '../ui/spinner'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useGetAssessorSlotWithID } from '../../hooks/assessorSlot/useGetAssessorSlotWithID'
 const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
