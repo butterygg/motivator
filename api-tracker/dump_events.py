@@ -13,9 +13,11 @@ from moralis import evm_api
 from web3 import Web3
 
 # Prev values: 5663018
+
 START_BLOCK = int(os.environ["START_BLOCK"])
 # Prev values: 5726087, 5775406
 END_BLOCK = int(os.environ["END_BLOCK"])
+
 
 
 MORALIS_API_KEY = os.environ["MORALIS_API_KEY"]
@@ -495,7 +497,7 @@ class CustomEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 
-def events():
+def get_events():
     web3 = Web3()
     es = {}
 
@@ -518,9 +520,9 @@ def events():
 
 
 def main():
-    es = events()
+    es = get_events()
 
-    with open("events.json", "w", encoding="utf-8") as f:
+    with open(f"events-{START_BLOCK}-{END_BLOCK}.json", "w", encoding="utf-8") as f:
         json.dump(
             {
                 cname: [asdict(cevent) for cevent in cevents]
