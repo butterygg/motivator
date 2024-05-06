@@ -22,19 +22,25 @@ const NavBar = (props: Props) => {
                 </Link>
                 <div className="flex md:items-center md:ml-14 gap-1 md:gap-8 max-md:flex-col">
                     <Link
-                        className="hover:text-primary font-semibold text-lg"
+                        className="hover:text-primary font-semibold text-md"
                         href={'/payment'}
                     >
                         <h3>Purchase Slot</h3>
                     </Link>
                     <Link
-                        className="hover:text-primary font-semibold text-lg"
+                        className="hover:text-primary font-semibold text-md"
                         href={'/audit'}
                     >
                         <h3>Audit</h3>
                     </Link>
                     <Link
-                        className="hover:text-primary font-semibold text-lg"
+                        className="hover:text-primary font-semibold text-md"
+                        href={'/leaderboard'}
+                    >
+                        <h3>Leaderboard</h3>
+                    </Link>
+                    <Link
+                        className="hover:text-primary font-semibold text-md"
                         href={'https://motivator-docs.buttery.gg'}
                     >
                         <h3>Documentation</h3>
