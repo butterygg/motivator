@@ -4,6 +4,7 @@ import * as React from 'react'
 
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
@@ -27,6 +28,8 @@ import {
     PaginationNext,
     PaginationPrevious,
 } from '@/components/ui/pagination'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
 
 export type LeaderboardDatatable = {
     id: string
@@ -43,24 +46,22 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'id',
         id: 'id',
-        cell: ({ row }) => (
-            <>
-                <p className="font-bold"># {row.index + 1} </p>
-            </>
-        ),
-        enableSorting: false,
-        enableHiding: false,
+        cell: ({ row }) => {
+            return (
+                <div className="w-6">
+                    <p className="font-bold"># {row.index + 1} </p>
+                </div>
+            )
+        },
     },
     {
         accessorKey: 'addressName',
         header: 'addressName',
         cell: ({ row }) => {
+            const addr = row?.original?.addressName
             return (
                 <div className="flex gap-6 items-center">
-                    <AddrAvatar
-                        addressName={row.getValue('addressName')}
-                        isDatatableStyle
-                    />
+                    <AddrAvatar addressName={addr} isDatatableStyle />
                 </div>
             )
         },
@@ -69,32 +70,38 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'rewardsReceived',
         cell: ({ row }) => {
-            const rewardsReceived = row.getValue(
-                'rewardsReceived'
-            ) as LeaderboardDatatable['rewardsReceived']
+            // const rewardsReceived = row.getValue(
+            //     'rewardsReceived'
+            // ) as LeaderboardDatatable['rewardsReceived']
+
+            const rewardsReceived = row?.original?.rewardsReceived
 
             return (
                 <div className="flex items-center ">
                     <div className="flex flex-col">
                         <div className="items-center flex-col flex">
-                            <p className="font-extralight text-center text-xs">
+                            <p className="font-extralight text-center text-md">
                                 Rewards Received
                             </p>
                             <div className="flex items-center gap-1">
                                 <Label className="font-extralight text-center text-xs">
-                                    Motivator Rewards
+                                    Motivator:
                                 </Label>
                                 <p className="font-bold">
-                                    {rewardsReceived.rewards}
+                                    {rewardsReceived?.rewards
+                                        ? rewardsReceived?.rewards
+                                        : 0}
                                 </p>
                             </div>
                             <div className="flex items-center gap-1">
                                 <Label className="font-extralight text-center text-xs">
                                     {' '}
-                                    Audit Rewards
+                                    Audit:
                                 </Label>
                                 <p className="font-bold">
-                                    {rewardsReceived.audit}
+                                    {rewardsReceived?.audit
+                                        ? rewardsReceived?.audit
+                                        : 0}
                                 </p>
                             </div>
                         </div>
@@ -106,10 +113,11 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'rewardsReceived',
         cell: ({ row }) => {
-            const rewardsReceived = row.getValue(
-                'rewardsReceived'
-            ) as LeaderboardDatatable['rewardsReceived']
-            const total = rewardsReceived.rewards + rewardsReceived.audit
+            // const rewardsReceived = row.getValue(
+            //     'rewardsReceived'
+            // ) as LeaderboardDatatable['rewardsReceived']
+            const rewardsReceived = row?.original?.rewardsReceived
+            const total = rewardsReceived?.rewards + rewardsReceived?.audit
             return (
                 <div className="flex items-center ">
                     <div className="flex flex-col">
@@ -118,7 +126,7 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
                                 Total
                             </Label>
                             <div className="flex items-center gap-1">
-                                <p className="font-bold">{total}</p>
+                                <p className="font-bold">{total ? total : 0}</p>
                             </div>
                         </div>
                     </div>
@@ -130,10 +138,10 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
         accessorKey: 'isTestnetMember',
         enableHiding: false,
         cell: ({ row }) => {
-            const isTestnetMember = row.getValue(
-                'stat'
-            ) as LeaderboardDatatable['isTestnetMember']
-
+            // const isTestnetMember = row.getValue(
+            //     'stat'
+            // ) as LeaderboardDatatable['isTestnetMember']
+            const isTestnetMember = row?.original?.isTestnetMember
             return (
                 <div className="flex items-center ">
                     <div className="flex flex-col">
@@ -158,6 +166,8 @@ export type Props = {
 
 export function DataTableLeaderboard({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([])
     const table = useReactTable({
         data: users,
         columns,
@@ -165,18 +175,60 @@ export function DataTableLeaderboard({ users }: Props) {
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        onColumnFiltersChange: setColumnFilters,
         onRowSelectionChange: setRowSelection,
         state: {
             rowSelection,
+            columnFilters,
+            pagination: {
+                pageIndex: 0,
+                // ! Just to avoid to do a pagination for now , we will change this later
+                // ! And setup a pagination on bottom of the table
+                pageSize: 500,
+            },
         },
     })
 
     return (
         <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
-            <div className="flex p-4 w-full justify-between">
-                <SearchBar />
-            </div>
+            <Label>Top 500 Leaderboard</Label>
             <div className="rounded-md border">
+                <div className="flex justify-between">
+                    <div className="flex p-4  justify-between">
+                        <Input
+                            placeholder="Filter user"
+                            value={
+                                (table
+                                    .getColumn('addressName')
+                                    ?.getFilterValue() as string) ?? ''
+                            }
+                            onChange={(event) =>
+                                table
+                                    .getColumn('addressName')
+                                    ?.setFilterValue(event.target.value)
+                            }
+                            className="max-w-sm"
+                        />
+                    </div>
+                    <div className="flex items-center justify-end space-x-2 p-4">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
                 <Table>
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
@@ -208,22 +260,6 @@ export function DataTableLeaderboard({ users }: Props) {
                             </TableRow>
                         )}
                     </TableBody>
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious href="#" />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationLink href="#">1</PaginationLink>
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationEllipsis />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationNext href="#" />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
                 </Table>
             </div>
         </div>
