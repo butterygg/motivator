@@ -16,12 +16,26 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 import { SlCheck, SlClose } from 'react-icons/sl'
 
-import SearchBar from '../globals/SearchBar'
+import SearchBar from '@/components/globals/SearchBar'
+import { Label } from '@/components/ui/label'
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from '@/components/ui/pagination'
 
 export type LeaderboardDatatable = {
-    id: { id: string; assessorSlotId: string }
+    id: string
     addressName: string
-    slotsSubmitted: number
+    rewardsReceived: {
+        audit: number
+        rewards: number
+    }
+    total: number
     isTestnetMember: boolean
 }
 
@@ -53,21 +67,58 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
     },
 
     {
-        accessorKey: 'slotsSubmitted',
+        accessorKey: 'rewardsReceived',
         cell: ({ row }) => {
-            const slotsSubmitted = row.getValue(
-                'slotsSubmitted'
-            ) as LeaderboardDatatable['slotsSubmitted']
+            const rewardsReceived = row.getValue(
+                'rewardsReceived'
+            ) as LeaderboardDatatable['rewardsReceived']
 
             return (
                 <div className="flex items-center ">
                     <div className="flex flex-col">
                         <div className="items-center flex-col flex">
                             <p className="font-extralight text-center text-xs">
-                                Slots Submitted
+                                Rewards Received
                             </p>
                             <div className="flex items-center gap-1">
-                                <p className="font-bold">{slotsSubmitted}</p>
+                                <Label className="font-extralight text-center text-xs">
+                                    Motivator Rewards
+                                </Label>
+                                <p className="font-bold">
+                                    {rewardsReceived.rewards}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <Label className="font-extralight text-center text-xs">
+                                    {' '}
+                                    Audit Rewards
+                                </Label>
+                                <p className="font-bold">
+                                    {rewardsReceived.audit}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        },
+    },
+    {
+        accessorKey: 'rewardsReceived',
+        cell: ({ row }) => {
+            const rewardsReceived = row.getValue(
+                'rewardsReceived'
+            ) as LeaderboardDatatable['rewardsReceived']
+            const total = rewardsReceived.rewards + rewardsReceived.audit
+            return (
+                <div className="flex items-center ">
+                    <div className="flex flex-col">
+                        <div className="items-center flex-col flex">
+                            <Label className="font-extralight text-center text-xs">
+                                Total
+                            </Label>
+                            <div className="flex items-center gap-1">
+                                <p className="font-bold">{total}</p>
                             </div>
                         </div>
                     </div>
@@ -102,13 +153,13 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
 ]
 
 export type Props = {
-    assessors: LeaderboardDatatable[]
+    users: LeaderboardDatatable[]
 }
 
-export function DataTableLeaderboard({ assessors }: Props) {
+export function DataTableLeaderboard({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
-        data: assessors,
+        data: users,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
@@ -157,6 +208,22 @@ export function DataTableLeaderboard({ assessors }: Props) {
                             </TableRow>
                         )}
                     </TableBody>
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious href="#" />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationLink href="#">1</PaginationLink>
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationEllipsis />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext href="#" />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </Table>
             </div>
         </div>
