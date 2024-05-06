@@ -3,12 +3,12 @@ import React from 'react'
 
 type Props = {}
 
-import { DataTableContainerLeaderboardAssessor } from '@/components/container/DataTableContainerAssessor'
+import { DataTableContainer } from '@/components/container/DataTableContainerAssessor'
 
 const HomeAssessor = (props: Props) => {
     return (
         <main className="flex lg:flex-row w-full">
-            <DataTableContainerLeaderboardAssessor />
+            <DataTableContainer />
         </main>
     )
 }
