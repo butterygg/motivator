@@ -15,14 +15,8 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 
 import { Address } from 'viem'
-import { useGetAssessorSlotIDFromURL } from '@/hooks/global/useGetAssessorSlotIDFromURL'
 import Link from 'next/link'
 import { Grade } from '@/types/enum/grade'
-import { transformNumberK } from '../../utils/utils'
-import { UserDatatable } from '../assessor/DataTable'
-import EthLogo from '~/ethereum-eth-logo.svg'
-import DaiLogo from '~/dai.svg'
-import { Statistics, Totals } from '../../types/data/assessorSlot'
 import GradeAudit from './GradeAudit'
 
 export type AuditAssessorsSlotsDatatable = {
