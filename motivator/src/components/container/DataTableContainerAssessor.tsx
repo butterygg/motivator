@@ -10,7 +10,7 @@ import { Status } from '@/types/enum/status'
 import { RoundSpinner } from '../ui/spinner'
 import { usePathname } from 'next/navigation'
 import { useGetAssessorSlotWithID } from '../../hooks/assessorSlot/useGetAssessorSlotWithID'
-const DataTableContainer = () => {
+export const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
         assessorSlot?.users.forEach((element, index) => {
