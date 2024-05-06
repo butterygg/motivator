@@ -20,11 +20,7 @@ type Props = {
     isDatatableStyle?: boolean
 }
 
-const AddrAvatar = ({
-    addressName = '0xMazout.eth',
-    src = 'https://avatars.githubusercontent.com/u/1000000?v=4',
-    isDatatableStyle = false,
-}: Props) => {
+const AddrAvatar = ({ addressName, isDatatableStyle = false }: Props) => {
     return (
         <div
             className={cn(

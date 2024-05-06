@@ -69,7 +69,7 @@ export const getAllLeaderboardRewards = async () => {
                     totalAudit += auditComputation(audit?.audit_grade as Grade)
                 })
             }
-            if (totalRewards === 0 && totalAudit === 0) return
+            // if (totalRewards === 0 && totalAudit === 0) return
             // console.log('totals', totalRewards, totalAudit)
             return {
                 id: element.address,
