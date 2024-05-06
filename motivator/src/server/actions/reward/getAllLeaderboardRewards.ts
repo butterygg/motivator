@@ -14,6 +14,8 @@ export const getAllLeaderboardRewards = async () => {
         .execute()
 
     const users = await db.select().from(user).execute()
+
+    console.log('users', users)
     const assessors = await db.select().from(assessor).execute()
     if (!rewards) {
         return {
@@ -23,11 +25,11 @@ export const getAllLeaderboardRewards = async () => {
     }
 
     const audits = await db.select().from(audit).execute()
-
+    // const users = [{ address: '0x3Eb92eBE3e1f226b14E78Af49646aFEA61Fb016C' }]
     // Build the rewards for each user parsing his rewards and potentially his audit
-    const buildRewards = () => {
-        const res: LeaderboardDatatable[] = []
-        users.forEach(async (element) => {
+    const buildRewards = async () => {
+        // let res: LeaderboardDatatable[] = []
+        const res = users.map(async (element) => {
             // Find the rewards for this user
             const rewardsForUser = rewards.filter(
                 (reward) => reward.user_address === element.address
@@ -47,6 +49,7 @@ export const getAllLeaderboardRewards = async () => {
             let isTestnetMember = false
             // Test if the user is an Assessor or not
             if (assessor) {
+                // console.log('Assessor found')
                 isTestnetMember = true
                 // Then find his slots and if his slots has been audited and
                 const assessorSlots = await db
@@ -54,16 +57,21 @@ export const getAllLeaderboardRewards = async () => {
                     .from(assessor_slot)
                     .where(eq(assessor_slot.assessor_ID, element.address))
                     .execute()
+
+                // console.log(assessorSlots)
                 // add the rewards converted from grade audit to the total counter for this user
-                assessorSlots.forEach((assessor) => {
-                    assessor.assessor_ID
+                assessorSlots.forEach((slots) => {
                     const audit = audits.find(
-                        (audit) => audit.assessor_slot_id === assessor.id
+                        (audit) => audit.assessor_slot_id === slots.id
                     )
+                    // console.log('audit', audit)
+                    // console.log(audit)
                     totalAudit += auditComputation(audit?.audit_grade as Grade)
                 })
             }
-            res.push({
+            if (totalRewards === 0 && totalAudit === 0) return
+            // console.log('totals', totalRewards, totalAudit)
+            return {
                 id: element.address,
                 addressName: element.address,
                 rewardsReceived: {
@@ -72,13 +80,15 @@ export const getAllLeaderboardRewards = async () => {
                 },
                 total: totalRewards + totalAudit,
                 isTestnetMember: isTestnetMember,
-            })
+            }
+            // console.log(res)
         })
-        return res
+        // console.log(res)
+        return Promise.all(res)
     }
-
+    const res = await buildRewards()
     return {
-        res: buildRewards(),
+        res: res,
         status: 'ok',
         message: 'Rewards Find',
     }

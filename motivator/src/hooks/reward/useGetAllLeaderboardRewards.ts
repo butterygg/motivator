@@ -16,7 +16,6 @@ const useGetAllLeaderboardRewards = () => {
         queryFn: async () => {
             return getAllLeaderboardRewards()
         },
-        refetchInterval: 1000 * 3,
     })
     return { data, refetch, error, status }
 }
