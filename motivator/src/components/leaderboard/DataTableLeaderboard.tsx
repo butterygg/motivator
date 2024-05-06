@@ -18,14 +18,14 @@ import { SlCheck, SlClose } from 'react-icons/sl'
 
 import SearchBar from '../globals/SearchBar'
 
-export type AssessorLeaderboardDatatable = {
+export type LeaderboardDatatable = {
     id: { id: string; assessorSlotId: string }
     addressName: string
     slotsSubmitted: number
     isTestnetMember: boolean
 }
 
-export const columns: ColumnDef<AssessorLeaderboardDatatable>[] = [
+export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'id',
         id: 'id',
@@ -57,7 +57,7 @@ export const columns: ColumnDef<AssessorLeaderboardDatatable>[] = [
         cell: ({ row }) => {
             const slotsSubmitted = row.getValue(
                 'slotsSubmitted'
-            ) as AssessorLeaderboardDatatable['slotsSubmitted']
+            ) as LeaderboardDatatable['slotsSubmitted']
 
             return (
                 <div className="flex items-center ">
@@ -81,7 +81,7 @@ export const columns: ColumnDef<AssessorLeaderboardDatatable>[] = [
         cell: ({ row }) => {
             const isTestnetMember = row.getValue(
                 'stat'
-            ) as AssessorLeaderboardDatatable['isTestnetMember']
+            ) as LeaderboardDatatable['isTestnetMember']
 
             return (
                 <div className="flex items-center ">
@@ -102,10 +102,10 @@ export const columns: ColumnDef<AssessorLeaderboardDatatable>[] = [
 ]
 
 export type Props = {
-    assessors: AssessorLeaderboardDatatable[]
+    assessors: LeaderboardDatatable[]
 }
 
-export function DataTableLeaderboardAssessor({ assessors }: Props) {
+export function DataTableLeaderboard({ assessors }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
         data: assessors,
