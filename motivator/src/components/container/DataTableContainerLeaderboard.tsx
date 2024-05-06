@@ -5,12 +5,12 @@ import {
     UserDatatable,
 } from '@/components/assessor/DataTableAssessor'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
-import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@/types/enum/status'
-import { RoundSpinner } from '../ui/spinner'
+import { RoundSpinner } from '@/components/ui/spinner'
 import { useRouter } from 'next/navigation'
-export const DataTableContainerLeaderboardTestnet = () => {
+import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
+export const DataTableContainerLeaderboard = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
         assessorSlot?.users.forEach((element, index) => {
@@ -60,7 +60,7 @@ export const DataTableContainerLeaderboardTestnet = () => {
     }
 
     const { address, status: statusAccount } = useAccount()
-    const { data, error, status, refetch } = useGetAssessorSlot({
+    const { data, error, status, refetch } = useGetAssessorSlotWithAddr({
         assessorAddr: address as string,
     })
 
