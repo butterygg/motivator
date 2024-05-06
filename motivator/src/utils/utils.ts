@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatAddress(address: string) {
-    if (address.startsWith('0x') && address.length >= 20) {
+    if (address?.startsWith('0x') && address.length >= 20) {
         const firstPart = address.slice(0, 6)
         const lastPart = address.slice(-3)
 
