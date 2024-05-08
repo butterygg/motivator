@@ -184,19 +184,19 @@ export function DataTableLeaderboard({ users }: Props) {
                 pageIndex: 0,
                 // ! Just to avoid to do a pagination for now , we will change this later
                 // ! And setup a pagination on bottom of the table
-                pageSize: 500,
+                pageSize: 5000,
             },
         },
     })
 
     return (
         <div className="lg-max:w-fit mx-auto lg:w-fit p-8">
-            <Label>Top 500 Leaderboard</Label>
+            <Label>Leaderboard</Label>
             <div className="rounded-md border">
                 <div className="flex justify-between">
                     <div className="flex p-4  justify-between">
                         <Input
-                            placeholder="Filter user"
+                            placeholder="Filter user by Address"
                             value={
                                 (table
                                     .getColumn('addressName')
@@ -209,24 +209,6 @@ export function DataTableLeaderboard({ users }: Props) {
                             }
                             className="max-w-sm"
                         />
-                    </div>
-                    <div className="flex items-center justify-end space-x-2 p-4">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            Next
-                        </Button>
                     </div>
                 </div>
                 <Table>
