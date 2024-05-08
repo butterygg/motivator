@@ -37,7 +37,7 @@ export const getAllLeaderboardRewards = async () => {
     const usersWithAssessors = users.concat(assessorNonUsers)
     // Get the audits
     const audits = await db.select().from(audit).execute()
-    // const users = [{ address: '0x3Eb92eBE3e1f226b14E78Af49646aFEA61Fb016C' }]
+
     // Build the rewards for each user parsing his rewards and potentially his audit
     const buildRewards = async () => {
         // let res: LeaderboardDatatable[] = []
