@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Hyperdrive {
-    pub name: &'static str,
+    pub pool_type: String,
     pub address: H160,
-    pub deployment_block: U64,
+    pub deploy_block: U64,
 }
 
 #[derive(Debug, Clone)]
@@ -21,7 +21,7 @@ pub struct HyperdriveConfig {
     pub hyperdrive: Hyperdrive,
     pub contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pub pool_config: i_hyperdrive::PoolConfig,
-    pub ser_events: SerializableEvents,
+    pub sevents: SerializableEvents,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -68,7 +68,6 @@ pub struct LpDebit {
     pub base_amount: I256,
 }
 
-// [TODO] Simplify: use only U256 price.
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct SharePrice {
     pub block_num: U64,
@@ -89,4 +88,10 @@ pub struct SerializableEvents {
     pub shorts: HashMap<PositionKey, Short>,
     pub lps: HashMap<LpKey, Lp>,
     pub share_prices: HashMap<U256, SharePrice>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct EventsDb {
+    pub end_block_num: u64,
+    pub events: SerializableEvents,
 }

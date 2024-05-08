@@ -276,7 +276,7 @@ fn calc_pnls(
                 maturity_checkpoint_time,
                 sevents.share_prices
             );
-            let maturity_share_price = sevents
+            let maturity_or_current_share_price = sevents
                 .share_prices
                 .get(&maturity_checkpoint_time)
                 .expect(maturity_share_errmsg)
@@ -287,8 +287,7 @@ fn calc_pnls(
                 let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
                     cumulative_debit.bond_amount,
                     open_share_price,
-                    // [FIXME] This one is to replace with "maturity or current":
-                    maturity_share_price,
+                    maturity_or_current_share_price,
                     // This argument is maturity time, wheter already happened or not:
                     short_key.maturity_time,
                     at_timestamp,
@@ -469,7 +468,7 @@ async fn calc_period_aggs(
         "CalculatingPeriodPnLs"
     );
     let (longs_stmts, shorts_stmts, lps_stmts) =
-        calc_pnls(&hyperdrive_config.ser_events, hyperdrive_state, period_end);
+        calc_pnls(&hyperdrive_config.sevents, hyperdrive_state, period_end);
     let end_time_data = TimeData {
         timestamp: period_end,
         longs: longs_stmts,
@@ -478,7 +477,7 @@ async fn calc_period_aggs(
     };
 
     Ok(aggregate_per_user_over_period(
-        &hyperdrive_config.ser_events,
+        &hyperdrive_config.sevents,
         end_time_data,
         period_start,
         period_end,
@@ -493,7 +492,7 @@ pub async fn dump_hourly_aggregates(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let start_block = U64::max(
         timeframe.start_block_num,
-        hyperdrive_config.hyperdrive.deployment_block,
+        hyperdrive_config.hyperdrive.deploy_block,
     );
 
     let mut period_start = client
@@ -536,7 +535,7 @@ pub async fn dump_hourly_aggregates(
                 id: Uuid::new_v4(),
                 timestamp: timestamp_to_string(period_end),
                 block_number: period_end_block_num.as_u64(),
-                pool_type: hyperdrive_config.hyperdrive.name.into(),
+                pool_type: hyperdrive_config.hyperdrive.pool_type.clone(),
                 user_address,
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,

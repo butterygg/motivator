@@ -2,21 +2,20 @@ use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::Write;
+use std::str::FromStr;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-use clap::{arg, command, Command};
+use clap::{arg, command};
 use csv::Writer;
 use dotenv::dotenv;
 use ethers::{
     providers::{Middleware, Provider, Ws},
-    types::{BlockNumber, U64},
+    types::{BlockNumber, H160, U64},
 };
 use tracing::info;
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
-
-#[macro_use]
-extern crate lazy_static;
 
 use crate::acq::*;
 use crate::agg::*;
@@ -79,37 +78,55 @@ async fn setup() -> Result<(Arc<Provider<Ws>>, Timeframe), Box<dyn std::error::E
 async fn launch_acq(
     client: Arc<Provider<Ws>>,
     timeframe: &Timeframe,
-    hyperdrives: &Vec<Hyperdrive>,
+    hyperdrive: &Hyperdrive,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    for hyperdrive in hyperdrives {
-        let contract = i_hyperdrive::IHyperdrive::new(hyperdrive.address, client.clone());
-        let pool_config = contract.clone().get_pool_config().call().await?;
+    let running = Arc::new(AtomicBool::new(true));
 
-        info!(
-            hyperdrive=?hyperdrive,
-            pool_config=?pool_config,
-            "AcquiringHyperdriveEvents"
-        );
+    let r = running.clone();
+    ctrlc::set_handler(move || {
+        r.store(false, Ordering::SeqCst);
+        println!("CTRL+C received. Aborting…");
+    })
+    .unwrap();
+    let contract = i_hyperdrive::IHyperdrive::new(hyperdrive.address, client.clone());
+    let pool_config = contract.clone().get_pool_config().call().await?;
 
-        let events =
-            load_hyperdrive_events(client.clone(), contract.clone(), &pool_config, timeframe)
-                .await?;
+    let (events, start_block_num) = load_events_data(hyperdrive, timeframe)?;
 
-        info!(
-            hyperdrive=?hyperdrive,
-            pool_config=?pool_config,
-            "DumpingHyperdriveEvents"
-        );
+    info!(
+        hyperdrive=?hyperdrive,
+        pool_config=?pool_config,
+        "AcquiringHyperdriveEvents"
+    );
 
-        let ser_events = events.to_serializable();
-        info!(
-            ser_events=?ser_events
-            , "TEST"
-        );
-        let json_str = serde_json::to_string_pretty(&ser_events)?;
-        let mut file = File::create(format!("{}.json", hyperdrive.name))?;
-        file.write_all(json_str.as_bytes())?;
-    }
+    let end_block = load_hyperdrive_events(
+        events.clone(),
+        running.clone(),
+        client.clone(),
+        contract.clone(),
+        &pool_config,
+        timeframe,
+        &start_block_num,
+    )
+    .await?;
+
+    info!(
+        hyperdrive=?hyperdrive,
+        pool_config=?pool_config,
+        end_block=?end_block,
+        "SavingHyperdriveEvents"
+    );
+
+    let events_db = EventsDb {
+        end_block_num: end_block,
+        events: events.to_serializable(),
+    };
+    let json_str = serde_json::to_string_pretty(&events_db)?;
+    let mut file = File::create(format!(
+        "{}-{}.json",
+        hyperdrive.pool_type, hyperdrive.address
+    ))?;
+    file.write_all(json_str.as_bytes())?;
 
     Ok(())
 }
@@ -117,36 +134,37 @@ async fn launch_acq(
 async fn launch_agg(
     client: Arc<Provider<Ws>>,
     timeframe: &Timeframe,
-    hyperdrives: &Vec<Hyperdrive>,
+    hyperdrive: &Hyperdrive,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut hyperdrive_configs: Vec<HyperdriveConfig> = Vec::new();
-
-    for hyperdrive in hyperdrives {
-        let contract = i_hyperdrive::IHyperdrive::new(hyperdrive.address, client.clone());
-        let pool_config = contract.clone().get_pool_config().call().await?;
-
-        let data = fs::read_to_string(format!("{}.json", hyperdrive.name))?;
-        let ser_events: SerializableEvents = serde_json::from_str(&data)?;
-
-        hyperdrive_configs.push(HyperdriveConfig {
-            hyperdrive: *hyperdrive,
-            contract,
-            pool_config,
-            ser_events,
-        });
-    }
-
     let mut writer = Writer::from_path(AGGREGATES_FILEPATH)?;
-    info!(writer=?writer, "Aggregating");
 
-    for hyperdrive_config in hyperdrive_configs {
-        info!(hyperdrive=?hyperdrive_config.hyperdrive, "Dumping");
-        dump_hourly_aggregates(&mut writer, client.clone(), &hyperdrive_config, timeframe).await?;
-    }
+    info!(writer=?writer, hyperdrive=?hyperdrive, "Aggregating");
+
+    let contract = i_hyperdrive::IHyperdrive::new(hyperdrive.address, client.clone());
+    let pool_config = contract.clone().get_pool_config().call().await?;
+
+    let events_data = fs::read_to_string(format!(
+        "{}-{}.json",
+        hyperdrive.pool_type, hyperdrive.address
+    ))?;
+    let sevents: SerializableEvents = serde_json::from_str(&events_data)?;
+
+    let config = HyperdriveConfig {
+        hyperdrive: hyperdrive.clone(),
+        contract,
+        pool_config,
+        sevents,
+    };
+
+    info!(hyperdrive=?config.hyperdrive, "Dumping");
+    dump_hourly_aggregates(&mut writer, client.clone(), &config, timeframe).await?;
 
     Ok(())
 }
 
+// [FIXME] Expect END_BLOCK as argument
+// [FIXME] Set the Timeframe start to be the deploy_block
+// [FIXME] Merge Timeframe and Hyperdrive in a single RunConfig object.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt::init();
@@ -154,24 +172,32 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     let matches = command!()
-        .arg(arg!([name] "Hyperdrive Tracker"))
         .author("Butter")
-        .subcommand(Command::new("acq").about("acquires events and share prices"))
-        .subcommand(Command::new("agg").about("aggtregates with pnls"))
+        .arg(arg!([action] "acq or agg").required(true))
+        .arg(arg!([pool_type] "The type of the pool").required(true))
+        .arg(arg!([address] "The Hyperdrive contract address").required(true))
+        .arg(arg!([deploy_block] "The contract deployment block number").required(true))
         .get_matches();
 
     let (client, timeframe) = setup().await?;
 
-    // [FIXME] Use the 6 testnet hyperdrive addresses.
-    let hyperdrives = vec![*HYPERDRIVE_4626, *HYPERDRIVE_STETH];
+    let action = matches.get_one::<String>("action").unwrap().as_str();
+    let pool_type = matches.get_one::<String>("pool_type").unwrap();
+    let address = matches.get_one::<String>("address").unwrap().to_string();
+    let deploy_block = matches
+        .get_one::<String>("deploy_block")
+        .unwrap()
+        .to_string();
 
-    if let Some(("acq", _)) = matches.subcommand() {
-        launch_acq(client, &timeframe, &hyperdrives).await?;
-    } else if let Some(("agg", _)) = matches.subcommand() {
-        launch_agg(client, &timeframe, &hyperdrives).await?;
-    } else {
-        println!("Not a valid subcommand.");
+    let hyperdrive = Hyperdrive {
+        pool_type: pool_type.clone(),
+        address: H160::from_str(&address)?,
+        deploy_block: U64::from_str(&deploy_block)?,
+    };
+
+    match action {
+        "acq" => launch_acq(client, &timeframe, &hyperdrive).await,
+        "agg" => launch_agg(client, &timeframe, &hyperdrive).await,
+        _ => Err("Invalid action specified".into()),
     }
-
-    Ok(())
 }

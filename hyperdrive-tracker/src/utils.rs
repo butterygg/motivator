@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -15,6 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::globals::*;
 use crate::types::*;
+use tracing::info;
 
 pub fn timestamp_to_string(timestamp: U256) -> String {
     let datetime = Utc
@@ -112,6 +114,20 @@ impl EventsSerializable for Events {
     }
 }
 
+pub trait SerializedEventsDeserializable {
+    fn from_serializable(&self) -> Events;
+}
+impl SerializedEventsDeserializable for SerializableEvents {
+    fn from_serializable(&self) -> Events {
+        Events {
+            longs: self.longs.clone().into_iter().collect(),
+            shorts: self.shorts.clone().into_iter().collect(),
+            lps: self.lps.clone().into_iter().collect(),
+            share_prices: self.share_prices.clone().into_iter().collect(),
+        }
+    }
+}
+
 impl Serialize for PositionKey {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -191,5 +207,44 @@ impl<'de> Deserialize<'de> for LpKey {
         }
 
         deserializer.deserialize_string(LpKeyVisitor)
+    }
+}
+
+pub fn load_events_data(
+    hyperdrive: &Hyperdrive,
+    timeframe: &Timeframe,
+) -> Result<(Arc<Events>, U64), Box<dyn std::error::Error>> {
+    match fs::read_to_string(format!(
+        "{}-{}.json",
+        hyperdrive.pool_type, hyperdrive.address
+    )) {
+        Ok(events_data) => {
+            let events_db: EventsDb = serde_json::from_str(&events_data)?;
+
+            info!(
+                hyperdrive=?hyperdrive,
+                end_block_num=?events_db.end_block_num,
+                "LoadingPreviousEvents"
+            );
+
+            let events = Arc::new(events_db.events.from_serializable());
+            let start_block_num = U64::try_from(events_db.end_block_num)?;
+
+            Ok((events, start_block_num))
+        }
+        Err(_) => {
+            info!(
+                hyperdrive=?hyperdrive,
+                "FreshEvents"
+            );
+
+            let events = Arc::new(Events {
+                longs: DashMap::new(),
+                shorts: DashMap::new(),
+                lps: DashMap::new(),
+                share_prices: DashMap::new(),
+            });
+            Ok((events, timeframe.start_block_num))
+        }
     }
 }
