@@ -20,10 +20,12 @@ type Props = {}
 
 const Payment = (props: Props) => {
     // Using wagmi hook to get status of user
-    const { address } = useAccount()
+    const { address, isConnected } = useAccount()
 
     // Using session hook to get status of user
     const [assessorSlotFinded, setAssessorSlotFinded] = useState(false)
+
+    const [isPurchaseReady, setIsPurchaseReady] = useState(isConnected)
 
     const {
         data: assessorSlot,
@@ -38,6 +40,21 @@ const Payment = (props: Props) => {
             refetch()
         }
     }, [address, statusAssessorSlot])
+
+    useEffect(() => {
+        console.log('isConnected', isConnected)
+        console.log('statusAssessorSlot', statusAssessorSlot)
+        console.log('isPurchaseReady', isPurchaseReady)
+        if (
+            isConnected &&
+            statusAssessorSlot == 'success' &&
+            !isPurchaseReady
+        ) {
+            setIsPurchaseReady(true)
+        } else {
+            setIsPurchaseReady(false)
+        }
+    }, [isConnected, statusAssessorSlot])
 
     useEffect(() => {
         if (assessorSlot?.res?.id) {
@@ -171,12 +188,8 @@ const Payment = (props: Props) => {
                     <Button
                         onClick={handleOnClick}
                         variant={'submit'}
-                        className={cn(
-                            statusAssessorSlot == 'pending' ??
-                                'disabled:cursor-not-allowed',
-                            'w-1/2'
-                        )}
-                        disabled={statusAssessorSlot == 'pending'}
+                        className={cn('disabled:cursor-not-allowed', 'w-1/2')}
+                        disabled={!isPurchaseReady}
                     >
                         Send {value} $SETH
                     </Button>
