@@ -101,6 +101,7 @@ impl<K, V> DashMapToHashMap<K, V> for DashMap<K, V> {
 
 pub trait EventsSerializable {
     fn to_serializable(&self) -> SerializableEvents;
+    fn from_serializable(sevents: SerializableEvents) -> Events;
 }
 
 impl EventsSerializable for Events {
@@ -112,18 +113,13 @@ impl EventsSerializable for Events {
             share_prices: self.share_prices.to_hashmap(),
         }
     }
-}
 
-pub trait SerializedEventsDeserializable {
-    fn from_serializable(&self) -> Events;
-}
-impl SerializedEventsDeserializable for SerializableEvents {
-    fn from_serializable(&self) -> Events {
+    fn from_serializable(sevents: SerializableEvents) -> Events {
         Events {
-            longs: self.longs.clone().into_iter().collect(),
-            shorts: self.shorts.clone().into_iter().collect(),
-            lps: self.lps.clone().into_iter().collect(),
-            share_prices: self.share_prices.clone().into_iter().collect(),
+            longs: sevents.longs.clone().into_iter().collect(),
+            shorts: sevents.shorts.clone().into_iter().collect(),
+            lps: sevents.lps.clone().into_iter().collect(),
+            share_prices: sevents.share_prices.clone().into_iter().collect(),
         }
     }
 }
@@ -211,30 +207,26 @@ impl<'de> Deserialize<'de> for LpKey {
 }
 
 pub fn load_events_data(
-    hyperdrive: &Hyperdrive,
-    timeframe: &Timeframe,
+    conf: &RunConfig,
 ) -> Result<(Arc<Events>, U64), Box<dyn std::error::Error>> {
-    match fs::read_to_string(format!(
-        "{}-{}.json",
-        hyperdrive.pool_type, hyperdrive.address
-    )) {
+    match fs::read_to_string(format!("{}-{}.json", conf.pool_type, conf.address)) {
         Ok(events_data) => {
             let events_db: EventsDb = serde_json::from_str(&events_data)?;
 
             info!(
-                hyperdrive=?hyperdrive,
+                hyperdrive=?conf,
                 end_block_num=?events_db.end_block_num,
                 "LoadingPreviousEvents"
             );
 
-            let events = Arc::new(events_db.events.from_serializable());
-            let start_block_num = U64::try_from(events_db.end_block_num)?;
+            let events = Arc::new(Events::from_serializable(events_db.events));
+            let start_block_num = U64::from(events_db.end_block_num);
 
             Ok((events, start_block_num))
         }
         Err(_) => {
             info!(
-                hyperdrive=?hyperdrive,
+                hyperdrive=?conf,
                 "FreshEvents"
             );
 
@@ -244,7 +236,7 @@ pub fn load_events_data(
                 lps: DashMap::new(),
                 share_prices: DashMap::new(),
             });
-            Ok((events, timeframe.start_block_num))
+            Ok((events, conf.deploy_block_num))
         }
     }
 }

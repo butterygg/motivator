@@ -142,18 +142,19 @@ async fn write_open_short(
 ///end of the timeframe.
 async fn write_share_price(
     client: Arc<Provider<Ws>>,
-    events: Arc<Events>,
     hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pool_config: &i_hyperdrive::PoolConfig,
-    timeframe: &Timeframe,
+    start_block_num: &U64,
+    end_block_num: &U64,
+    events: Arc<Events>,
     short_key: PositionKey,
 ) -> Result<(), Box<dyn Error>> {
     let open_checkpoint_time = short_key.maturity_time - pool_config.position_duration;
     let open_block_num = find_block_by_timestamp(
         client.clone(),
         open_checkpoint_time.as_u64(),
-        timeframe.start_block_num,
-        timeframe.end_block_num,
+        *start_block_num,
+        *end_block_num,
     )
     .await?;
     let open_pool_info = hyperdrive_contract
@@ -178,8 +179,8 @@ async fn write_share_price(
     let maturity_block_num = find_block_by_timestamp(
         client.clone(),
         maturity_checkpoint_time.as_u64(),
-        timeframe.start_block_num,
-        timeframe.end_block_num,
+        *start_block_num,
+        *end_block_num,
     )
     .await?;
     let maturity_pool_info = hyperdrive_contract
@@ -371,16 +372,14 @@ async fn write_remove_liquidity(
 
 // [TODO] Use eyre for Result.
 async fn load_events_paginated(
+    conf: &RunConfig,
     events: Arc<Events>,
-    client: Arc<Provider<Ws>>,
-    hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
-    pool_config: &i_hyperdrive::PoolConfig,
-    timeframe: &Timeframe,
     page_start_block: U64,
     page_end_block: U64,
 ) -> Result<(), Box<dyn std::error::Error>> {
     // fromBlock and toBlock are inclusive.
-    let contract_events = hyperdrive_contract
+    let contract_events = conf
+        .contract
         .events()
         .from_block(page_start_block)
         .to_block(page_end_block - 1);
@@ -389,38 +388,49 @@ async fn load_events_paginated(
     for (evt, meta) in query {
         match evt.clone() {
             i_hyperdrive::IHyperdriveEvents::OpenLongFilter(event) => {
-                let _ = write_open_long(client.clone(), events.clone(), event, meta.clone()).await;
+                let _ =
+                    write_open_long(conf.client.clone(), events.clone(), event, meta.clone()).await;
             }
             i_hyperdrive::IHyperdriveEvents::OpenShortFilter(event) => {
                 let short_key =
-                    write_open_short(client.clone(), events.clone(), event, meta.clone()).await;
+                    write_open_short(conf.client.clone(), events.clone(), event, meta.clone())
+                        .await;
                 let _ = write_share_price(
-                    client.clone(),
+                    conf.client.clone(),
+                    conf.contract.clone(),
+                    &conf.pool_config,
+                    &conf.deploy_block_num,
+                    &conf.end_block_num,
                     events.clone(),
-                    hyperdrive_contract.clone(),
-                    pool_config,
-                    timeframe,
                     short_key?,
                 )
                 .await;
             }
             i_hyperdrive::IHyperdriveEvents::InitializeFilter(event) => {
-                let _ = write_initialize(client.clone(), events.clone(), event, meta.clone()).await;
+                let _ = write_initialize(conf.client.clone(), events.clone(), event, meta.clone())
+                    .await;
             }
             i_hyperdrive::IHyperdriveEvents::AddLiquidityFilter(event) => {
                 let _ =
-                    write_add_liquidity(client.clone(), events.clone(), event, meta.clone()).await;
+                    write_add_liquidity(conf.client.clone(), events.clone(), event, meta.clone())
+                        .await;
             }
             i_hyperdrive::IHyperdriveEvents::CloseLongFilter(event) => {
-                let _ = write_close_long(client.clone(), events.clone(), event, meta.clone()).await;
+                let _ = write_close_long(conf.client.clone(), events.clone(), event, meta.clone())
+                    .await;
             }
             i_hyperdrive::IHyperdriveEvents::CloseShortFilter(event) => {
-                let _ =
-                    write_close_short(client.clone(), events.clone(), event, meta.clone()).await;
+                let _ = write_close_short(conf.client.clone(), events.clone(), event, meta.clone())
+                    .await;
             }
             i_hyperdrive::IHyperdriveEvents::RemoveLiquidityFilter(event) => {
-                let _ = write_remove_liquidity(client.clone(), events.clone(), event, meta.clone())
-                    .await;
+                let _ = write_remove_liquidity(
+                    conf.client.clone(),
+                    events.clone(),
+                    event,
+                    meta.clone(),
+                )
+                .await;
             }
             _ => (),
         }
@@ -431,26 +441,21 @@ async fn load_events_paginated(
     Ok(())
 }
 
-// [TODO] Implement asynchrony with tokio::spawn and a semaphore of 10. This requires that Events
-// Vec's are getting .sort()'ed by block_num (or timestamp) at the end.
 ///Returns Events and the last block that was successfully acquired.
 pub async fn load_hyperdrive_events(
+    conf: &RunConfig,
     events: Arc<Events>,
     running: Arc<AtomicBool>,
-    client: Arc<Provider<Ws>>,
-    hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
-    pool_config: &i_hyperdrive::PoolConfig,
-    timeframe: &Timeframe,
     start_block_num: &U64,
 ) -> Result<u64, Box<dyn std::error::Error>> {
     let mut page_end_block: u64 = 0;
 
-    for page_start_block in (start_block_num.as_u64()..timeframe.end_block_num.as_u64())
+    for page_start_block in (start_block_num.as_u64()..conf.end_block_num.as_u64())
         .step_by(QUERY_BLOCKS_PAGE_SIZE as usize)
     {
         if !running.load(Ordering::SeqCst) {
             warn!(
-                hyperdrive_contract=?hyperdrive_contract,
+                conf=?conf,
                 aborted_page_start_block=?page_start_block,
                 "AbortingLoadHyperdriveEvents");
 
@@ -459,22 +464,19 @@ pub async fn load_hyperdrive_events(
 
         page_end_block = u64::min(
             page_start_block + QUERY_BLOCKS_PAGE_SIZE,
-            timeframe.end_block_num.as_u64(),
+            conf.end_block_num.as_u64(),
         );
 
         info!(
-            hyperdrive_contract=?hyperdrive_contract,
+            conf=?conf,
             page_start_block=?page_start_block,
             page_end_block=?page_end_block,
             "LoadingHyperdriveEvents"
         );
 
         load_events_paginated(
+            conf,
             events.clone(),
-            client.clone(),
-            hyperdrive_contract.clone(),
-            pool_config,
-            timeframe,
             U64::from(page_start_block),
             U64::from(page_end_block),
         )

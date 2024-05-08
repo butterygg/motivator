@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use dashmap::DashMap;
 use ethers::{
@@ -9,27 +10,17 @@ use serde::{Deserialize, Serialize};
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Hyperdrive {
+#[derive(Debug, Clone)]
+pub struct RunConfig {
+    pub client: Arc<Provider<Ws>>,
     pub pool_type: String,
     pub address: H160,
-    pub deploy_block: U64,
-}
-
-#[derive(Debug, Clone)]
-pub struct HyperdriveConfig {
-    pub hyperdrive: Hyperdrive,
+    pub deploy_block_num: U64,
+    pub deploy_timestamp: U256,
+    pub end_block_num: U64,
+    pub end_timestamp: U256,
     pub contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pub pool_config: i_hyperdrive::PoolConfig,
-    pub sevents: SerializableEvents,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Timeframe {
-    pub start_block_num: U64,
-    pub end_block_num: U64,
-    pub start_timestamp: U256,
-    pub end_timestamp: U256,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

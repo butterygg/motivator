@@ -1,12 +1,8 @@
 use std::collections::HashMap;
 use std::fs::File;
-use std::sync::Arc;
 
 use csv::Writer;
-use ethers::{
-    providers::{Middleware, Provider, Ws},
-    types::{H160, I256, U256, U64},
-};
+use ethers::types::{H160, I256, U256, U64};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
@@ -447,19 +443,19 @@ fn aggregate_per_user_over_period(
 }
 
 async fn calc_period_aggs(
-    hyperdrive_config: &HyperdriveConfig,
+    conf: &RunConfig,
+    sevents: &SerializableEvents,
     period_start: U256,
     period_end_block_num: U64,
     period_end: U256,
 ) -> Result<UsersAggs, Box<dyn std::error::Error>> {
-    let pool_info = hyperdrive_config
+    let pool_info = conf
         .contract
         .get_pool_info()
         .block(period_end_block_num)
         .call()
         .await?;
-    let hyperdrive_state =
-        hyperdrive_math::State::new(hyperdrive_config.pool_config.clone(), pool_info);
+    let hyperdrive_state = hyperdrive_math::State::new(conf.pool_config.clone(), pool_info);
     info!(
         period_start=?period_start,
         period_end=?period_end,
@@ -467,8 +463,7 @@ async fn calc_period_aggs(
         hyperdrive_state=?hyperdrive_state,
         "CalculatingPeriodPnLs"
     );
-    let (longs_stmts, shorts_stmts, lps_stmts) =
-        calc_pnls(&hyperdrive_config.sevents, hyperdrive_state, period_end);
+    let (longs_stmts, shorts_stmts, lps_stmts) = calc_pnls(&sevents, hyperdrive_state, period_end);
     let end_time_data = TimeData {
         timestamp: period_end,
         longs: longs_stmts,
@@ -477,7 +472,7 @@ async fn calc_period_aggs(
     };
 
     Ok(aggregate_per_user_over_period(
-        &hyperdrive_config.sevents,
+        &sevents,
         end_time_data,
         period_start,
         period_end,
@@ -485,45 +480,34 @@ async fn calc_period_aggs(
 }
 
 pub async fn dump_hourly_aggregates(
+    conf: &RunConfig,
     writer: &mut Writer<File>,
-    client: Arc<Provider<Ws>>,
-    hyperdrive_config: &HyperdriveConfig,
-    timeframe: &Timeframe,
+    sevents: &SerializableEvents,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let start_block = U64::max(
-        timeframe.start_block_num,
-        hyperdrive_config.hyperdrive.deploy_block,
-    );
-
-    let mut period_start = client
-        .clone()
-        .get_block(start_block)
-        .await?
-        .unwrap()
-        .timestamp;
+    let mut period_start = conf.deploy_timestamp;
     let mut period_end = period_start + HOUR;
 
     debug!(
-        start_block=?start_block,
         period_start=?period_start,
         period_end=?period_end,
-        round_end_timestamp=?timeframe.end_timestamp,
-        "DumpHourlyAggFirstPeriod"
+        end_timestamp=?conf.end_timestamp,
+        "DumpingHourlyAggFirstPeriod"
     );
 
-    while period_end <= timeframe.end_timestamp {
+    while period_end <= conf.end_timestamp {
         // The PnL part doesn't need to know about `period_start` as PnLs and balances are
         // statements that we calculate at `period_end`.
         let period_end_block_num = find_block_by_timestamp(
-            client.clone(),
+            conf.client.clone(),
             period_end.as_u64(),
-            start_block,
-            timeframe.end_block_num,
+            conf.deploy_block_num,
+            conf.end_block_num,
         )
         .await?;
 
         let users_aggs = calc_period_aggs(
-            hyperdrive_config,
+            conf,
+            sevents,
             period_start,
             period_end_block_num,
             period_end,
@@ -535,7 +519,7 @@ pub async fn dump_hourly_aggregates(
                 id: Uuid::new_v4(),
                 timestamp: timestamp_to_string(period_end),
                 block_number: period_end_block_num.as_u64(),
-                pool_type: hyperdrive_config.hyperdrive.pool_type.clone(),
+                pool_type: conf.pool_type.clone(),
                 user_address,
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,
