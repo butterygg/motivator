@@ -5,7 +5,7 @@ type Props = {
 }
 
 /**
- * This hook is used to fetch the assessor slot of the assessor
+ * This hook is used to fetch All the data of the Leaderboard
  * @param {Props} props
  *
  *
