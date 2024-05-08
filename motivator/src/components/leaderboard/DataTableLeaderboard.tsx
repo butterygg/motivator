@@ -17,19 +17,9 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@/components/globals/AddrAvatar'
 import { SlCheck, SlClose } from 'react-icons/sl'
 
-import SearchBar from '@/components/globals/SearchBar'
 import { Label } from '@/components/ui/label'
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination'
+
 import { Input } from '../ui/input'
-import { Button } from '../ui/button'
 
 export type LeaderboardDatatable = {
     id: string
@@ -70,10 +60,6 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'rewardsReceived',
         cell: ({ row }) => {
-            // const rewardsReceived = row.getValue(
-            //     'rewardsReceived'
-            // ) as LeaderboardDatatable['rewardsReceived']
-
             const rewardsReceived = row?.original?.rewardsReceived
 
             return (
@@ -113,9 +99,6 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'rewardsReceived',
         cell: ({ row }) => {
-            // const rewardsReceived = row.getValue(
-            //     'rewardsReceived'
-            // ) as LeaderboardDatatable['rewardsReceived']
             const rewardsReceived = row?.original?.rewardsReceived
             const total = rewardsReceived?.rewards + rewardsReceived?.audit
             return (
@@ -138,9 +121,6 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
         accessorKey: 'isTestnetMember',
         enableHiding: false,
         cell: ({ row }) => {
-            // const isTestnetMember = row.getValue(
-            //     'stat'
-            // ) as LeaderboardDatatable['isTestnetMember']
             const isTestnetMember = row?.original?.isTestnetMember
             return (
                 <div className="flex items-center ">
