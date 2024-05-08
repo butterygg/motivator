@@ -1,13 +1,13 @@
 use std::error::Error;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-use dashmap::DashMap;
 use ethers::{
     contract::LogMeta,
     providers::{Middleware, Provider, Ws},
     types::{I256, U256, U64},
 };
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
@@ -138,7 +138,8 @@ async fn write_open_short(
     Ok(key)
 }
 
-///For each OpenShort, write the SharePrice corresponding to its maturity time.
+///For each OpenShort, write the SharePrice corresponding to the min of its maturity time and the
+///end of the timeframe.
 async fn write_share_price(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
@@ -172,6 +173,8 @@ async fn write_share_price(
         .or_insert(open_share_price);
 
     let maturity_checkpoint_time = short_key.maturity_time;
+    // This is not necessarily the maturity block num, if the period end is lower it will be the
+    // latter.
     let maturity_block_num = find_block_by_timestamp(
         client.clone(),
         maturity_checkpoint_time.as_u64(),
@@ -428,23 +431,33 @@ async fn load_events_paginated(
     Ok(())
 }
 
+// [TODO] Implement asynchrony with tokio::spawn and a semaphore of 10. This requires that Events
+// Vec's are getting .sort()'ed by block_num (or timestamp) at the end.
+///Returns Events and the last block that was successfully acquired.
 pub async fn load_hyperdrive_events(
+    events: Arc<Events>,
+    running: Arc<AtomicBool>,
     client: Arc<Provider<Ws>>,
     hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pool_config: &i_hyperdrive::PoolConfig,
     timeframe: &Timeframe,
-) -> Result<Arc<Events>, Box<dyn std::error::Error>> {
-    let events = Arc::new(Events {
-        longs: DashMap::new(),
-        shorts: DashMap::new(),
-        lps: DashMap::new(),
-        share_prices: DashMap::new(),
-    });
+    start_block_num: &U64,
+) -> Result<u64, Box<dyn std::error::Error>> {
+    let mut page_end_block: u64 = 0;
 
-    for page_start_block in (timeframe.start_block_num.as_u64()..timeframe.end_block_num.as_u64())
+    for page_start_block in (start_block_num.as_u64()..timeframe.end_block_num.as_u64())
         .step_by(QUERY_BLOCKS_PAGE_SIZE as usize)
     {
-        let page_end_block = u64::min(
+        if !running.load(Ordering::SeqCst) {
+            warn!(
+                hyperdrive_contract=?hyperdrive_contract,
+                aborted_page_start_block=?page_start_block,
+                "AbortingLoadHyperdriveEvents");
+
+            return Ok(page_end_block);
+        }
+
+        page_end_block = u64::min(
             page_start_block + QUERY_BLOCKS_PAGE_SIZE,
             timeframe.end_block_num.as_u64(),
         );
@@ -453,7 +466,7 @@ pub async fn load_hyperdrive_events(
             hyperdrive_contract=?hyperdrive_contract,
             page_start_block=?page_start_block,
             page_end_block=?page_end_block,
-            "QueryingEvents"
+            "LoadingHyperdriveEvents"
         );
 
         load_events_paginated(
@@ -468,5 +481,5 @@ pub async fn load_hyperdrive_events(
         .await?;
     }
 
-    Ok(events)
+    Ok(page_end_block)
 }

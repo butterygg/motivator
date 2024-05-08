@@ -20,7 +20,8 @@ chrono = "0.4.37"
 uuid = { version = "1.8.0", features = ["v4", "serde"] }
 rust_decimal = "1.35.0"
 dotenv = "0.15.0"
-hyperdrive-wrappers = { git = "https://github.com/delvtech/hyperdrive.git", tag = "v1.0.0", package = "hyperdrive-wrappers" }
+lazy_static = "1.4.0"
+hyperdrive-wrappers = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "hyperdrive-wrappers" }
 hyperdrive-math = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "hyperdrive-math" }
 fixed-point = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "fixed-point" }
-lazy_static = "1.4.0"
+ctrlc = "3.4.4"
