@@ -1,21 +1,20 @@
 'use server'
-import { and, eq, ne } from 'drizzle-orm'
+import { eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { audit, reward, assessor_slot, user, assessor } from '@db/schema'
-import { auditComputation } from '../../../utils/utils'
-import { Grade } from '../../../types/enum/grade'
-import { LeaderboardDatatable } from '../../../components/leaderboard/DataTableLeaderboard'
+import { auditComputation } from '@/utils/utils'
+import { Grade } from '@/types/enum/grade'
 
 export const getAllLeaderboardRewards = async () => {
+    // Get rewards that are not 0
     const rewards = await db
         .select()
         .from(reward)
         .where(ne(reward.amount, 0))
         .execute()
-
+    // Get users
     const users = await db.select().from(user).execute()
-
-    console.log('users', users)
+    // Get assessors
     const assessors = await db.select().from(assessor).execute()
     if (!rewards) {
         return {
@@ -23,54 +22,54 @@ export const getAllLeaderboardRewards = async () => {
             message: 'No rewards find',
         }
     }
+    // Get the slots that are done
+    const assessorSlots = await db
+        .select()
+        .from(assessor_slot)
+        .where(eq(assessor_slot.done, true))
+        .execute()
 
+    // Get assessors that are not users
+    const assessorNonUsers = assessors.filter((assessor) => {
+        return !users.find((user) => user.address === assessor.address)
+    })
+    // Concat the users and the assessors
+    const usersWithAssessors = users.concat(assessorNonUsers)
+    // Get the audits
     const audits = await db.select().from(audit).execute()
-    // const users = [{ address: '0x3Eb92eBE3e1f226b14E78Af49646aFEA61Fb016C' }]
+
     // Build the rewards for each user parsing his rewards and potentially his audit
     const buildRewards = async () => {
         // let res: LeaderboardDatatable[] = []
-        const res = users.map(async (element) => {
+        const res = usersWithAssessors.map(async (element) => {
+            // init global variables
+            let totalAudit = 0
+            let totalRewards = 0
+            let isTestnetMember = false
+
             // Find the rewards for this user
             const rewardsForUser = rewards.filter(
                 (reward) => reward.user_address === element.address
             )
             // Compute rewards for this user
-            let totalRewards = 0
             rewardsForUser.forEach((element) => {
                 totalRewards += element.amount as number
             })
-
-            const assessor = assessors.find(
-                (assessor) => assessor.address === element.address
-            )
-
-            // init global variables
-            let totalAudit = 0
-            let isTestnetMember = false
-            // Test if the user is an Assessor or not
-            if (assessor) {
-                // console.log('Assessor found')
-                isTestnetMember = true
-                // Then find his slots and if his slots has been audited and
-                const assessorSlots = await db
-                    .select()
-                    .from(assessor_slot)
-                    .where(eq(assessor_slot.assessor_ID, element.address))
-                    .execute()
-
-                // console.log(assessorSlots)
-                // add the rewards converted from grade audit to the total counter for this user
-                assessorSlots.forEach((slots) => {
+            // Parse the slots of the user and find the audit for each slot
+            assessorSlots.forEach((slot) => {
+                if ((slot.assessor_ID as string) == element.address) {
+                    isTestnetMember = true
                     const audit = audits.find(
-                        (audit) => audit.assessor_slot_id === slots.id
+                        (audit) => audit.assessor_slot_id === slot.id
                     )
-                    // console.log('audit', audit)
-                    // console.log(audit)
-                    totalAudit += auditComputation(audit?.audit_grade as Grade)
-                })
-            }
-            // if (totalRewards === 0 && totalAudit === 0) return
-            // console.log('totals', totalRewards, totalAudit)
+                    const res =
+                        totalAudit +
+                        auditComputation(audit?.audit_grade as Grade)
+                    totalAudit = res
+                }
+            })
+            // If the user has no rewards and no audit, do not send values
+            if (totalRewards === 0 && totalAudit === 0) return
             return {
                 id: element.address,
                 addressName: element.address,
@@ -81,10 +80,9 @@ export const getAllLeaderboardRewards = async () => {
                 total: totalRewards + totalAudit,
                 isTestnetMember: isTestnetMember,
             }
-            // console.log(res)
         })
-        // console.log(res)
-        return Promise.all(res)
+        // Wait for all the promises to resolve and filter the undefined values due to the previous return
+        return (await Promise.all(res)).filter((el) => el !== undefined)
     }
     const res = await buildRewards()
     return {
