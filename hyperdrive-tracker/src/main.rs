@@ -19,7 +19,6 @@ use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
 use crate::acq::*;
 use crate::agg::*;
-use crate::globals::*;
 use crate::types::*;
 use crate::utils::*;
 
@@ -66,16 +65,28 @@ async fn launch_acq(conf: &RunConfig) -> Result<()> {
     Ok(())
 }
 
-async fn launch_agg(conf: &RunConfig) -> Result<()> {
-    let mut writer = Writer::from_path(AGGREGATES_FILEPATH)?;
+///Launch aggregation with a timeframe from deploy block until last block of recorded events.
+async fn launch_agg(preconf: &RunConfig) -> Result<()> {
+    let json_str = fs::read_to_string(format!("{}-{}.json", preconf.pool_type, preconf.address))?;
+    let events_db: EventsDb = serde_json::from_str(&json_str)?;
 
-    tracing::info!(writer=?writer, hyperdrive=?conf, "Aggregating");
+    let mut conf = preconf.clone();
+    conf.end_block_num = U64::from(events_db.end_block_num);
+    conf.end_timestamp = conf
+        .client
+        .clone()
+        .get_block(conf.end_block_num)
+        .await?
+        .unwrap()
+        .timestamp;
 
-    let events_data = fs::read_to_string(format!("{}-{}.json", conf.pool_type, conf.address))?;
-    let sevents: SerializableEvents = serde_json::from_str(&events_data)?;
+    let mut writer = Writer::from_path(format!(
+        "{}-{}-{}.csv",
+        conf.pool_type, conf.address, conf.end_block_num
+    ))?;
 
-    tracing::info!(conf=?conf, "Dumping");
-    dump_hourly_aggregates(conf, &mut writer, &sevents).await?;
+    tracing::info!(writer=?writer, conf=?conf, "WritingAggs");
+    dump_hourly_aggregates(&conf, &mut writer, &events_db.events).await?;
 
     Ok(())
 }
