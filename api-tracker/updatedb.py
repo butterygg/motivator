@@ -8,13 +8,7 @@ import pdb
 import sys
 
 CSV_FILE_PATH = "rows.csv"
-SQL_FILE_PATH = "update-statistics.sql"
-
-SQL_STATS_CREATE_INDEX = """
-CREATE UNIQUE INDEX IF NOT EXISTS idx_statistics_on_timestamp_pool_user ON public.statistics (timestamp, pool_type, user_address);
-"""
-
-SQL_TRUNCATE_TOTALS = "TRUNCATE totals;"
+SQL_FILE_NEXT_PUBLIC_WEEK_MAXPATH = "update-statistics.sql"
 
 
 def generate_user_insert(addrs):
@@ -46,9 +40,7 @@ ON CONFLICT (timestamp, pool_type, user_address) DO UPDATE SET
 
 def main():
     do_user_update = bool(os.environ["DO_USER"])
-    do_stats_create_index = bool(os.environ["DO_STATS_CREATE_INDEX"])
     do_stats_upsert = bool(os.environ["DO_STATS_UPSERT"])
-    do_truncate_totals = bool(os.environ["DO_TRUNCATE_TOTALS"])
 
     statement = ""
 
@@ -58,17 +50,11 @@ def main():
             next(reader)  # Skip the header row
             statement += generate_user_insert(r[3] for r in reader)
 
-    if do_stats_create_index:
-        statement += SQL_STATS_CREATE_INDEX
-
     if do_stats_upsert:
         with open(CSV_FILE_PATH, newline="", encoding="utf-8") as csvfile:
             reader = csv.reader(csvfile)
             next(reader)  # Skip the header row
             statement += generate_stats_upsert(reader)
-
-    if do_truncate_totals:
-        statement += SQL_TRUNCATE_TOTALS
 
     with open(SQL_FILE_PATH, "w", encoding="utf-8") as sqlfile:
         sqlfile.write(statement)

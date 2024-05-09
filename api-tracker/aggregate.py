@@ -15,10 +15,8 @@ from decimal import Decimal, getcontext
 from enum import Enum, auto
 from typing import Dict, Iterator, List
 
-
-START_DATE = datetime.strptime(os.environ['START_DATE'], '%Y-%m-%d').date()
-END_DATE = datetime.strptime(os.environ['END_DATE'], '%Y-%m-%d').date()
-
+START_DATE = datetime.strptime(os.environ["START_DATE"], "%Y-%m-%d").date()
+END_DATE = datetime.strptime(os.environ["END_DATE"], "%Y-%m-%d").date()
 
 
 class EventType(Enum):
@@ -180,7 +178,9 @@ def main():
 
     rows = aggregate(events)
 
-    with open("./rows.csv", mode="w", newline="", encoding="utf-8") as f:
+    with open(
+        f"./rows-{START_DATE}-{END_DATE}.csv", mode="w", newline="", encoding="utf-8"
+    ) as f:
         writer = csv.writer(f)
         writer.writerow(Row.header())
         for row in rows:
