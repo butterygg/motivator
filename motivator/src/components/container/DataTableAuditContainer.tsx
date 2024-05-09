@@ -57,7 +57,10 @@ const DataTableAuditContainer = () => {
             // Filter the statistics for each pool
             res.push({
                 id: index.toString(),
-                assessorSlotID: assessorSlot.id,
+                assessorSlotID: {
+                    id: assessorSlot.id,
+                    week: assessorSlot.week,
+                },
                 assessorAddress: assessorSlot.assessorID,
                 rewardsSent: rewardSent.amount
                     ? (rewardSent.amount as number)

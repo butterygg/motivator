@@ -21,7 +21,10 @@ import GradeAudit from './GradeAudit'
 
 export type AuditAssessorsSlotsDatatable = {
     id: string
-    assessorSlotID: string
+    assessorSlotID: {
+        id: string
+        week: number
+    }
     assessorAddress: string
     rewardsSent: number
     audit: {
@@ -36,7 +39,7 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
         id: 'id',
         cell: ({ row }) => (
             <>
-                <Link href={`/assessor/slot/${row.getValue('assessorSlotID')}`}>
+                <Link href={`/assessor/slot/${row.original.assessorSlotID.id}`}>
                     <p className="font-bold"># {row.index + 1} </p>
                 </Link>
             </>
@@ -54,7 +57,7 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             return (
                 <div className="flex flex-col items-center">
                     <Link
-                        href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
+                        href={`/assessor/slot/${row.original.assessorSlotID.id}`}
                     >
                         {/* <p className="font-extralight text-center text-xs">
                         Assessor Addr
@@ -79,18 +82,23 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                 <div className="flex gap-6 items-center justify-evenly">
                     <div className="flex flex-col">
                         <Link
-                            href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
+                            href={`/assessor/slot/${row.original.assessorSlotID.id}`}
                         >
                             <div className="items-center flex-col flex">
-                                <p className="font-extralight text-center text-xs">
-                                    Assessor Slot ID
-                                </p>
-                                <div className="flex items-center gap-1">
-                                    {/* <AiOutlineAudit className="h-4 w-4" /> */}
-                                    <p className="font-bold">
-                                        {assessorSlotID}
+                                <div>
+                                    <p className="font-extralight text-center text-xs">
+                                        Assessor Slot ID
                                     </p>
+                                    <div className="flex items-center gap-1">
+                                        {/* <AiOutlineAudit className="h-4 w-4" /> */}
+                                        <p className="font-bold">
+                                            {assessorSlotID.id}
+                                        </p>
+                                    </div>
                                 </div>
+                                <p className="font-extralight text-center text-xs">
+                                    Week {assessorSlotID.week}
+                                </p>
                             </div>
                         </Link>
                     </div>
@@ -108,7 +116,7 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             return (
                 <div className="flex gap-6 items-center justify-evenly">
                     <Link
-                        href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
+                        href={`/assessor/slot/${row.original.assessorSlotID.id}`}
                     >
                         <div className="flex flex-col">
                             <div className="items-center flex-col flex">
@@ -134,7 +142,7 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             const audit = row.getValue(
                 'audit'
             ) as AuditAssessorsSlotsDatatable['audit']
-            const assessorSlotID = row.getValue('assessorSlotID')
+            const assessorSlotID = row.original.assessorSlotID.id
             return (
                 <div className="flex-col">
                     <div className="items-center flex">
@@ -145,7 +153,6 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                                 grade={audit.auditGrade as Grade}
                                 assessorSlotID={assessorSlotID as string}
                             />
-                            {/* <p className="font-bold">{audit.auditGrade}</p> */}
                         </div>
                     </div>
                 </div>
