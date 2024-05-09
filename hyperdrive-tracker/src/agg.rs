@@ -3,6 +3,7 @@ use std::fs::File;
 
 use csv::Writer;
 use ethers::types::{H160, I256, U256, U64};
+use eyre::Result;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
@@ -448,7 +449,7 @@ async fn calc_period_aggs(
     period_start: U256,
     period_end_block_num: U64,
     period_end: U256,
-) -> Result<UsersAggs, Box<dyn std::error::Error>> {
+) -> Result<UsersAggs> {
     let pool_info = conf
         .contract
         .get_pool_info()
@@ -463,7 +464,7 @@ async fn calc_period_aggs(
         hyperdrive_state=?hyperdrive_state,
         "CalculatingPeriodPnLs"
     );
-    let (longs_stmts, shorts_stmts, lps_stmts) = calc_pnls(&sevents, hyperdrive_state, period_end);
+    let (longs_stmts, shorts_stmts, lps_stmts) = calc_pnls(sevents, hyperdrive_state, period_end);
     let end_time_data = TimeData {
         timestamp: period_end,
         longs: longs_stmts,
@@ -472,7 +473,7 @@ async fn calc_period_aggs(
     };
 
     Ok(aggregate_per_user_over_period(
-        &sevents,
+        sevents,
         end_time_data,
         period_start,
         period_end,
@@ -483,7 +484,7 @@ pub async fn dump_hourly_aggregates(
     conf: &RunConfig,
     writer: &mut Writer<File>,
     sevents: &SerializableEvents,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let mut period_start = conf.deploy_timestamp;
     let mut period_end = period_start + HOUR;
 
@@ -503,7 +504,8 @@ pub async fn dump_hourly_aggregates(
             conf.deploy_block_num,
             conf.end_block_num,
         )
-        .await?;
+        .await
+        .unwrap();
 
         let users_aggs = calc_period_aggs(
             conf,

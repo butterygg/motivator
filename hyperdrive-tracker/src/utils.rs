@@ -10,6 +10,7 @@ use ethers::{
     providers::{Middleware, Provider, Ws},
     types::{H160, I256, U256, U64},
 };
+use eyre::Result;
 use rust_decimal::Decimal;
 use serde::de::{self, Visitor};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -34,7 +35,7 @@ pub async fn find_block_by_timestamp(
     desired_timestamp: u64,
     start_block: U64,
     end_block: U64,
-) -> Result<U64, Box<dyn std::error::Error>> {
+) -> Result<U64> {
     let mut low = start_block.as_u64();
     let mut high = end_block.as_u64();
 
@@ -206,9 +207,7 @@ impl<'de> Deserialize<'de> for LpKey {
     }
 }
 
-pub fn load_events_data(
-    conf: &RunConfig,
-) -> Result<(Arc<Events>, U64), Box<dyn std::error::Error>> {
+pub fn load_events_data(conf: &RunConfig) -> Result<(Arc<Events>, U64)> {
     match fs::read_to_string(format!("{}-{}.json", conf.pool_type, conf.address)) {
         Ok(events_data) => {
             let events_db: EventsDb = serde_json::from_str(&events_data)?;

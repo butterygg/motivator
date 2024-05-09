@@ -1661,6 +1661,7 @@ dependencies = [
  "dashmap",
  "dotenv",
  "ethers",
+ "eyre",
  "fixed-point",
  "hex-literal",
  "hyperdrive-math",

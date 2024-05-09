@@ -13,6 +13,7 @@ use ethers::{
     providers::{Middleware, Provider, Ws},
     types::{BlockNumber, H160, U64},
 };
+use eyre::{bail, Result};
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
@@ -28,7 +29,7 @@ mod globals;
 mod types;
 mod utils;
 
-async fn launch_acq(conf: &RunConfig) -> Result<(), Box<dyn std::error::Error>> {
+async fn launch_acq(conf: &RunConfig) -> Result<()> {
     let running = Arc::new(AtomicBool::new(true));
 
     let r = running.clone();
@@ -38,7 +39,7 @@ async fn launch_acq(conf: &RunConfig) -> Result<(), Box<dyn std::error::Error>> 
     })
     .unwrap();
 
-    let (events, start_block_num) = load_events_data(conf)?;
+    let (events, start_block_num) = load_events_data(conf).unwrap();
 
     tracing::info!(
         conf=?conf,
@@ -65,7 +66,7 @@ async fn launch_acq(conf: &RunConfig) -> Result<(), Box<dyn std::error::Error>> 
     Ok(())
 }
 
-async fn launch_agg(conf: &RunConfig) -> Result<(), Box<dyn std::error::Error>> {
+async fn launch_agg(conf: &RunConfig) -> Result<()> {
     let mut writer = Writer::from_path(AGGREGATES_FILEPATH)?;
 
     tracing::info!(writer=?writer, hyperdrive=?conf, "Aggregating");
@@ -74,13 +75,13 @@ async fn launch_agg(conf: &RunConfig) -> Result<(), Box<dyn std::error::Error>> 
     let sevents: SerializableEvents = serde_json::from_str(&events_data)?;
 
     tracing::info!(conf=?conf, "Dumping");
-    dump_hourly_aggregates(&conf, &mut writer, &sevents).await?;
+    dump_hourly_aggregates(conf, &mut writer, &sevents).await?;
 
     Ok(())
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
     dotenv().ok();
@@ -139,6 +140,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match action {
         "acq" => launch_acq(&conf).await,
         "agg" => launch_agg(&conf).await,
-        _ => Err("Invalid action specified".into()),
+        _ => bail!("Invalid action specified"),
     }
 }

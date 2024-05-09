@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -14,13 +13,14 @@ use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 use crate::globals::*;
 use crate::types::*;
 use crate::utils::*;
+use eyre::Result;
 
 async fn write_open_long(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::OpenLongFilter,
     meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
@@ -61,7 +61,7 @@ async fn write_close_long(
     events: Arc<Events>,
     event: i_hyperdrive::CloseLongFilter,
     meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
@@ -103,7 +103,7 @@ async fn write_open_short(
     events: Arc<Events>,
     event: i_hyperdrive::OpenShortFilter,
     meta: LogMeta,
-) -> Result<PositionKey, Box<dyn Error>> {
+) -> Result<PositionKey> {
     debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
@@ -148,7 +148,7 @@ async fn write_share_price(
     end_block_num: &U64,
     events: Arc<Events>,
     short_key: PositionKey,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     let open_checkpoint_time = short_key.maturity_time - pool_config.position_duration;
     let open_block_num = find_block_by_timestamp(
         client.clone(),
@@ -156,7 +156,8 @@ async fn write_share_price(
         *start_block_num,
         *end_block_num,
     )
-    .await?;
+    .await
+    .unwrap();
     let open_pool_info = hyperdrive_contract
         .get_pool_info()
         .block(open_block_num)
@@ -182,7 +183,8 @@ async fn write_share_price(
         *start_block_num,
         *end_block_num,
     )
-    .await?;
+    .await
+    .unwrap();
     let maturity_pool_info = hyperdrive_contract
         .get_pool_info()
         .block(maturity_block_num)
@@ -217,7 +219,7 @@ async fn write_close_short(
     events: Arc<Events>,
     event: i_hyperdrive::CloseShortFilter,
     meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
@@ -259,7 +261,7 @@ async fn write_initialize(
     events: Arc<Events>,
     event: i_hyperdrive::InitializeFilter,
     meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     debug!(
         block_num=%meta.block_number,
         provider=%event.provider,
@@ -297,7 +299,7 @@ async fn write_add_liquidity(
     events: Arc<Events>,
     event: i_hyperdrive::AddLiquidityFilter,
     meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     debug!(
         block_num=%meta.block_number,
         provider=%event.provider,
@@ -335,7 +337,7 @@ async fn write_remove_liquidity(
     events: Arc<Events>,
     event: i_hyperdrive::RemoveLiquidityFilter,
     meta: LogMeta,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<()> {
     debug!(
         block_num=%meta.block_number,
         provider=%event.provider,
@@ -370,13 +372,12 @@ async fn write_remove_liquidity(
     Ok(())
 }
 
-// [TODO] Use eyre for Result.
 async fn load_events_paginated(
     conf: &RunConfig,
     events: Arc<Events>,
     page_start_block: U64,
     page_end_block: U64,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     // fromBlock and toBlock are inclusive.
     let contract_events = conf
         .contract
@@ -447,7 +448,7 @@ pub async fn load_hyperdrive_events(
     events: Arc<Events>,
     running: Arc<AtomicBool>,
     start_block_num: &U64,
-) -> Result<u64, Box<dyn std::error::Error>> {
+) -> Result<u64> {
     let mut page_end_block: u64 = 0;
 
     for page_start_block in (start_block_num.as_u64()..conf.end_block_num.as_u64())
