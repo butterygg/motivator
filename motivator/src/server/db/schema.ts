@@ -69,9 +69,9 @@ export const statistics = pgTable('statistics', {
     volume_longs: doublePrecision('volume_longs'),
     volume_shorts: doublePrecision('volume_shorts'),
     volume_lps: doublePrecision('volume_lps'),
-    // pnl_longs: doublePrecision('pnl_longs'),
-    // pnl_shorts: doublePrecision('pnl_shorts'),
-    // pnl_lps: doublePrecision('pnl_lps'),
+    pnl_longs: doublePrecision('pnl_longs'),
+    pnl_shorts: doublePrecision('pnl_shorts'),
+    pnl_lps: doublePrecision('pnl_lps'),
 })
 
 export const totals = pgTable('totals', {
