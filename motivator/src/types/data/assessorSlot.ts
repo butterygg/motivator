@@ -30,18 +30,19 @@ export type Statistics = {
     user_address: string
     timestamp: string | null
     poolType: string | null
-    // pnl_longs: number | null
-    // pnl_shorts: number | null
-    // pnl_lps: number | null
+
     volume_longs: number | null
     volume_shorts: number | null
     volume_lps: number | null
     action_count_shorts: number | null
     action_count_longs: number | null
     action_count_lps: number | null
-    pnl_long: number | null
-    pnl_short: number | null
-    pnl_lp: number | null
+    pnl_longs: number | null
+    pnl_shorts: number | null
+    pnl_lps: number | null
+    tvl_longs: number | null
+    tvl_shorts: number | null
+    tvl_lps: number | null
 }
 
 export type Reward = {
