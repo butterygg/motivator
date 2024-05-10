@@ -372,6 +372,7 @@ async fn write_remove_liquidity(
     Ok(())
 }
 
+///Loads events from page start (inclusive) to page end (**non inclusive**).
 async fn load_events_paginated(
     conf: &RunConfig,
     events: Arc<Events>,

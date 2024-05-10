@@ -1,15 +1,14 @@
 use std::collections::HashMap;
 use std::fs::File;
 
+use chrono::{DateTime, Duration};
 use csv::Writer;
 use ethers::types::{H160, I256, U256, U64};
 use eyre::Result;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info};
-use uuid::Uuid;
 
-use crate::globals::*;
 use crate::types::*;
 use crate::utils::*;
 
@@ -31,19 +30,15 @@ struct PositionStatement {
     pnl: Decimal,
 }
 
+type PositionStatements = HashMap<PositionKey, PositionStatement>;
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 struct LpStatement {
     cumulative_debit: LpCumulativeDebit,
     pnl: Decimal,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Default)]
-struct TimeData {
-    timestamp: U256,
-    longs: HashMap<PositionKey, PositionStatement>,
-    shorts: HashMap<PositionKey, PositionStatement>,
-    lps: HashMap<LpKey, LpStatement>,
-}
+type LpStatements = HashMap<LpKey, LpStatement>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct CumulativeDebits {
@@ -84,10 +79,8 @@ struct UserAgg {
 
 type UsersAggs = HashMap<H160, UserAgg>;
 
-// [TODO] Adjusted PnLs
 #[derive(Serialize)]
 struct CsvRecord {
-    id: Uuid,
     timestamp: String,
     block_number: u64,
     pool_type: String,
@@ -95,17 +88,18 @@ struct CsvRecord {
     action_count_longs: usize,
     action_count_shorts: usize,
     action_count_lps: usize,
-    volume_longs: Decimal,
-    volume_shorts: Decimal,
-    volume_lps: Decimal,
-    pnl_longs: Decimal,
-    pnl_shorts: Decimal,
-    pnl_lps: Decimal,
-    base_balance_longs: Decimal,
-    base_balance_shorts: Decimal,
-    base_balance_lps: Decimal,
+    volume_longs: String,
+    volume_shorts: String,
+    volume_lps: String,
+    pnl_longs: String,
+    pnl_shorts: String,
+    pnl_lps: String,
+    tvl_longs: String,
+    tvl_shorts: String,
+    tvl_lps: String,
 }
 
+///Calculates balances at timestamp and position PnLs as if closed at time of maturity.
 fn calc_pnls(
     sevents: &SerializableEvents,
     hyperdrive_state: hyperdrive_math::State,
@@ -206,12 +200,16 @@ fn calc_pnls(
         .map(|long_key| {
             let cumulative_debit = longs_cumul_debits.get(long_key).unwrap();
 
+            debug!(long_key=?long_key, cumulative_debit=?cumulative_debit, 
+
+                hyperdrive_state=?hyperdrive_state,
+                "CalculatingLongsPnL");
+
             let calculated_close_base_amount = if cumulative_debit.bond_amount != U256::zero() {
-                // [XXX] Are we calling this fn correctly?
                 let calculated_close_shares = hyperdrive_state.calculate_close_long(
                     cumulative_debit.bond_amount,
                     long_key.maturity_time,
-                    at_timestamp,
+                    long_key.maturity_time,
                 );
                 // Knowing `calculate_close_long` returns vault share amounts:
                 calculated_close_shares.normalized()
@@ -221,14 +219,6 @@ fn calc_pnls(
             };
 
             let cumulative_base_debit = cumulative_debit.base_amount.normalized();
-
-            debug!(
-                timestamp=timestamp_to_string(at_timestamp),
-                long_key=?long_key,
-                cumulative_debit=?cumulative_debit,
-                calculated_close_base_amount=?calculated_close_base_amount,
-                "LongsPnL"
-            );
 
             let pos_statement = PositionStatement {
                 cumulative_debit: *cumulative_debit,
@@ -279,6 +269,15 @@ fn calc_pnls(
                 .expect(maturity_share_errmsg)
                 .price;
 
+            debug!(
+                short_key=?short_key,
+                cumulative_debit=?cumulative_debit,
+                open_share_price=?open_share_price,
+                maturity_or_current_share_price=?maturity_or_current_share_price,
+                hyperdrive_state=?hyperdrive_state,
+                "CalculatingShortPnL"
+            );
+
             let calculated_maturity_base_amount = if cumulative_debit.bond_amount != U256::zero() {
                 // [XXX] Are we calling this fn correctly?
                 let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
@@ -287,7 +286,7 @@ fn calc_pnls(
                     maturity_or_current_share_price,
                     // This argument is maturity time, wheter already happened or not:
                     short_key.maturity_time,
-                    at_timestamp,
+                    short_key.maturity_time,
                 );
                 calculated_maturity_shares.normalized()
                     * hyperdrive_state.info.vault_share_price.normalized()
@@ -302,15 +301,6 @@ fn calc_pnls(
                 pnl: calculated_maturity_base_amount - cumulative_base_debit,
             };
 
-            debug!(
-                timestamp=timestamp_to_string(at_timestamp),
-                short_key=?short_key,
-                pos_statement=?pos_statement,
-                calc_matu_base=?calculated_maturity_base_amount,
-                h_state=?hyperdrive_state,
-                "ShortPnL"
-            );
-
             (*short_key, pos_statement)
         })
         .collect();
@@ -321,6 +311,13 @@ fn calc_pnls(
         .map(|lp_key| {
             let cumulative_debit = lps_cumul_debits.get(lp_key).unwrap();
 
+            debug!(
+                lp_key=?lp_key,
+                cumulative_debit=?cumulative_debit,
+                hyperdrive_state=?hyperdrive_state,
+                "CalculatingLpPnL"
+            );
+
             let lp_base_amount = cumulative_debit.lp_amount.normalized()
                 * hyperdrive_state.info.lp_share_price.normalized();
             let cumulative_base_debit = cumulative_debit.base_amount.normalized();
@@ -329,13 +326,6 @@ fn calc_pnls(
                 cumulative_debit: *cumulative_debit,
                 pnl: lp_base_amount - cumulative_base_debit,
             };
-
-            debug!(
-                timestamp=timestamp_to_string(at_timestamp),
-                lp_key=?lp_key,
-                lp_statement=?lp_statement,
-                "LpPnL"
-            );
 
             (*lp_key, lp_statement)
         })
@@ -346,7 +336,9 @@ fn calc_pnls(
 
 fn aggregate_per_user_over_period(
     sevents: &SerializableEvents,
-    last_time_data: TimeData,
+    long_statements: PositionStatements,
+    short_statements: PositionStatements,
+    lp_statements: LpStatements,
     start_timestamp: U256,
     end_timestamp: U256,
 ) -> UsersAggs {
@@ -424,17 +416,17 @@ fn aggregate_per_user_over_period(
             .sum::<I256>();
     }
 
-    for (long_key_ref, position_stmt_ref) in last_time_data.longs.iter() {
+    for (long_key_ref, position_stmt_ref) in long_statements.iter() {
         let agg = users_aggs.entry(long_key_ref.trader).or_default();
         agg.pnl.long += position_stmt_ref.pnl;
         agg.base_cumulative_debit.long += position_stmt_ref.cumulative_debit.base_amount;
     }
-    for (short_key_ref, position_stmt_ref) in last_time_data.shorts.iter() {
+    for (short_key_ref, position_stmt_ref) in short_statements.iter() {
         let agg = users_aggs.entry(short_key_ref.trader).or_default();
         agg.pnl.short += position_stmt_ref.pnl;
         agg.base_cumulative_debit.short += position_stmt_ref.cumulative_debit.base_amount;
     }
-    for (lp_key_ref, position_stmt_ref) in last_time_data.lps.iter() {
+    for (lp_key_ref, position_stmt_ref) in lp_statements.iter() {
         let agg = users_aggs.entry(lp_key_ref.provider).or_default();
         agg.pnl.lp += position_stmt_ref.pnl;
         agg.base_cumulative_debit.lp += position_stmt_ref.cumulative_debit.base_amount;
@@ -465,28 +457,33 @@ async fn calc_period_aggs(
         "CalculatingPeriodPnLs"
     );
     let (longs_stmts, shorts_stmts, lps_stmts) = calc_pnls(sevents, hyperdrive_state, period_end);
-    let end_time_data = TimeData {
-        timestamp: period_end,
-        longs: longs_stmts,
-        shorts: shorts_stmts,
-        lps: lps_stmts,
-    };
 
     Ok(aggregate_per_user_over_period(
         sevents,
-        end_time_data,
+        longs_stmts,
+        shorts_stmts,
+        lps_stmts,
         period_start,
         period_end,
     ))
 }
 
-pub async fn dump_hourly_aggregates(
+// [TODO] Add cutoff date
+// [TODO] Write a script to merge CSVs together.
+///Write aggregates, one per midnight.
+pub async fn write_aggregates(
     conf: &RunConfig,
     writer: &mut Writer<File>,
     sevents: &SerializableEvents,
 ) -> Result<()> {
     let mut period_start = conf.deploy_timestamp;
-    let mut period_end = period_start + HOUR;
+    let mut period_start_datetime =
+        DateTime::from_timestamp(period_start.as_u64() as i64, 0).unwrap();
+    let mut period_end_datetime = (period_start_datetime.date_naive() + Duration::days(1))
+        .and_hms_opt(0, 0, 0)
+        .unwrap()
+        .and_utc();
+    let mut period_end = U256::from(period_end_datetime.timestamp());
 
     debug!(
         period_start=?period_start,
@@ -518,34 +515,35 @@ pub async fn dump_hourly_aggregates(
 
         for (user_address, agg) in users_aggs {
             writer.serialize(CsvRecord {
-                id: Uuid::new_v4(),
-                timestamp: timestamp_to_string(period_end),
+                timestamp: timestamp_to_date_string(period_end),
                 block_number: period_end_block_num.as_u64(),
                 pool_type: conf.pool_type.clone(),
                 user_address,
                 action_count_longs: agg.action_count.long,
                 action_count_shorts: agg.action_count.short,
                 action_count_lps: agg.action_count.lp,
-                volume_longs: agg.volume.long.normalized(),
-                volume_shorts: agg.volume.short.normalized(),
-                volume_lps: agg.volume.lp.normalized(),
-                pnl_longs: agg.pnl.long,
-                pnl_shorts: agg.pnl.short,
-                pnl_lps: agg.pnl.lp,
-                base_balance_longs: -agg.base_cumulative_debit.long.normalized(),
-                base_balance_shorts: -agg.base_cumulative_debit.short.normalized(),
-                base_balance_lps: -agg.base_cumulative_debit.lp.normalized(),
+                volume_longs: agg.volume.long.normalized().compact_ser(),
+                volume_shorts: agg.volume.short.normalized().compact_ser(),
+                volume_lps: agg.volume.lp.normalized().compact_ser(),
+                pnl_longs: agg.pnl.long.compact_ser(),
+                pnl_shorts: agg.pnl.short.compact_ser(),
+                pnl_lps: agg.pnl.lp.compact_ser(),
+                tvl_longs: agg.base_cumulative_debit.long.normalized().compact_ser(),
+                tvl_shorts: agg.base_cumulative_debit.short.normalized().compact_ser(),
+                tvl_lps: agg.base_cumulative_debit.lp.normalized().compact_ser(),
             })?
         }
 
         debug!(
-            "HourlyDumped period_start={} period_end={}",
+            "Dumped period_start={} period_end={}",
             timestamp_to_string(period_start),
             timestamp_to_string(period_end)
         );
 
-        period_start += HOUR.into();
-        period_end += HOUR.into();
+        period_start_datetime += Duration::days(1);
+        period_start = U256::from(period_start_datetime.timestamp());
+        period_end_datetime += Duration::days(1);
+        period_end = U256::from(period_end_datetime.timestamp());
 
         writer.flush()?;
     }

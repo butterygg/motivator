@@ -29,8 +29,8 @@ pub struct PositionKey {
     pub maturity_time: U256,
 }
 
-/// All Debits are considered from the point of view of player wallets with respect to their
-/// base-token holdings.
+///All Debits are considered from the point of view of player wallets with respect to their
+///base-token holdings.
 pub type Long = Vec<PositionDebit>;
 
 ///Closes are negative, Opens are positive.

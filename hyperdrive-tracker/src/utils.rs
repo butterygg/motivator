@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::fmt;
-use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -17,17 +16,20 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::globals::*;
 use crate::types::*;
-use tracing::info;
 
 pub fn timestamp_to_string(timestamp: U256) -> String {
-    let datetime = Utc
-        .timestamp_opt(timestamp.as_u64() as i64, 0)
+    Utc.timestamp_opt(timestamp.as_u64() as i64, 0)
         .single()
-        .ok_or("Invalid timestamp");
-    match datetime {
-        Ok(datetime) => datetime.to_rfc3339(),
-        Err(e) => e.to_string(),
-    }
+        .unwrap()
+        .to_rfc3339()
+}
+
+pub fn timestamp_to_date_string(timestamp: U256) -> String {
+    Utc.timestamp_opt(timestamp.as_u64() as i64, 0)
+        .single()
+        .unwrap()
+        .format("%Y-%m-%d")
+        .to_string()
 }
 
 pub async fn find_block_by_timestamp(
@@ -78,6 +80,23 @@ impl Decimalizable for fixed_point::FixedPoint {
         let val_i128 = val_ethers_i128.as_i128();
         let val_dec = Decimal::from_i128_with_scale(val_i128, DECIMAL_SCALE);
         val_dec.round_dp(DECIMAL_PRECISION)
+    }
+}
+
+pub trait CompactSerializable {
+    fn compact_ser(&self) -> String;
+}
+
+impl CompactSerializable for Decimal {
+    fn compact_ser(&self) -> String {
+        let mut formatted = self.to_string();
+        if formatted.contains('.') {
+            formatted = formatted.trim_end_matches('0').to_string();
+            if formatted.ends_with('.') {
+                formatted.pop();
+            }
+        }
+        formatted
     }
 }
 
@@ -204,38 +223,5 @@ impl<'de> Deserialize<'de> for LpKey {
         }
 
         deserializer.deserialize_string(LpKeyVisitor)
-    }
-}
-
-pub fn load_events_data(conf: &RunConfig) -> Result<(Arc<Events>, U64)> {
-    match fs::read_to_string(format!("{}-{}.json", conf.pool_type, conf.address)) {
-        Ok(events_data) => {
-            let events_db: EventsDb = serde_json::from_str(&events_data)?;
-
-            info!(
-                hyperdrive=?conf,
-                end_block_num=?events_db.end_block_num,
-                "LoadingPreviousEvents"
-            );
-
-            let events = Arc::new(Events::from_serializable(events_db.events));
-            let start_block_num = U64::from(events_db.end_block_num);
-
-            Ok((events, start_block_num))
-        }
-        Err(_) => {
-            info!(
-                hyperdrive=?conf,
-                "FreshEvents"
-            );
-
-            let events = Arc::new(Events {
-                longs: DashMap::new(),
-                shorts: DashMap::new(),
-                lps: DashMap::new(),
-                share_prices: DashMap::new(),
-            });
-            Ok((events, conf.deploy_block_num))
-        }
     }
 }
