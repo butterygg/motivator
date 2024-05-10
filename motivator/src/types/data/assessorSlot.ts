@@ -39,6 +39,9 @@ export type Statistics = {
     action_count_shorts: number | null
     action_count_longs: number | null
     action_count_lps: number | null
+    pnl_long: number | null
+    pnl_short: number | null
+    pnl_lp: number | null
 }
 
 export type Reward = {
