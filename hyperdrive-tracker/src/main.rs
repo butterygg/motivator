@@ -7,13 +7,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use chrono::NaiveDate;
-use clap::{arg, command};
+use clap::{arg, command, Command};
 use csv::Writer;
 use dashmap::DashMap;
 use dotenv::dotenv;
 use ethers::{
     providers::{Middleware, Provider, Ws},
-    types::{BlockNumber, H160, U256, U64},
+    types::{BlockNumber, H160, U64},
 };
 use eyre::{bail, Result};
 
@@ -30,6 +30,35 @@ mod globals;
 mod types;
 mod utils;
 
+fn read_eventsdb(conf: &RunConfig) -> Result<(Arc<Events>, U64)> {
+    match fs::read_to_string(format!("{}-{}.json", conf.pool_type, conf.address)) {
+        Ok(events_data) => {
+            let events_db: EventsDb = serde_json::from_str(&events_data)?;
+
+            tracing::info!(
+                end_block_num=?events_db.end_block_num,
+                "LoadingPreviousEvents"
+            );
+
+            let events = Arc::new(Events::from_serializable(events_db.events));
+            let start_block_num = events_db.end_block_num.into();
+            Ok((events, start_block_num))
+        }
+        Err(_) => {
+            tracing::info!("FreshEvents");
+
+            let events = Arc::new(Events {
+                longs: DashMap::new(),
+                shorts: DashMap::new(),
+                lps: DashMap::new(),
+                share_prices: DashMap::new(),
+            });
+            let start_block_num = conf.deploy_block_num;
+            Ok((events, start_block_num))
+        }
+    }
+}
+
 async fn launch_acq(conf: &RunConfig) -> Result<()> {
     let running = Arc::new(AtomicBool::new(true));
 
@@ -40,58 +69,46 @@ async fn launch_acq(conf: &RunConfig) -> Result<()> {
     })
     .unwrap();
 
+    let mut page_end_block_num: U64;
+    let mut page_start_block_num: U64;
     let events: Arc<Events>;
-    let start_block_num: U64;
-    match fs::read_to_string(format!("{}-{}.json", conf.pool_type, conf.address)) {
-        Ok(events_data) => {
-            let events_db: EventsDb = serde_json::from_str(&events_data)?;
 
-            tracing::info!(
-                hyperdrive=?conf,
-                end_block_num=?events_db.end_block_num,
-                "LoadingPreviousEvents"
-            );
+    (events, page_start_block_num) = read_eventsdb(conf)?;
+    page_end_block_num = page_start_block_num + conf.page_size;
 
-            events = Arc::new(Events::from_serializable(events_db.events));
-            start_block_num = U64::from(events_db.end_block_num);
-        }
-        Err(_) => {
-            tracing::info!(
-                hyperdrive=?conf,
-                "FreshEvents"
-            );
+    while running.load(Ordering::SeqCst) && page_end_block_num <= conf.end_block_num {
+        page_end_block_num = U64::min(page_end_block_num, conf.end_block_num.as_u64().into());
 
-            events = Arc::new(Events {
-                longs: DashMap::new(),
-                shorts: DashMap::new(),
-                lps: DashMap::new(),
-                share_prices: DashMap::new(),
-            });
-            start_block_num = conf.deploy_block_num;
-        }
+        tracing::info!(
+            page_start_block_num=?page_start_block_num,
+            page_end_block_num=?page_end_block_num,
+            "LoadingHyperdriveEvents"
+        );
+
+        load_events_paginated(
+            conf,
+            events.clone(),
+            page_start_block_num,
+            page_end_block_num,
+        )
+        .await?;
+
+        tracing::info!(
+            end_block_num=?page_end_block_num,
+            "SavingHyperdriveEvents"
+        );
+
+        let events_db = EventsDb {
+            end_block_num: page_end_block_num.as_u64(),
+            events: events.to_serializable(),
+        };
+        let json_str = serde_json::to_string_pretty(&events_db)?;
+        let mut file = File::create(format!("{}-{}.json", conf.pool_type, conf.address))?;
+        file.write_all(json_str.as_bytes())?;
+
+        page_start_block_num += conf.page_size;
+        page_end_block_num += conf.page_size;
     }
-
-    tracing::info!(
-        conf=?conf,
-        "AcquiringHyperdriveEvents"
-    );
-
-    let end_block =
-        load_hyperdrive_events(conf, events.clone(), running.clone(), &start_block_num).await?;
-
-    tracing::info!(
-        conf=?conf,
-        end_block=?end_block,
-        "SavingHyperdriveEvents"
-    );
-
-    let events_db = EventsDb {
-        end_block_num: end_block,
-        events: events.to_serializable(),
-    };
-    let json_str = serde_json::to_string_pretty(&events_db)?;
-    let mut file = File::create(format!("{}-{}.json", conf.pool_type, conf.address))?;
-    file.write_all(json_str.as_bytes())?;
 
     Ok(())
 }
@@ -102,7 +119,7 @@ async fn launch_agg(preconf: &RunConfig) -> Result<()> {
     let events_db: EventsDb = serde_json::from_str(&json_str)?;
 
     let mut conf = preconf.clone();
-    conf.end_block_num = U64::from(events_db.end_block_num);
+    conf.end_block_num = events_db.end_block_num.into();
     conf.end_timestamp = conf
         .client
         .clone()
@@ -116,7 +133,7 @@ async fn launch_agg(preconf: &RunConfig) -> Result<()> {
         conf.pool_type, conf.address, conf.end_block_num
     ))?;
 
-    tracing::info!(writer=?writer, conf=?conf, "WritingAggs");
+    tracing::info!(writer=?writer, "WritingAggs");
     write_aggregates(&conf, &mut writer, &events_db.events).await?;
 
     Ok(())
@@ -128,20 +145,26 @@ async fn main() -> Result<()> {
 
     dotenv().ok();
 
-    let matches = command!()
-        .author("Butter")
-        .arg(arg!([action] "acq or agg").required(true))
-        .arg(arg!([pool_type] "The type of the pool").required(true))
-        .arg(arg!([address] "The Hyperdrive contract address").required(true))
-        .arg(arg!([deploy_block] "The contract deployment block number").required(true))
-        .arg(arg!([custom_end_date] "Custom end date like `%YYYY-%mm-%dd`"))
-        .get_matches();
-
     let ws_url = env::var("WS_URL").expect("WS_URL must be set");
     tracing::info!(ws_url=%ws_url, "ProviderUrl");
     let client = Arc::new(Provider::<Ws>::connect(ws_url).await?);
 
-    let action = matches.get_one::<String>("action").unwrap().as_str();
+    let latest_block = client.get_block(BlockNumber::Latest).await?.unwrap();
+    let latest_block_num = latest_block.number.unwrap();
+    let latest_block_timestamp = latest_block.timestamp;
+
+    let matches = command!()
+        .author("Butter")
+        .arg(arg!([pool_type] "The type of the pool").required(true))
+        .arg(arg!([address] "The Hyperdrive contract address").required(true))
+        .arg(arg!([deploy_block] "The contract deployment block number").required(true))
+        .subcommand(Command::new("acq").arg(arg!(-p --page_size <PAGE_SIZE> "Query page size")))
+        .subcommand(
+            Command::new("agg")
+                .arg(arg!(-e --end_date <END_DATE> "Custom end date like `%YYYY-%mm-%dd`")),
+        )
+        .get_matches();
+
     let pool_type = matches.get_one::<String>("pool_type").unwrap().clone();
     let address = matches.get_one::<String>("address").unwrap().to_string();
     let address = H160::from_str(&address)?;
@@ -161,14 +184,36 @@ async fn main() -> Result<()> {
         .unwrap()
         .timestamp;
 
-    let latest_block = client.get_block(BlockNumber::Latest).await?.unwrap();
-    let latest_block_num = latest_block.number.unwrap();
-    let latest_block_timestamp = latest_block.timestamp;
+    let contract = i_hyperdrive::IHyperdrive::new(address, client.clone());
+    let pool_config = contract.clone().get_pool_config().call().await?;
 
-    let (end_block_num, end_timestamp): (U64, U256) =
-        match matches.get_one::<String>("custom_end_date") {
-            Some(ced_str) => {
-                let datetime = NaiveDate::parse_from_str(ced_str, "%Y-%m-%d")?
+    let mut conf = RunConfig {
+        client: client.clone(),
+        pool_type,
+        address,
+        deploy_block_num,
+        deploy_timestamp,
+        end_block_num: latest_block_num,
+        end_timestamp: latest_block_timestamp,
+        contract,
+        pool_config,
+        page_size: globals::QUERY_PAGE_SIZE.into(),
+    };
+
+    match matches.subcommand() {
+        Some(("acq", sub_matches)) => {
+            if let Some(ps_str) = sub_matches.get_one::<String>("page_size") {
+                let page_size: u64 = ps_str.parse()?;
+                conf.page_size = page_size.into();
+            }
+
+            tracing::info!(conf=?conf, "LaunchingAcq");
+
+            launch_acq(&conf).await
+        }
+        Some(("agg", sub_matches)) => {
+            if let Some(ed_str) = sub_matches.get_one::<String>("end_date") {
+                let datetime = NaiveDate::parse_from_str(ed_str, "%Y-%m-%d")?
                     .and_hms_opt(0, 0, 0)
                     .unwrap()
                     .and_utc();
@@ -180,30 +225,14 @@ async fn main() -> Result<()> {
                     latest_block_num,
                 )
                 .await?;
-                (block_num, U256::from(timestamp))
+                conf.end_block_num = block_num;
+                conf.end_timestamp = timestamp.into();
             }
-            _ => (latest_block_num, latest_block_timestamp),
-        };
-    tracing::warn!(end_block_num=?end_block_num, end_timestamp=?end_timestamp, "hey");
 
-    let contract = i_hyperdrive::IHyperdrive::new(address, client.clone());
-    let pool_config = contract.clone().get_pool_config().call().await?;
+            tracing::info!(conf=?conf, "LaunchingAgg");
 
-    let conf = RunConfig {
-        client,
-        pool_type,
-        address,
-        deploy_block_num,
-        deploy_timestamp,
-        end_block_num,
-        end_timestamp,
-        contract,
-        pool_config,
-    };
-
-    match action {
-        "acq" => launch_acq(&conf).await,
-        "agg" => launch_agg(&conf).await,
-        _ => bail!("Invalid action specified"),
+            launch_agg(&conf).await
+        }
+        _ => bail!("Invalid subcommand"),
     }
 }

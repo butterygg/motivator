@@ -7,7 +7,6 @@ use ethers::types::{H160, I256, U256, U64};
 use eyre::Result;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use tracing::{debug, info};
 
 use crate::types::*;
 use crate::utils::*;
@@ -200,7 +199,7 @@ fn calc_pnls(
         .map(|long_key| {
             let cumulative_debit = longs_cumul_debits.get(long_key).unwrap();
 
-            debug!(long_key=?long_key, cumulative_debit=?cumulative_debit, 
+            tracing::debug!(long_key=?long_key, cumulative_debit=?cumulative_debit, 
 
                 hyperdrive_state=?hyperdrive_state,
                 "CalculatingLongsPnL");
@@ -269,7 +268,7 @@ fn calc_pnls(
                 .expect(maturity_share_errmsg)
                 .price;
 
-            debug!(
+            tracing::debug!(
                 short_key=?short_key,
                 cumulative_debit=?cumulative_debit,
                 open_share_price=?open_share_price,
@@ -311,7 +310,7 @@ fn calc_pnls(
         .map(|lp_key| {
             let cumulative_debit = lps_cumul_debits.get(lp_key).unwrap();
 
-            debug!(
+            tracing::debug!(
                 lp_key=?lp_key,
                 cumulative_debit=?cumulative_debit,
                 hyperdrive_state=?hyperdrive_state,
@@ -344,7 +343,7 @@ fn aggregate_per_user_over_period(
 ) -> UsersAggs {
     let mut users_aggs: UsersAggs = HashMap::new();
 
-    info!(
+    tracing::info!(
         start_timestamp_str = timestamp_to_string(start_timestamp),
         start_timestamp = %start_timestamp,
         end_timestamp_str = timestamp_to_string(end_timestamp),
@@ -371,7 +370,7 @@ fn aggregate_per_user_over_period(
                 }
             })
             .sum::<I256>();
-        debug!(
+        tracing::debug!(
            long_key=?long_key,
            long=?long,
            action_count_long=%agg.action_count.long,
@@ -449,7 +448,7 @@ async fn calc_period_aggs(
         .call()
         .await?;
     let hyperdrive_state = hyperdrive_math::State::new(conf.pool_config.clone(), pool_info);
-    info!(
+    tracing::info!(
         period_start=?period_start,
         period_end=?period_end,
         period_end_block_num=?period_end_block_num,
@@ -468,7 +467,6 @@ async fn calc_period_aggs(
     ))
 }
 
-// [TODO] Add cutoff date
 // [TODO] Write a script to merge CSVs together.
 ///Write aggregates, one per midnight.
 pub async fn write_aggregates(
@@ -485,11 +483,11 @@ pub async fn write_aggregates(
         .and_utc();
     let mut period_end = U256::from(period_end_datetime.timestamp());
 
-    debug!(
+    tracing::debug!(
         period_start=?period_start,
         period_end=?period_end,
         end_timestamp=?conf.end_timestamp,
-        "DumpingHourlyAggFirstPeriod"
+        "AggFirstPeriod"
     );
 
     while period_end <= conf.end_timestamp {
@@ -534,10 +532,10 @@ pub async fn write_aggregates(
             })?
         }
 
-        debug!(
-            "Dumped period_start={} period_end={}",
-            timestamp_to_string(period_start),
-            timestamp_to_string(period_end)
+        tracing::debug!(
+            period_start = timestamp_to_string(period_start),
+            period_end = timestamp_to_string(period_end),
+            "WritingnAggs"
         );
 
         period_start_datetime += Duration::days(1);
