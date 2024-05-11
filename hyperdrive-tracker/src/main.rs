@@ -3,7 +3,6 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::str::FromStr;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use chrono::NaiveDate;
@@ -60,15 +59,6 @@ fn read_eventsdb(conf: &RunConfig) -> Result<(Arc<Events>, U64)> {
 }
 
 async fn launch_acq(conf: &RunConfig) -> Result<()> {
-    let running = Arc::new(AtomicBool::new(true));
-
-    let r = running.clone();
-    ctrlc::set_handler(move || {
-        r.store(false, Ordering::SeqCst);
-        println!("CTRL+C received. Aborting…");
-    })
-    .unwrap();
-
     let mut page_end_block_num: U64;
     let mut page_start_block_num: U64;
     let events: Arc<Events>;
@@ -76,7 +66,7 @@ async fn launch_acq(conf: &RunConfig) -> Result<()> {
     (events, page_start_block_num) = read_eventsdb(conf)?;
     page_end_block_num = page_start_block_num + conf.page_size;
 
-    while running.load(Ordering::SeqCst) && page_end_block_num <= conf.end_block_num {
+    while page_end_block_num <= conf.end_block_num {
         page_end_block_num = U64::min(page_end_block_num, conf.end_block_num.as_u64().into());
 
         tracing::info!(
