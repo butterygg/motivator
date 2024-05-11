@@ -23,5 +23,4 @@ lazy_static = "1.4.0"
 hyperdrive-wrappers = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "hyperdrive-wrappers" }
 hyperdrive-math = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "hyperdrive-math" }
 fixed-point = { git = "https://github.com/delvtech/hyperdrive", tag = "v1.0.0", package = "fixed-point" }
-ctrlc = "3.4.4"
 eyre = "0.6.12"
