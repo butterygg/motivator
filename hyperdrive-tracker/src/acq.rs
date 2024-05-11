@@ -1,3 +1,5 @@
+use std::fs;
+use std::io::Write;
 use std::sync::Arc;
 
 use ethers::{
@@ -370,14 +372,15 @@ async fn write_remove_liquidity(
 }
 
 ///Loads events from page start (inclusive) to page end (**non inclusive**).
-pub async fn load_events_paginated(
-    conf: &RunConfig,
+async fn load_events_paginated(
+    rconf: &RunConfig,
+    tconf: &SingleTrackerConfig,
     events: Arc<Events>,
     page_start_block: U64,
     page_end_block: U64,
 ) -> Result<()> {
     // fromBlock and toBlock are inclusive.
-    let contract_events = conf
+    let contract_events = tconf
         .contract
         .events()
         .from_block(page_start_block)
@@ -387,44 +390,45 @@ pub async fn load_events_paginated(
     for (evt, meta) in query {
         match evt.clone() {
             i_hyperdrive::IHyperdriveEvents::OpenLongFilter(event) => {
-                let _ =
-                    write_open_long(conf.client.clone(), events.clone(), event, meta.clone()).await;
+                let _ = write_open_long(rconf.client.clone(), events.clone(), event, meta.clone())
+                    .await;
             }
             i_hyperdrive::IHyperdriveEvents::OpenShortFilter(event) => {
                 let short_key =
-                    write_open_short(conf.client.clone(), events.clone(), event, meta.clone())
+                    write_open_short(rconf.client.clone(), events.clone(), event, meta.clone())
                         .await;
                 let _ = write_share_price(
-                    conf.client.clone(),
-                    conf.contract.clone(),
-                    &conf.pool_config,
-                    &conf.deploy_block_num,
-                    &conf.end_block_num,
+                    rconf.client.clone(),
+                    tconf.contract.clone(),
+                    &tconf.pool_config,
+                    &tconf.hconf.deploy_block_num,
+                    &rconf.end_block_num,
                     events.clone(),
                     short_key?,
                 )
                 .await;
             }
             i_hyperdrive::IHyperdriveEvents::InitializeFilter(event) => {
-                let _ = write_initialize(conf.client.clone(), events.clone(), event, meta.clone())
+                let _ = write_initialize(rconf.client.clone(), events.clone(), event, meta.clone())
                     .await;
             }
             i_hyperdrive::IHyperdriveEvents::AddLiquidityFilter(event) => {
                 let _ =
-                    write_add_liquidity(conf.client.clone(), events.clone(), event, meta.clone())
+                    write_add_liquidity(rconf.client.clone(), events.clone(), event, meta.clone())
                         .await;
             }
             i_hyperdrive::IHyperdriveEvents::CloseLongFilter(event) => {
-                let _ = write_close_long(conf.client.clone(), events.clone(), event, meta.clone())
+                let _ = write_close_long(rconf.client.clone(), events.clone(), event, meta.clone())
                     .await;
             }
             i_hyperdrive::IHyperdriveEvents::CloseShortFilter(event) => {
-                let _ = write_close_short(conf.client.clone(), events.clone(), event, meta.clone())
-                    .await;
+                let _ =
+                    write_close_short(rconf.client.clone(), events.clone(), event, meta.clone())
+                        .await;
             }
             i_hyperdrive::IHyperdriveEvents::RemoveLiquidityFilter(event) => {
                 let _ = write_remove_liquidity(
-                    conf.client.clone(),
+                    rconf.client.clone(),
                     events.clone(),
                     event,
                     meta.clone(),
@@ -435,6 +439,56 @@ pub async fn load_events_paginated(
         }
 
         tracing::debug!(meta=?meta.clone(), evt=?evt.clone(), "EndQueryEvent");
+    }
+
+    Ok(())
+}
+
+pub async fn launch_acq(rconf: &RunConfig, tconf: &SingleTrackerConfig) -> Result<()> {
+    let mut page_end_block_num: U64;
+    let mut page_start_block_num: U64;
+    let events: Arc<Events>;
+
+    (events, page_start_block_num) = read_eventsdb(tconf.hconf)?;
+    page_end_block_num = page_start_block_num + rconf.page_size;
+
+    while page_end_block_num <= rconf.end_block_num {
+        page_end_block_num = U64::min(page_end_block_num, rconf.end_block_num.as_u64().into());
+
+        tracing::info!(
+            page_start_block_num=?page_start_block_num,
+            page_end_block_num=?page_end_block_num,
+            "LoadingHyperdriveEvents"
+        );
+
+        load_events_paginated(
+            rconf,
+            tconf,
+            events.clone(),
+            page_start_block_num,
+            page_end_block_num,
+        )
+        .await?;
+
+        tracing::info!(
+            end_block_num=?page_end_block_num,
+            "SavingHyperdriveEvents"
+        );
+
+        // [TODO] Make write_eventsdb
+        let events_db = EventsDb {
+            end_block_num: page_end_block_num.as_u64(),
+            events: events.to_serializable(),
+        };
+        let json_str = serde_json::to_string_pretty(&events_db)?;
+        let mut file = fs::File::create(format!(
+            "{}-{}.json",
+            tconf.hconf.pool_type, tconf.hconf.address
+        ))?;
+        file.write_all(json_str.as_bytes())?;
+
+        page_start_block_num += rconf.page_size;
+        page_end_block_num += rconf.page_size;
     }
 
     Ok(())

@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -223,5 +224,35 @@ impl<'de> Deserialize<'de> for LpKey {
         }
 
         deserializer.deserialize_string(LpKeyVisitor)
+    }
+}
+
+// [TODO] Maybe DashMap is useless.
+pub fn read_eventsdb(hconf: &HyperdriveConfig) -> Result<(Arc<Events>, U64)> {
+    match fs::read_to_string(format!("{}-{}.json", hconf.pool_type, hconf.address)) {
+        Ok(events_data) => {
+            let events_db: EventsDb = serde_json::from_str(&events_data)?;
+
+            tracing::info!(
+                end_block_num=?events_db.end_block_num,
+                "LoadingPreviousEvents"
+            );
+
+            let events = Arc::new(Events::from_serializable(events_db.events));
+            let start_block_num = events_db.end_block_num.into();
+            Ok((events, start_block_num))
+        }
+        Err(_) => {
+            tracing::info!("FreshEvents");
+
+            let events = Arc::new(Events {
+                longs: DashMap::new(),
+                shorts: DashMap::new(),
+                lps: DashMap::new(),
+                share_prices: DashMap::new(),
+            });
+            let start_block_num = hconf.deploy_block_num;
+            Ok((events, start_block_num))
+        }
     }
 }

@@ -1,13 +1,21 @@
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs;
+use std::ops::AddAssign;
 
 use chrono::{DateTime, Duration};
 use csv::Writer;
-use ethers::types::{H160, I256, U256, U64};
+use dashmap::DashMap;
+use ethers::{
+    providers::Middleware,
+    types::{H160, I256, U256, U64},
+};
 use eyre::Result;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
+use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
+
+use crate::globals::*;
 use crate::types::*;
 use crate::utils::*;
 
@@ -46,12 +54,28 @@ struct CumulativeDebits {
     lp: I256,
 }
 
+impl AddAssign for CumulativeDebits {
+    fn add_assign(&mut self, other: Self) {
+        self.long += other.long;
+        self.short += other.short;
+        self.lp += other.lp;
+    }
+}
+
 ///Still scaled to the e18. Comparable to base_amounts.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct PnL {
     long: Decimal,
     short: Decimal,
     lp: Decimal,
+}
+
+impl AddAssign for PnL {
+    fn add_assign(&mut self, other: Self) {
+        self.long += other.long;
+        self.short += other.short;
+        self.lp += other.lp;
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -61,11 +85,27 @@ struct ActionCount {
     lp: usize,
 }
 
+impl AddAssign for ActionCount {
+    fn add_assign(&mut self, other: Self) {
+        self.long += other.long;
+        self.short += other.short;
+        self.lp += other.lp;
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 struct Volume {
     long: I256,
     short: I256,
     lp: I256,
+}
+
+impl AddAssign for Volume {
+    fn add_assign(&mut self, other: Self) {
+        self.long += other.long;
+        self.short += other.short;
+        self.lp += other.lp;
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -435,19 +475,19 @@ fn aggregate_per_user_over_period(
 }
 
 async fn calc_period_aggs(
-    conf: &RunConfig,
+    tconf: &SingleTrackerConfig,
     sevents: &SerializableEvents,
     period_start: U256,
     period_end_block_num: U64,
     period_end: U256,
 ) -> Result<UsersAggs> {
-    let pool_info = conf
+    let pool_info = tconf
         .contract
         .get_pool_info()
         .block(period_end_block_num)
         .call()
         .await?;
-    let hyperdrive_state = hyperdrive_math::State::new(conf.pool_config.clone(), pool_info);
+    let hyperdrive_state = hyperdrive_math::State::new(tconf.pool_config.clone(), pool_info);
     tracing::info!(
         period_start=?period_start,
         period_end=?period_end,
@@ -467,14 +507,63 @@ async fn calc_period_aggs(
     ))
 }
 
-// [TODO] Write a script to merge CSVs together.
 ///Write aggregates, one per midnight.
-pub async fn write_aggregates(
-    conf: &RunConfig,
-    writer: &mut Writer<File>,
+async fn get_hyperdrive_aggs(
+    rconf: &RunConfig,
+    tconf: &SingleTrackerConfig,
     sevents: &SerializableEvents,
-) -> Result<()> {
-    let mut period_start = conf.deploy_timestamp;
+    period_start: U256,
+    period_end: U256,
+) -> Result<UsersAggs> {
+    // The PnL part doesn't need to know about `period_start` as PnLs and balances are
+    // statements that we calculate at `period_end`.
+    let period_end_block_num = find_block_by_timestamp(
+        rconf.client.clone(),
+        period_end.as_u64(),
+        tconf.hconf.deploy_block_num,
+        rconf.end_block_num,
+    )
+    .await
+    .unwrap();
+
+    let users_aggs = calc_period_aggs(
+        tconf,
+        sevents,
+        period_start,
+        period_end_block_num,
+        period_end,
+    )
+    .await?;
+
+    Ok(users_aggs)
+}
+
+fn group_users_aggs_by_address(usersaggs_list: &[UsersAggs]) -> UsersAggs {
+    usersaggs_list
+        .iter()
+        .fold(UsersAggs::new(), |mut acc, usersaggs| {
+            for (address, user_agg) in usersaggs {
+                let entry = acc.entry(*address).or_default();
+                entry.action_count += user_agg.action_count.clone();
+                entry.volume += user_agg.volume.clone();
+                entry.pnl += user_agg.pnl.clone();
+                entry.base_cumulative_debit += user_agg.base_cumulative_debit.clone();
+            }
+            acc
+        })
+}
+
+// [FIXME] Use read_eventsdb
+///Launch aggregation with a timeframe from deploy block until last block of recorded events.
+pub async fn launch_agg(rconf: &RunConfig) -> Result<()> {
+    let mut writer = Writer::from_path("rows.csv")?;
+
+    let mut period_start = rconf
+        .client
+        .get_block(rconf.start_block_num)
+        .await?
+        .unwrap()
+        .timestamp;
     let mut period_start_datetime =
         DateTime::from_timestamp(period_start.as_u64() as i64, 0).unwrap();
     let mut period_end_datetime = (period_start_datetime.date_naive() + Duration::days(1))
@@ -483,53 +572,79 @@ pub async fn write_aggregates(
         .and_utc();
     let mut period_end = U256::from(period_end_datetime.timestamp());
 
+    let end_timestamp = rconf
+        .client
+        .get_block(rconf.end_block_num)
+        .await?
+        .unwrap()
+        .timestamp;
+
     tracing::debug!(
         period_start=?period_start,
         period_end=?period_end,
-        end_timestamp=?conf.end_timestamp,
+        end_timestamp=?end_timestamp,
         "AggFirstPeriod"
     );
 
-    while period_end <= conf.end_timestamp {
-        // The PnL part doesn't need to know about `period_start` as PnLs and balances are
-        // statements that we calculate at `period_end`.
+    while period_end <= end_timestamp {
         let period_end_block_num = find_block_by_timestamp(
-            conf.client.clone(),
+            rconf.client.clone(),
             period_end.as_u64(),
-            conf.deploy_block_num,
-            conf.end_block_num,
-        )
-        .await
-        .unwrap();
-
-        let users_aggs = calc_period_aggs(
-            conf,
-            sevents,
-            period_start,
-            period_end_block_num,
-            period_end,
+            rconf.start_block_num,
+            rconf.end_block_num,
         )
         .await?;
+        let usersaggs_list_per_pooltype: DashMap<&str, Vec<UsersAggs>> = DashMap::new();
 
-        for (user_address, agg) in users_aggs {
-            writer.serialize(CsvRecord {
-                timestamp: timestamp_to_date_string(period_end),
-                block_number: period_end_block_num.as_u64(),
-                pool_type: conf.pool_type.clone(),
-                user_address,
-                action_count_longs: agg.action_count.long,
-                action_count_shorts: agg.action_count.short,
-                action_count_lps: agg.action_count.lp,
-                volume_longs: agg.volume.long.normalized().compact_ser(),
-                volume_shorts: agg.volume.short.normalized().compact_ser(),
-                volume_lps: agg.volume.lp.normalized().compact_ser(),
-                pnl_longs: agg.pnl.long.compact_ser(),
-                pnl_shorts: agg.pnl.short.compact_ser(),
-                pnl_lps: agg.pnl.lp.compact_ser(),
-                tvl_longs: agg.base_cumulative_debit.long.normalized().compact_ser(),
-                tvl_shorts: agg.base_cumulative_debit.short.normalized().compact_ser(),
-                tvl_lps: agg.base_cumulative_debit.lp.normalized().compact_ser(),
-            })?
+        for hconf in HYPERDRIVES.values() {
+            let json_str =
+                fs::read_to_string(format!("{}-{}.json", hconf.pool_type, hconf.address))?;
+            let events_db: EventsDb = serde_json::from_str(&json_str)?;
+
+            let contract = i_hyperdrive::IHyperdrive::new(hconf.address, rconf.client.clone());
+            let pool_config = contract.clone().get_pool_config().call().await?;
+            let tconf = SingleTrackerConfig {
+                hconf,
+                contract,
+                pool_config,
+            };
+
+            let users_aggs =
+                get_hyperdrive_aggs(rconf, &tconf, &events_db.events, period_start, period_end)
+                    .await?;
+
+            usersaggs_list_per_pooltype
+                .entry(hconf.pool_type)
+                .and_modify(|existing| existing.push(users_aggs.clone()))
+                .or_insert_with(|| vec![users_aggs.clone()]);
+        }
+
+        let pooltype_usersaggs: HashMap<&str, UsersAggs> = usersaggs_list_per_pooltype
+            .iter()
+            .map(|entry| (*entry.key(), group_users_aggs_by_address(entry.value())))
+            .collect::<HashMap<&str, UsersAggs>>();
+
+        for (pool_type, users_aggs) in pooltype_usersaggs.iter() {
+            for (user_address, agg) in users_aggs {
+                writer.serialize(CsvRecord {
+                    timestamp: timestamp_to_date_string(period_end),
+                    block_number: period_end_block_num.as_u64(),
+                    pool_type: pool_type.to_string(),
+                    user_address: *user_address,
+                    action_count_longs: agg.action_count.long,
+                    action_count_shorts: agg.action_count.short,
+                    action_count_lps: agg.action_count.lp,
+                    volume_longs: agg.volume.long.normalized().compact_ser(),
+                    volume_shorts: agg.volume.short.normalized().compact_ser(),
+                    volume_lps: agg.volume.lp.normalized().compact_ser(),
+                    pnl_longs: agg.pnl.long.compact_ser(),
+                    pnl_shorts: agg.pnl.short.compact_ser(),
+                    pnl_lps: agg.pnl.lp.compact_ser(),
+                    tvl_longs: agg.base_cumulative_debit.long.normalized().compact_ser(),
+                    tvl_shorts: agg.base_cumulative_debit.short.normalized().compact_ser(),
+                    tvl_lps: agg.base_cumulative_debit.lp.normalized().compact_ser(),
+                })?
+            }
         }
 
         tracing::debug!(
@@ -538,12 +653,12 @@ pub async fn write_aggregates(
             "WritingnAggs"
         );
 
+        writer.flush()?;
+
         period_start_datetime += Duration::days(1);
         period_start = U256::from(period_start_datetime.timestamp());
         period_end_datetime += Duration::days(1);
         period_end = U256::from(period_end_datetime.timestamp());
-
-        writer.flush()?;
     }
 
     Ok(())
