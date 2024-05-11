@@ -45,6 +45,6 @@ Sepolia hyperdrive addresses:
 # Launch script
 
 ```
-cargo r -- acq 4626 0xb932f8085399c228b16a9f7fc3219d47ffa2810d 5664214
-cargo r -- agg 4626 0xb932f8085399c228b16a9f7fc3219d47ffa2810d 5664214
+cargo r -- 4626 0xb932f8085399c228b16a9f7fc3219d47ffa2810d 5664214 acq
+cargo r -- 4626 0xb932f8085399c228b16a9f7fc3219d47ffa2810d 5664214 agg
 ```

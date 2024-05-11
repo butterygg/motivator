@@ -21,6 +21,7 @@ pub struct RunConfig {
     pub end_timestamp: U256,
     pub contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pub pool_config: i_hyperdrive::PoolConfig,
+    pub page_size: U64,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

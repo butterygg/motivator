@@ -1,4 +1,3 @@
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use ethers::{
@@ -6,11 +5,9 @@ use ethers::{
     providers::{Middleware, Provider, Ws},
     types::{I256, U256, U64},
 };
-use tracing::{debug, info, warn};
 
 use hyperdrive_wrappers::wrappers::ihyperdrive::i_hyperdrive;
 
-use crate::globals::*;
 use crate::types::*;
 use crate::utils::*;
 use eyre::Result;
@@ -21,7 +18,7 @@ async fn write_open_long(
     event: i_hyperdrive::OpenLongFilter,
     meta: LogMeta,
 ) -> Result<()> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
         maturity_time_str=%timestamp_to_string(event.maturity_time),
@@ -62,7 +59,7 @@ async fn write_close_long(
     event: i_hyperdrive::CloseLongFilter,
     meta: LogMeta,
 ) -> Result<()> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
         maturity_time=%timestamp_to_string(event.maturity_time),
@@ -104,7 +101,7 @@ async fn write_open_short(
     event: i_hyperdrive::OpenShortFilter,
     meta: LogMeta,
 ) -> Result<PositionKey> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
         maturity_time=%event.maturity_time,
@@ -196,7 +193,7 @@ async fn write_share_price(
         price: maturity_state.info.vault_share_price,
     };
 
-    debug!(
+    tracing::debug!(
         open_checkpoint_time=%open_checkpoint_time,
         open_block_num=%open_block_num,
         open_share_price=%open_share_price.price,
@@ -220,7 +217,7 @@ async fn write_close_short(
     event: i_hyperdrive::CloseShortFilter,
     meta: LogMeta,
 ) -> Result<()> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         trader=%event.trader,
         maturity_time=%event.maturity_time,
@@ -262,7 +259,7 @@ async fn write_initialize(
     event: i_hyperdrive::InitializeFilter,
     meta: LogMeta,
 ) -> Result<()> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         provider=%event.provider,
         lp_amount=%event.lp_amount/U256::exp10(18),
@@ -300,7 +297,7 @@ async fn write_add_liquidity(
     event: i_hyperdrive::AddLiquidityFilter,
     meta: LogMeta,
 ) -> Result<()> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         provider=%event.provider,
         lp_amount=%event.lp_amount/U256::exp10(18),
@@ -338,7 +335,7 @@ async fn write_remove_liquidity(
     event: i_hyperdrive::RemoveLiquidityFilter,
     meta: LogMeta,
 ) -> Result<()> {
-    debug!(
+    tracing::debug!(
         block_num=%meta.block_number,
         provider=%event.provider,
         lp_amount=%event.lp_amount/U256::exp10(18),
@@ -373,7 +370,7 @@ async fn write_remove_liquidity(
 }
 
 ///Loads events from page start (inclusive) to page end (**non inclusive**).
-async fn load_events_paginated(
+pub async fn load_events_paginated(
     conf: &RunConfig,
     events: Arc<Events>,
     page_start_block: U64,
@@ -437,53 +434,8 @@ async fn load_events_paginated(
             _ => (),
         }
 
-        debug!(meta=?meta.clone(), evt=?evt.clone(), "EndQueryEvent");
+        tracing::debug!(meta=?meta.clone(), evt=?evt.clone(), "EndQueryEvent");
     }
 
     Ok(())
-}
-
-///Returns Events and the last block that was successfully acquired.
-pub async fn load_hyperdrive_events(
-    conf: &RunConfig,
-    events: Arc<Events>,
-    running: Arc<AtomicBool>,
-    start_block_num: &U64,
-) -> Result<u64> {
-    let mut page_end_block: u64 = 0;
-
-    for page_start_block in (start_block_num.as_u64()..conf.end_block_num.as_u64())
-        .step_by(QUERY_BLOCKS_PAGE_SIZE as usize)
-    {
-        if !running.load(Ordering::SeqCst) {
-            warn!(
-                conf=?conf,
-                aborted_page_start_block=?page_start_block,
-                "AbortingLoadHyperdriveEvents");
-
-            return Ok(page_end_block);
-        }
-
-        page_end_block = u64::min(
-            page_start_block + QUERY_BLOCKS_PAGE_SIZE,
-            conf.end_block_num.as_u64(),
-        );
-
-        info!(
-            conf=?conf,
-            page_start_block=?page_start_block,
-            page_end_block=?page_end_block,
-            "LoadingHyperdriveEvents"
-        );
-
-        load_events_paginated(
-            conf,
-            events.clone(),
-            U64::from(page_start_block),
-            U64::from(page_end_block),
-        )
-        .await?;
-    }
-
-    Ok(page_end_block)
 }
