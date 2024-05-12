@@ -14,7 +14,7 @@ use crate::types::*;
 use crate::utils::*;
 use eyre::Result;
 
-async fn write_open_long(
+async fn record_open_long(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::OpenLongFilter,
@@ -55,7 +55,7 @@ async fn write_open_long(
     Ok(())
 }
 
-async fn write_close_long(
+async fn record_close_long(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::CloseLongFilter,
@@ -97,7 +97,7 @@ async fn write_close_long(
     Ok(())
 }
 
-async fn write_open_short(
+async fn record_open_short(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::OpenShortFilter,
@@ -137,9 +137,10 @@ async fn write_open_short(
     Ok(key)
 }
 
-///For each OpenShort, write the SharePrice corresponding to the min of its maturity time and the
-///end of the timeframe.
-async fn write_share_price(
+///For each OpenShort, record the 2 SharePrice's corresponding to:
+///* the max of its open checkpoint time and the start of the timeframe
+///* the min of its maturity time and the end of the timeframe.
+async fn record_share_price(
     client: Arc<Provider<Ws>>,
     hyperdrive_contract: i_hyperdrive::IHyperdrive<Provider<Ws>>,
     pool_config: &i_hyperdrive::PoolConfig,
@@ -157,6 +158,14 @@ async fn write_share_price(
     )
     .await
     .unwrap();
+
+    tracing::debug!(
+        open_checkpoint_time=?open_checkpoint_time,
+        open_checkpoint_time_time=timestamp_to_string(open_checkpoint_time),
+        open_block_num=?open_block_num,
+        "GettingOpenCheckpointSharePrice"
+    );
+
     let open_pool_info = hyperdrive_contract
         .get_pool_info()
         .block(open_block_num)
@@ -184,6 +193,14 @@ async fn write_share_price(
     )
     .await
     .unwrap();
+
+    tracing::debug!(
+        maturity_checkpoint_time=?maturity_checkpoint_time,
+        maturity_checkpoint_time_time=timestamp_to_string(maturity_checkpoint_time),
+        maturity_block_num=?maturity_block_num,
+        "GettingMaturitySharePrice"
+    );
+
     let maturity_pool_info = hyperdrive_contract
         .get_pool_info()
         .block(maturity_block_num)
@@ -195,16 +212,6 @@ async fn write_share_price(
         price: maturity_state.info.vault_share_price,
     };
 
-    tracing::debug!(
-        open_checkpoint_time=%open_checkpoint_time,
-        open_block_num=%open_block_num,
-        open_share_price=%open_share_price.price,
-        maturity_checkpoint_time=%maturity_checkpoint_time,
-        maturity_block_num=%maturity_block_num,
-        maturity_share_price=%maturity_share_price.price,
-        "WriteSharePrice"
-    );
-
     events
         .share_prices
         .entry(maturity_checkpoint_time)
@@ -213,7 +220,7 @@ async fn write_share_price(
     Ok(())
 }
 
-async fn write_close_short(
+async fn record_close_short(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::CloseShortFilter,
@@ -255,7 +262,7 @@ async fn write_close_short(
     Ok(())
 }
 
-async fn write_initialize(
+async fn record_initialize(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::InitializeFilter,
@@ -293,7 +300,7 @@ async fn write_initialize(
     Ok(())
 }
 
-async fn write_add_liquidity(
+async fn record_add_liquidity(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::AddLiquidityFilter,
@@ -331,7 +338,7 @@ async fn write_add_liquidity(
     Ok(())
 }
 
-async fn write_remove_liquidity(
+async fn record_remove_liquidity(
     client: Arc<Provider<Ws>>,
     events: Arc<Events>,
     event: i_hyperdrive::RemoveLiquidityFilter,
@@ -390,50 +397,47 @@ async fn load_events_paginated(
     for (evt, meta) in query {
         match evt.clone() {
             i_hyperdrive::IHyperdriveEvents::OpenLongFilter(event) => {
-                let _ = write_open_long(rconf.client.clone(), events.clone(), event, meta.clone())
-                    .await;
+                record_open_long(rconf.client.clone(), events.clone(), event, meta.clone()).await?;
             }
             i_hyperdrive::IHyperdriveEvents::OpenShortFilter(event) => {
                 let short_key =
-                    write_open_short(rconf.client.clone(), events.clone(), event, meta.clone())
-                        .await;
-                let _ = write_share_price(
+                    record_open_short(rconf.client.clone(), events.clone(), event, meta.clone())
+                        .await?;
+
+                tracing::debug!(
+                    short_key=?short_key,
+                    "WritingSharePrice");
+
+                record_share_price(
                     rconf.client.clone(),
                     tconf.contract.clone(),
                     &tconf.pool_config,
                     &tconf.hconf.deploy_block_num,
                     &rconf.end_block_num,
                     events.clone(),
-                    short_key?,
+                    short_key,
                 )
-                .await;
+                .await?;
             }
             i_hyperdrive::IHyperdriveEvents::InitializeFilter(event) => {
-                let _ = write_initialize(rconf.client.clone(), events.clone(), event, meta.clone())
-                    .await;
+                record_initialize(rconf.client.clone(), events.clone(), event, meta.clone())
+                    .await?;
             }
             i_hyperdrive::IHyperdriveEvents::AddLiquidityFilter(event) => {
-                let _ =
-                    write_add_liquidity(rconf.client.clone(), events.clone(), event, meta.clone())
-                        .await;
+                record_add_liquidity(rconf.client.clone(), events.clone(), event, meta.clone())
+                    .await?;
             }
             i_hyperdrive::IHyperdriveEvents::CloseLongFilter(event) => {
-                let _ = write_close_long(rconf.client.clone(), events.clone(), event, meta.clone())
-                    .await;
+                record_close_long(rconf.client.clone(), events.clone(), event, meta.clone())
+                    .await?;
             }
             i_hyperdrive::IHyperdriveEvents::CloseShortFilter(event) => {
-                let _ =
-                    write_close_short(rconf.client.clone(), events.clone(), event, meta.clone())
-                        .await;
+                record_close_short(rconf.client.clone(), events.clone(), event, meta.clone())
+                    .await?;
             }
             i_hyperdrive::IHyperdriveEvents::RemoveLiquidityFilter(event) => {
-                let _ = write_remove_liquidity(
-                    rconf.client.clone(),
-                    events.clone(),
-                    event,
-                    meta.clone(),
-                )
-                .await;
+                record_remove_liquidity(rconf.client.clone(), events.clone(), event, meta.clone())
+                    .await?;
             }
             _ => (),
         }
