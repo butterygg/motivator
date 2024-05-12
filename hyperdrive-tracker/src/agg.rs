@@ -156,7 +156,7 @@ fn calc_pnls(
             let cumul_debits_2 = long.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
-                    if debit.timestamp <= at_timestamp {
+                    if debit.timestamp < at_timestamp {
                         (acc_base + debit.base_amount, acc_bond + debit.bond_amount)
                     } else {
                         (acc_base, acc_bond)
@@ -185,7 +185,7 @@ fn calc_pnls(
             let cumul_debits_2 = short.iter().fold(
                 (I256::zero(), I256::zero()),
                 |(acc_base, acc_bond), debit| {
-                    if debit.timestamp <= at_timestamp {
+                    if debit.timestamp < at_timestamp {
                         (acc_base + debit.base_amount, acc_bond + debit.bond_amount)
                     } else {
                         (acc_base, acc_bond)
@@ -214,7 +214,7 @@ fn calc_pnls(
             let cumul_debits_2 =
                 lp.iter()
                     .fold((I256::zero(), I256::zero()), |(acc_base, acc_lp), debit| {
-                        if debit.timestamp <= at_timestamp {
+                        if debit.timestamp < at_timestamp {
                             (acc_base + debit.base_amount, acc_lp + debit.lp_amount)
                         } else {
                             (acc_base, acc_lp)
@@ -244,16 +244,31 @@ fn calc_pnls(
                 hyperdrive_state=?hyperdrive_state,
                 "CalculatingLongsPnL");
 
-            let calculated_close_base_amount = if cumulative_debit.bond_amount != U256::zero() {
+            let calculated_close_base_amount = if cumulative_debit.bond_amount
+                >= hyperdrive_state.config.minimum_transaction_amount
+            {
+                tracing::debug!(
+                    bond_amount=?cumulative_debit.bond_amount,
+                    maturity_time=?long_key.maturity_time,
+                    "CalculatingCloseLong"
+                );
+
                 let calculated_close_shares = hyperdrive_state.calculate_close_long(
                     cumulative_debit.bond_amount,
                     long_key.maturity_time,
                     long_key.maturity_time,
                 );
+
                 // Knowing `calculate_close_long` returns vault share amounts:
                 calculated_close_shares.normalized()
                     * hyperdrive_state.info.vault_share_price.normalized()
             } else {
+                tracing::debug!(
+                    bond_amount=?cumulative_debit.bond_amount,
+                    maturity_time=?long_key.maturity_time,
+                    "TooLowLongBondAmountRemaining"
+                );
+
                 U256::zero().normalized()
             };
 
@@ -317,8 +332,17 @@ fn calc_pnls(
                 "CalculatingShortPnL"
             );
 
-            let calculated_maturity_base_amount = if cumulative_debit.bond_amount != U256::zero() {
-                // [XXX] Are we calling this fn correctly?
+            let calculated_maturity_base_amount = if cumulative_debit.bond_amount
+                >= hyperdrive_state.config.minimum_transaction_amount
+            {
+                tracing::debug!(
+                    bond_amount=?cumulative_debit.bond_amount,
+                    open_share_price=?open_share_price,
+                    maturity_or_current_share_price=?maturity_or_current_share_price,
+                    maturity_time=?short_key.maturity_time,
+                    "CalculatingCloseShort"
+                );
+
                 let calculated_maturity_shares = hyperdrive_state.calculate_close_short(
                     cumulative_debit.bond_amount,
                     open_share_price,
@@ -327,9 +351,18 @@ fn calc_pnls(
                     short_key.maturity_time,
                     short_key.maturity_time,
                 );
+
                 calculated_maturity_shares.normalized()
                     * hyperdrive_state.info.vault_share_price.normalized()
             } else {
+                tracing::debug!(
+                    bond_amount=?cumulative_debit.bond_amount,
+                    open_share_price=?open_share_price,
+                    maturity_or_current_share_price=?maturity_or_current_share_price,
+                    maturity_time=?short_key.maturity_time,
+                    "TooLowShortBondAmountRemaining"
+                );
+
                 U256::zero().normalized()
             };
 
@@ -382,14 +415,6 @@ fn aggregate_per_user_over_period(
     end_timestamp: U256,
 ) -> UsersAggs {
     let mut users_aggs: UsersAggs = HashMap::new();
-
-    tracing::info!(
-        start_timestamp_str = timestamp_to_string(start_timestamp),
-        start_timestamp = %start_timestamp,
-        end_timestamp_str = timestamp_to_string(end_timestamp),
-        end_timestamp = %end_timestamp,
-        "Agg"
-    );
 
     for (long_key, long) in sevents.longs.iter() {
         let filtered_entries: Vec<_> = long
@@ -488,14 +513,20 @@ async fn calc_period_aggs(
         .call()
         .await?;
     let hyperdrive_state = hyperdrive_math::State::new(tconf.pool_config.clone(), pool_info);
+
     tracing::info!(
-        period_start=?period_start,
-        period_end=?period_end,
-        period_end_block_num=?period_end_block_num,
         hyperdrive_state=?hyperdrive_state,
         "CalculatingPeriodPnLs"
     );
+
     let (longs_stmts, shorts_stmts, lps_stmts) = calc_pnls(sevents, hyperdrive_state, period_end);
+
+    tracing::info!(
+        long_stmts_count = longs_stmts.len(),
+        short_stmts_count = shorts_stmts.len(),
+        lps_stmts_count = lps_stmts.len(),
+        "AggregatingPerUserOverPeriod"
+    );
 
     Ok(aggregate_per_user_over_period(
         sevents,
@@ -507,7 +538,6 @@ async fn calc_period_aggs(
     ))
 }
 
-///Write aggregates, one per midnight.
 async fn get_hyperdrive_aggs(
     rconf: &RunConfig,
     tconf: &SingleTrackerConfig,
@@ -525,6 +555,8 @@ async fn get_hyperdrive_aggs(
     )
     .await
     .unwrap();
+
+    tracing::info!(tconf=?tconf, "CalculatingPeriodAggs");
 
     let users_aggs = calc_period_aggs(
         tconf,
@@ -553,8 +585,7 @@ fn group_users_aggs_by_address(usersaggs_list: &[UsersAggs]) -> UsersAggs {
         })
 }
 
-// [FIXME] Use read_eventsdb
-///Launch aggregation with a timeframe from deploy block until last block of recorded events.
+///Aggregate, one value per (pool_type, address, midnight).
 pub async fn launch_agg(rconf: &RunConfig) -> Result<()> {
     let mut writer = Writer::from_path("rows.csv")?;
 
@@ -572,21 +603,22 @@ pub async fn launch_agg(rconf: &RunConfig) -> Result<()> {
         .and_utc();
     let mut period_end = U256::from(period_end_datetime.timestamp());
 
-    let end_timestamp = rconf
+    let end = rconf
         .client
         .get_block(rconf.end_block_num)
         .await?
         .unwrap()
         .timestamp;
 
-    tracing::debug!(
-        period_start=?period_start,
-        period_end=?period_end,
-        end_timestamp=?end_timestamp,
-        "AggFirstPeriod"
+    tracing::info!(
+        first_period_start=?period_start,
+        first_period_start_time=timestamp_to_string(period_start),
+        end=?end,
+        end_time=timestamp_to_string(end),
+        "Aggregating"
     );
 
-    while period_end <= end_timestamp {
+    while period_end <= end {
         let period_end_block_num = find_block_by_timestamp(
             rconf.client.clone(),
             period_end.as_u64(),
@@ -596,7 +628,19 @@ pub async fn launch_agg(rconf: &RunConfig) -> Result<()> {
         .await?;
         let usersaggs_list_per_pooltype: DashMap<&str, Vec<UsersAggs>> = DashMap::new();
 
-        for hconf in HYPERDRIVES.values() {
+        tracing::info!(
+            period_start=?period_start,
+            period_start_time=timestamp_to_string(period_start),
+            period_end=?period_end,
+            period_end_time=timestamp_to_string(period_end),
+            period_end_block_num=?period_end_block_num,
+            "AggPeriod"
+        );
+
+        for hconf in HYPERDRIVES
+            .values()
+            .filter(|hc| hc.deploy_block_num < period_end_block_num)
+        {
             let json_str =
                 fs::read_to_string(format!("{}-{}.json", hconf.pool_type, hconf.address))?;
             let events_db: EventsDb = serde_json::from_str(&json_str)?;
@@ -624,6 +668,12 @@ pub async fn launch_agg(rconf: &RunConfig) -> Result<()> {
             .map(|entry| (*entry.key(), group_users_aggs_by_address(entry.value())))
             .collect::<HashMap<&str, UsersAggs>>();
 
+        tracing::debug!(
+            usersaggs_list_per_pooltype=?usersaggs_list_per_pooltype,
+            pooltype_usersaggs=?pooltype_usersaggs,
+            "WritingAggsPerPeriod"
+        );
+
         for (pool_type, users_aggs) in pooltype_usersaggs.iter() {
             for (user_address, agg) in users_aggs {
                 writer.serialize(CsvRecord {
@@ -647,11 +697,7 @@ pub async fn launch_agg(rconf: &RunConfig) -> Result<()> {
             }
         }
 
-        tracing::debug!(
-            period_start = timestamp_to_string(period_start),
-            period_end = timestamp_to_string(period_end),
-            "WritingnAggs"
-        );
+        tracing::info!("WritingAggs");
 
         writer.flush()?;
 

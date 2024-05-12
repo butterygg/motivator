@@ -51,7 +51,11 @@ pub async fn find_block_by_timestamp(
             std::cmp::Ordering::Equal => return Ok(mid.into()),
         }
     }
-    Ok(high.into())
+    let res = u64::max(high, start_block.as_u64()); // Could be start_block - 1
+
+    tracing::debug!(start_block=?start_block, end_block=?end_block, res=?res, "find_block_by_timestamp");
+
+    Ok(res.into())
 }
 
 pub trait Decimalizable {
@@ -227,7 +231,7 @@ impl<'de> Deserialize<'de> for LpKey {
     }
 }
 
-// [TODO] Maybe DashMap is useless.
+// [TODO] Replace all DashMap by HashMap. Would thus make this code more easily reusable.
 pub fn read_eventsdb(hconf: &HyperdriveConfig) -> Result<(Arc<Events>, U64)> {
     match fs::read_to_string(format!("{}-{}.json", hconf.pool_type, hconf.address)) {
         Ok(events_data) => {
