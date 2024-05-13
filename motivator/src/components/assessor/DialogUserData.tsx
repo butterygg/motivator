@@ -32,8 +32,8 @@ import { Card } from '../ui/card'
 import { transformNumberK } from '../../utils/utils'
 import { WeekSelector } from '../globals/WeekSelector'
 import Statistics from '../statistics/Statistics'
-import { LP_PNLChart } from '../statistics/LP_PNLChart'
-import { PNLChart } from '../statistics/PNLChart'
+import { LP_LineChart } from '../statistics/LP_LineChart'
+import { LineChart } from '../statistics/LineChart'
 type Props = {
     user: User
 }
@@ -331,7 +331,7 @@ export function DialogUserData({ user }: Props) {
                                     </Label>
                                     <div className="grid gap-2 lg:grid-flow-col p-2">
                                         {PNLTradingDataPoolEth.length > 0 && (
-                                            <PNLChart
+                                            <LineChart
                                                 title={'Trading'}
                                                 dataset={
                                                     PNLTradingDataPoolEth
@@ -342,7 +342,7 @@ export function DialogUserData({ user }: Props) {
                                         )}
                                         {LP_PNLTradingDataPoolEth.length >
                                             0 && (
-                                            <LP_PNLChart
+                                            <LP_LineChart
                                                 title={'Liquidity Provision'}
                                                 dataset={
                                                     LP_PNLTradingDataPoolEth
@@ -362,7 +362,7 @@ export function DialogUserData({ user }: Props) {
                                     </Label>
                                     <div className="grid gap-2 lg:grid-flow-col p-2">
                                         {PNLTradingDataPoolDai.length > 0 && (
-                                            <PNLChart
+                                            <LineChart
                                                 title={'Trading'}
                                                 dataset={
                                                     PNLTradingDataPoolDai
@@ -373,7 +373,7 @@ export function DialogUserData({ user }: Props) {
                                         )}
                                         {LP_PNLTradingDataPoolDai.length >
                                             0 && (
-                                            <LP_PNLChart
+                                            <LP_LineChart
                                                 title={'Liquidity Provision'}
                                                 dataset={
                                                     LP_PNLTradingDataPoolDai
@@ -405,7 +405,7 @@ export function DialogUserData({ user }: Props) {
                                     </Label>
                                     <div className="grid gap-2 lg:grid-flow-col p-2">
                                         {TVLTradingDataPoolEth.length > 0 && (
-                                            <PNLChart
+                                            <LineChart
                                                 title={'Trading'}
                                                 dataset={
                                                     TVLTradingDataPoolEth
@@ -416,7 +416,7 @@ export function DialogUserData({ user }: Props) {
                                         )}
                                         {LP_TVLTradingDataPoolEth.length >
                                             0 && (
-                                            <LP_PNLChart
+                                            <LP_LineChart
                                                 title={'Liquidity Provision'}
                                                 dataset={
                                                     LP_TVLTradingDataPoolEth
@@ -436,7 +436,7 @@ export function DialogUserData({ user }: Props) {
                                     </Label>
                                     <div className="grid gap-2 lg:grid-flow-col p-2">
                                         {TVLTradingDataPoolDai.length > 0 && (
-                                            <PNLChart
+                                            <LineChart
                                                 title={'Trading'}
                                                 dataset={
                                                     TVLTradingDataPoolDai
@@ -447,7 +447,7 @@ export function DialogUserData({ user }: Props) {
                                         )}
                                         {LP_TVLTradingDataPoolDai.length >
                                             0 && (
-                                            <LP_PNLChart
+                                            <LP_LineChart
                                                 title={'Liquidity Provision'}
                                                 dataset={
                                                     LP_TVLTradingDataPoolDai

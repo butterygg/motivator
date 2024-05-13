@@ -11,7 +11,7 @@ export type Props = {
     dataset: DataSetChartLP[]
 }
 
-export function LP_PNLChart({ title, dataset }: Props) {
+export function LP_LineChart({ title, dataset }: Props) {
     return (
         <div className="border rounded-lg p-3">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">

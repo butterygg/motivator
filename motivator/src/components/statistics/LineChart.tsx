@@ -16,7 +16,7 @@ export type Props = {
     dataset: DataSetChartTrading[]
 }
 
-export function PNLChart({ title, dataset }: Props) {
+export function LineChart({ title, dataset }: Props) {
     const chartdata = [
         {
             date: 'Jan 22',
