@@ -88,10 +88,6 @@ export function DialogUserData({ user }: Props) {
         DataSetChartLP[]
     >([])
 
-    const [weekSelected, setWeekSelected] = useState(
-        `Week ${Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)}`
-    )
-
     useEffect(() => {
         if (user.stat.stats) {
             preparePNLTradingData()
@@ -134,152 +130,110 @@ export function DialogUserData({ user }: Props) {
     const preparePNLTradingData = () => {
         if (!user || !user.stat.stats) return
         const resultPoolEth: DataSetChartTrading[] =
-            user.stat.stats.statsPoolETH.map((element) => {
-                return {
-                    date: element.timestamp,
-                    Short: element.pnl_shorts,
-                    Long: element.pnl_longs,
-                }
-            })
+            user.stat.stats.statsPoolETH
+                .map((element) => {
+                    return {
+                        date: element.timestamp,
+                        Short: element.pnl_shorts,
+                        Long: element.pnl_longs,
+                    }
+                })
+                .filter(
+                    (element) => element.Short !== null && element.Long !== null
+                )
         setPNLTradingDataPoolEth(resultPoolEth)
 
         const resultPoolDai: DataSetChartTrading[] =
-            user.stat.stats.statsPoolDAI.map((element) => {
-                return {
-                    date: element.timestamp,
-                    Short: element.pnl_shorts,
-                    Long: element.pnl_longs,
-                }
-            })
+            user.stat.stats.statsPoolDAI
+                .map((element) => {
+                    // if (!element.timestamp) return
+                    return {
+                        date: element.timestamp,
+                        Short: element.pnl_shorts,
+                        Long: element.pnl_longs,
+                    }
+                })
+                .filter(
+                    (element) => element.Short !== null && element.Long !== null
+                )
         setPNLTradingDataPoolDai(resultPoolDai)
     }
 
     const preparePnlLpsData = () => {
         if (!user || !user.stat.stats) return
-        const resultETH: DataSetChartLP[] = user.stat.stats.statsPoolETH.map(
-            (element) => {
+        const resultETH: DataSetChartLP[] = user.stat.stats.statsPoolETH
+            .map((element) => {
                 return {
                     date: element.timestamp,
                     LP: element.pnl_lps,
                 }
-            }
-        )
+            })
+            .filter((element) => element.LP !== null)
         setLP_PNLTradingDataPoolEth(resultETH)
-        const resultDai: DataSetChartLP[] = user.stat.stats.statsPoolDAI.map(
-            (element) => {
+        const resultDai: DataSetChartLP[] = user.stat.stats.statsPoolDAI
+            .map((element) => {
                 return {
                     date: element.timestamp,
                     LP: element.pnl_lps,
                 }
-            }
-        )
+            })
+            .filter((element) => element.LP !== null)
         setLP_PNLTradingDataPoolDai(resultDai)
     }
 
     const prepareTVLTradingData = () => {
         if (!user || !user.stat.stats) return
         const resultPoolEth: DataSetChartTrading[] =
-            user.stat.stats.statsPoolETH.map((element) => {
-                return {
-                    date: element.timestamp,
-                    Short: element.tvl_shorts,
-                    Long: element.tvl_longs,
-                }
-            })
+            user.stat.stats.statsPoolETH
+                .map((element) => {
+                    return {
+                        date: element.timestamp,
+                        Short: element.tvl_shorts,
+                        Long: element.tvl_longs,
+                    }
+                })
+                .filter(
+                    (element) => element.Short !== null && element.Long !== null
+                )
         setTVLTradingDataPoolEth(resultPoolEth)
 
         const resultPoolDai: DataSetChartTrading[] =
-            user.stat.stats.statsPoolDAI.map((element) => {
-                return {
-                    date: element.timestamp,
-                    Short: element.tvl_shorts,
-                    Long: element.tvl_longs,
-                }
-            })
+            user.stat.stats.statsPoolDAI
+                .map((element) => {
+                    return {
+                        date: element.timestamp,
+                        Short: element.tvl_shorts,
+                        Long: element.tvl_longs,
+                    }
+                })
+                .filter(
+                    (element) => element.Short !== null && element.Long !== null
+                )
         setTVLTradingDataPoolDai(resultPoolDai)
     }
 
     const prepareTVLLpsData = () => {
         if (!user || !user.stat.stats) return
-        const resultETH: DataSetChartLP[] = user.stat.stats.statsPoolETH.map(
-            (element) => {
+        const resultETH: DataSetChartLP[] = user.stat.stats.statsPoolETH
+            .map((element) => {
                 return {
                     date: element.timestamp,
                     LP: element.tvl_lps,
                 }
-            }
-        )
+            })
+            .filter((element) => element.LP !== null)
         setLP_TVLTradingDataPoolEth(resultETH)
-        const resultDai: DataSetChartLP[] = user.stat.stats.statsPoolDAI.map(
-            (element) => {
+        const resultDai: DataSetChartLP[] = user.stat.stats.statsPoolDAI
+            .map((element) => {
                 return {
                     date: element.timestamp,
                     LP: element.tvl_lps,
                 }
-            }
-        )
+            })
+            .filter((element) => element.LP !== null)
         setLP_TVLTradingDataPoolDai(resultDai)
     }
 
-    // const prepareVolumeTradingData = (pooltype: string) => {
-    //     if (!user || !user.stat.stats) return
-    //     if (pooltype === 'stETH') {
-    //         const result: DataSetChartTrading[] =
-    //             user.stat.stats.statsPoolETH.map((element) => {
-    //                 return {
-    //                     date: element.timestamp,
-    //                     Short: element.volume_shorts,
-    //                     Long: element.volume_longs,
-    //                 }
-    //             })
-    //         setVolumeTradingDataPoolEth(result)
-    //     } else {
-    //         const result: DataSetChartTrading[] =
-    //             user.stat.stats.statsPoolDAI.map((element) => {
-    //                 return {
-    //                     date: element.timestamp,
-    //                     Short: element.volume_shorts,
-    //                     Long: element.volume_longs,
-    //                 }
-    //             })
-    //         setVolumeTradingDataPoolDai(result)
-    //     }
-    // }
-
-    // const preparePNLLPData = () => {
-    //     if (!user || !user.stat.stats) return
-    //     const result: DataSetChartPnlLP[] = user.stat.stats.map((element) => {
-    //         return {
-    //             date: element.timestamp,
-    //             pnl: element.pnl_lps,
-    //         }
-    //     })
-    //     setLP_PNLTradingData(result)
-    // }
-
-    // const prepareVolumeLPData = (pooltype: string) => {
-    //     if (!user || !user.stat.stats) return
-
-    //     if (pooltype === 'stETH') {
-    //         const result: DataSetChartVolumeLP[] =
-    //             user.stat.stats.statsPoolETH.map((element) => {
-    //                 return {
-    //                     date: element.timestamp,
-    //                     volume: element.volume_lps,
-    //                 }
-    //             })
-    //         setLP_VolumeTradingDataPoolEth(result)
-    //     } else {
-    //         const result: DataSetChartVolumeLP[] =
-    //             user.stat.stats.statsPoolDAI.map((element) => {
-    //                 return {
-    //                     date: element.timestamp,
-    //                     volume: element.volume_lps,
-    //                 }
-    //             })
-    //         setLP_VolumeTradingDataPoolDai(result)
-    //     }
-    // }
     return (
         <Dialog>
             <TooltipProvider>
