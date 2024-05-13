@@ -13,11 +13,10 @@ const valueFormatter = function (number: number) {
 
 export type Props = {
     title: string
-    value: string
     dataset: DataSetChartTrading[]
 }
 
-export function PNLChart({ title, value, dataset }: Props) {
+export function PNLChart({ title, dataset }: Props) {
     const chartdata = [
         {
             date: 'Jan 22',

@@ -8,11 +8,10 @@ const valueFormatter = function (number: number) {
 
 export type Props = {
     title: string
-    value: string
     dataset: DataSetChartPnlLP[]
 }
 
-export function LP_PNLChart({ title, value, dataset }: Props) {
+export function LP_PNLChart({ title, dataset }: Props) {
     return (
         <div className="border rounded-lg p-5">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
