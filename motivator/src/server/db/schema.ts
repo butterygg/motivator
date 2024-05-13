@@ -72,6 +72,9 @@ export const statistics = pgTable('statistics', {
     pnl_longs: doublePrecision('pnl_longs'),
     pnl_shorts: doublePrecision('pnl_shorts'),
     pnl_lps: doublePrecision('pnl_lps'),
+    tvl_longs: doublePrecision('tvl_longs'),
+    tvl_shorts: doublePrecision('tvl_shorts'),
+    tvl_lps: doublePrecision('tvl_lps'),
 })
 
 export const totals = pgTable('totals', {
