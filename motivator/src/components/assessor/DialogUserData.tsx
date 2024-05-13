@@ -182,8 +182,8 @@ export function DialogUserData({ user }: Props) {
             user.stat.stats.statsPoolETH.map((element) => {
                 return {
                     date: element.timestamp,
-                    Short: element.pnl_shorts,
-                    Long: element.pnl_longs,
+                    Short: element.tvl_shorts,
+                    Long: element.tvl_longs,
                 }
             })
         setTVLTradingDataPoolEth(resultPoolEth)
@@ -192,8 +192,8 @@ export function DialogUserData({ user }: Props) {
             user.stat.stats.statsPoolDAI.map((element) => {
                 return {
                     date: element.timestamp,
-                    Short: element.pnl_shorts,
-                    Long: element.pnl_longs,
+                    Short: element.tvl_shorts,
+                    Long: element.tvl_longs,
                 }
             })
         setTVLTradingDataPoolDai(resultPoolDai)
@@ -205,7 +205,7 @@ export function DialogUserData({ user }: Props) {
             (element) => {
                 return {
                     date: element.timestamp,
-                    LP: element.pnl_lps,
+                    LP: element.tvl_lps,
                 }
             }
         )
@@ -214,7 +214,7 @@ export function DialogUserData({ user }: Props) {
             (element) => {
                 return {
                     date: element.timestamp,
-                    LP: element.pnl_lps,
+                    LP: element.tvl_lps,
                 }
             }
         )
