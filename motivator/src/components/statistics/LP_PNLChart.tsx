@@ -1,6 +1,6 @@
 import React from 'react'
 import { AreaChart } from '@tremor/react'
-import { DataSetChartPnlLP } from '@/components/assessor/DialogUserData'
+import { DataSetChartLP } from '@/components/assessor/DialogUserData'
 
 const valueFormatter = function (number: number) {
     return '$ ' + new Intl.NumberFormat('us').format(number).toString()
@@ -8,22 +8,22 @@ const valueFormatter = function (number: number) {
 
 export type Props = {
     title: string
-    dataset: DataSetChartPnlLP[]
+    dataset: DataSetChartLP[]
 }
 
 export function LP_PNLChart({ title, dataset }: Props) {
     return (
-        <div className="border rounded-lg p-5">
+        <div className="border rounded-lg p-3">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
 
             {dataset.length > 0 ? (
                 <AreaChart
-                    className="h-80 rounded-lg"
+                    className="h-80 text-white"
                     data={dataset}
                     index="date"
-                    categories={['pnl']}
+                    categories={['LP']}
                     colors={['red']}
                     valueFormatter={valueFormatter}
                     yAxisWidth={70}

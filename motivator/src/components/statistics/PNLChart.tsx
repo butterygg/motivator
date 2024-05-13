@@ -80,7 +80,7 @@ export function PNLChart({ title, dataset }: Props) {
         },
     ]
     return (
-        <div className="border rounded-lg p-5">
+        <div className="border rounded-lg p-3">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
@@ -88,7 +88,7 @@ export function PNLChart({ title, dataset }: Props) {
                 ${value}
             </p> */}
             <AreaChart
-                className="h-80"
+                className="h-80 text-white"
                 data={dataset}
                 index="date"
                 categories={['Short', 'Long']}
