@@ -20,8 +20,8 @@ DO_USER=1 DO_STATS_CREATE_INDEX= DO_STATS_UPSERT=1 DO_TRUNCATE_TOTALS=1 pipenv r
 
 ## B. Deploy code
 
-- Update DB schema if neeeded.
-- Merge `main` into `prod` branch.
+-   Update DB schema if neeeded.
+-   Merge `main` into `prod` branch.
 
 ## C. Load statistics SQL file in DB
 
@@ -32,5 +32,5 @@ psql $PG_CONNECT_STR -f update-statistics.sql
 
 ## D. Update environment variables
 
-- Change Week environment variable to n.
-- Redeploy.
+-   Change Week environment variable to n.
+-   Redeploy.
