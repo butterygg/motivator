@@ -14,22 +14,28 @@ import { Label } from '../ui/label'
 type Props = {
     weekSelected: number
     setWeekSelected: (week: number) => void
+    weekAvailableForSelector: number[]
 }
 
-export function WeekSelector({ setWeekSelected, weekSelected }: Props) {
+export function WeekSelector({
+    setWeekSelected,
+    weekSelected,
+    weekAvailableForSelector,
+}: Props) {
     const handleSelect = (value: number) => {
         setWeekSelected(value)
     }
     const buildItems = () => {
-        const items = []
-        for (let i = 1; i <= Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL); i++) {
+        const items: React.JSX.Element[] = []
+
+        weekAvailableForSelector.forEach((element) => {
             items.push(
                 <SelectItem
-                    key={i}
-                    value={i.toString()}
-                >{`Week ${i}`}</SelectItem>
+                    key={element}
+                    value={element.toString()}
+                >{`Week ${element.toString()}`}</SelectItem>
             )
-        }
+        })
         return items
     }
     return (
