@@ -12,6 +12,7 @@ import { useGetOffChainActions } from '@/hooks/offChainActions/useGetOffChainAct
 import { OffChainActions } from '@/types/enum/status'
 import { User } from '@/types/data/user'
 import { useGetTotalsForUserAndWeek } from '../../hooks/statistics/useGetTotalsForUserAndWeek'
+import { useGetWeekTotalsAvailableForUser } from '../../hooks/global/useGetWeekTotalsAvailableForUser'
 type Props = {
     user: User
 }
@@ -29,6 +30,11 @@ const Statistics = ({ user }: Props) => {
     const [weekSelected, setWeekSelected] = useState(
         Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)
     )
+
+    const {
+        data: dataWeekAvailableSelector,
+        status: statusGetTotalsWeekAvailableSelector,
+    } = useGetWeekTotalsAvailableForUser(user.addressName)
 
     // This State contain the last data fetched from the server or given by the parent component
     const [userFreshData, setUserFreshData] = useState<DataTotals>({
@@ -104,10 +110,18 @@ const Statistics = ({ user }: Props) => {
                     <Label className="text-xl text-tremor-content dark:text-dark-tremor-content">
                         Statistics
                     </Label>
-                    <WeekSelector
-                        weekSelected={weekSelected}
-                        setWeekSelected={setWeekSelected}
-                    />
+                    {statusGetTotalsWeekAvailableSelector === 'success' &&
+                        dataWeekAvailableSelector?.length > 0 && (
+                            <WeekSelector
+                                weekSelected={weekSelected}
+                                setWeekSelected={setWeekSelected}
+                                weekAvailableForSelector={
+                                    dataWeekAvailableSelector
+                                        ? dataWeekAvailableSelector
+                                        : []
+                                }
+                            />
+                        )}
                 </div>
                 <div className="grid grid-cols-3 items-center gap-2">
                     <DataCard
