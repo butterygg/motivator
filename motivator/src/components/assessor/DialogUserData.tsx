@@ -292,6 +292,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? PNLTradingDataPoolEth
                                                         : []
                                                 }
+                                                type="ETH"
                                             />
                                         )}
                                         {LP_PNLTradingDataPoolEth.length >
@@ -303,6 +304,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? LP_PNLTradingDataPoolEth
                                                         : []
                                                 }
+                                                type="ETH"
                                             />
                                         )}
                                     </div>
@@ -323,6 +325,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? PNLTradingDataPoolDai
                                                         : []
                                                 }
+                                                type="DAI"
                                             />
                                         )}
                                         {LP_PNLTradingDataPoolDai.length >
@@ -334,6 +337,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? LP_PNLTradingDataPoolDai
                                                         : []
                                                 }
+                                                type="DAI"
                                             />
                                         )}
                                     </div>
@@ -366,6 +370,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? TVLTradingDataPoolEth
                                                         : []
                                                 }
+                                                type="ETH"
                                             />
                                         )}
                                         {LP_TVLTradingDataPoolEth.length >
@@ -377,6 +382,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? LP_TVLTradingDataPoolEth
                                                         : []
                                                 }
+                                                type="ETH"
                                             />
                                         )}
                                     </div>
@@ -397,6 +403,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? TVLTradingDataPoolDai
                                                         : []
                                                 }
+                                                type="DAI"
                                             />
                                         )}
                                         {LP_TVLTradingDataPoolDai.length >
@@ -408,6 +415,7 @@ export function DialogUserData({ user }: Props) {
                                                         ? LP_TVLTradingDataPoolDai
                                                         : []
                                                 }
+                                                type="DAI"
                                             />
                                         )}
                                     </div>
