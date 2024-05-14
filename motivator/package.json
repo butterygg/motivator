@@ -47,7 +47,7 @@
         "@tailwindcss/forms": "^0.5.7",
         "@tanstack/react-query": "^5.28.0",
         "@tanstack/react-table": "^8.13.2",
-        "@tremor/react": "^3.15.0",
+        "@tremor/react": "^3.16.2",
         "@uidotdev/usehooks": "^2.4.1",
         "@wagmi/connectors": "^4.1.25",
         "@wagmi/core": "^2.6.16",
@@ -96,5 +96,6 @@
     },
     "engines": {
         "node": ">=18.0.0"
-    }
+    },
+    "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
 }
