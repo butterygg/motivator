@@ -45,11 +45,12 @@ export const theme = {
                     DEFAULT: colors.gray[200],
                 },
                 content: {
+                    faint: colors.gray[50],
                     subtle: colors.gray[400],
                     DEFAULT: colors.gray[500],
                     emphasis: colors.gray[700],
                     strong: colors.gray[900],
-                    inverted: colors.white,
+                    inverted: colors.black,
                 },
             },
             // dark mode
