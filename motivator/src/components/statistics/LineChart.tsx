@@ -2,21 +2,41 @@ import React from 'react'
 import { AreaChart } from '@tremor/react'
 import { DataSetChartTrading } from '@/components/assessor/DialogUserData'
 
-const valueFormatter = function (number: number) {
-    return (
-        '$ ' +
-        new Intl.NumberFormat('us', { maximumSignificantDigits: 2 })
-            .format(number)
-            .toString()
-    )
-}
+// const valueFormatter = function (number: number) {
+//     return (
+//         new Intl.NumberFormat('us', { maximumSignificantDigits: 2 })
+//             .format(number)
+//             .toString() + ' ETH'
+//     )
+// }
 
 export type Props = {
     title: string
     dataset: DataSetChartTrading[]
+    type: string
 }
 
-export function LineChart({ title, dataset }: Props) {
+export function LineChart({ title, dataset, type }: Props) {
+    dataset.sort((a, b) => {
+        return (
+            new Date(a.date as string).getTime() -
+            new Date(b?.date as string).getTime()
+        )
+    })
+    const valueFormatter = function (number: number) {
+        if (type === 'ETH')
+            return (
+                new Intl.NumberFormat('us', { maximumSignificantDigits: 2 })
+                    .format(number)
+                    .toString() + ' ETH'
+            )
+        return (
+            new Intl.NumberFormat('us', { maximumSignificantDigits: 2 })
+                .format(number)
+                .toString() + ' DAI'
+        )
+    }
+
     const chartdata = [
         {
             date: 'Jan 22',
@@ -91,6 +111,7 @@ export function LineChart({ title, dataset }: Props) {
                 className="h-80 text-white"
                 data={dataset}
                 index="date"
+                showXAxis={false}
                 categories={['Short', 'Long']}
                 colors={['red', 'blue']}
                 valueFormatter={valueFormatter}

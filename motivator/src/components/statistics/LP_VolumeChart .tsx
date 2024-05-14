@@ -28,6 +28,7 @@ export function LP_VolumeChart({ title, dataset }: Props) {
                 className="h-80 text-white"
                 data={dataset}
                 index="date"
+                showXAxis={false}
                 categories={['volume']}
                 colors={['blue']}
                 yAxisWidth={80}
