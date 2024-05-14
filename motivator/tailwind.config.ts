@@ -30,13 +30,12 @@ export const theme = {
                     DEFAULT: colors.blue[500],
                     emphasis: colors.blue[700],
                     inverted: colors.red[600],
-                    text: colors.blue[900],
                 },
                 background: {
                     muted: colors.gray[50],
                     subtle: colors.gray[100],
                     DEFAULT: colors.white,
-                    emphasis: colors.gray[700],
+                    emphasis: colors.gray[400],
                 },
                 border: {
                     DEFAULT: colors.gray[200],
@@ -66,8 +65,8 @@ export const theme = {
                 background: {
                     muted: colors.white,
                     subtle: colors.gray[800],
-                    DEFAULT: colors.gray[900],
-                    emphasis: colors.gray[300],
+                    DEFAULT: colors.gray[600],
+                    emphasis: colors.gray[800],
                 },
                 border: {
                     DEFAULT: colors.gray[800],
@@ -77,7 +76,7 @@ export const theme = {
                 },
                 content: {
                     subtle: colors.gray[600],
-                    DEFAULT: colors.gray[500],
+                    DEFAULT: colors.white,
                     emphasis: colors.gray[200],
                     strong: colors.gray[50],
                     inverted: colors.gray[950],
