@@ -171,13 +171,11 @@ export function LineChart({ title, dataset, type }: Props) {
         },
     ]
     return (
-        <div className="border dark:bg-tremor-background-emphasis rounded-lg p-3">
+        <div className="border  rounded-lg p-3">
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
-            {/* <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
-                ${value}
-            </p> */}
+
             <AreaChart
                 className="h-80 dark:text-dark-tremor-content-strong"
                 data={dataset}
