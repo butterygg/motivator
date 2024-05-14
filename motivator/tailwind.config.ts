@@ -6,6 +6,9 @@ export const content = [
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
+
+    // Path to tremor
+    './node_modules/@tremor/**/*.{js,jsx,ts,tsx}',
 ]
 export const prefix = ''
 export const theme = {
@@ -30,13 +33,12 @@ export const theme = {
                     DEFAULT: colors.blue[500],
                     emphasis: colors.blue[700],
                     inverted: colors.red[600],
-                    text: colors.blue[900],
                 },
                 background: {
                     muted: colors.gray[50],
                     subtle: colors.gray[100],
                     DEFAULT: colors.white,
-                    emphasis: colors.gray[700],
+                    emphasis: colors.gray[400],
                 },
                 border: {
                     DEFAULT: colors.gray[200],
@@ -45,11 +47,12 @@ export const theme = {
                     DEFAULT: colors.gray[200],
                 },
                 content: {
+                    faint: colors.gray[50],
                     subtle: colors.gray[400],
                     DEFAULT: colors.gray[500],
                     emphasis: colors.gray[700],
                     strong: colors.gray[900],
-                    inverted: colors.white,
+                    inverted: colors.black,
                 },
             },
             // dark mode
@@ -65,8 +68,8 @@ export const theme = {
                 background: {
                     muted: colors.white,
                     subtle: colors.gray[800],
-                    DEFAULT: colors.gray[900],
-                    emphasis: colors.gray[300],
+                    DEFAULT: colors.gray[600],
+                    emphasis: colors.gray[800],
                 },
                 border: {
                     DEFAULT: colors.gray[800],
@@ -76,7 +79,7 @@ export const theme = {
                 },
                 content: {
                     subtle: colors.gray[600],
-                    DEFAULT: colors.gray[500],
+                    DEFAULT: colors.white,
                     emphasis: colors.gray[200],
                     strong: colors.gray[50],
                     inverted: colors.gray[950],
@@ -161,36 +164,36 @@ export const theme = {
             'tremor-metric': ['1.875rem', { lineHeight: '2.25rem' }],
         },
     },
-    safelist: [
-        {
-            pattern:
-                /^(bg-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
-            variants: ['hover', 'ui-selected'],
-        },
-        {
-            pattern:
-                /^(text-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
-            variants: ['hover', 'ui-selected'],
-        },
-        {
-            pattern:
-                /^(border-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
-            variants: ['hover', 'ui-selected'],
-        },
-        {
-            pattern:
-                /^(ring-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
-        },
-        {
-            pattern:
-                /^(stroke-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
-        },
-        {
-            pattern:
-                /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
-        },
-    ],
 }
+export const safelist = [
+    {
+        pattern:
+            /^(bg-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
+        variants: ['hover', 'ui-selected'],
+    },
+    {
+        pattern:
+            /^(text-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
+        variants: ['hover', 'ui-selected'],
+    },
+    {
+        pattern:
+            /^(border-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
+        variants: ['hover', 'ui-selected'],
+    },
+    {
+        pattern:
+            /^(ring-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
+    },
+    {
+        pattern:
+            /^(stroke-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
+    },
+    {
+        pattern:
+            /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
+    },
+]
 
 export const plugins = [
     require('tailwindcss-animate'),

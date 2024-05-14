@@ -31,6 +31,7 @@ export function VolumeChart({ title, dataset }: Props) {
                 categories={['Short', 'Long']}
                 colors={['red', 'blue']}
                 yAxisWidth={80}
+                showXAxis={false}
                 valueFormatter={valueFormatter}
             />
         </div>
