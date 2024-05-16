@@ -52,6 +52,12 @@ const TranslateWeekToDate = (week: string) => {
             return '2024-05-02 00:00:00'
         case '5':
             return '2024-05-09 00:00:00'
+        case '6':
+            return '2024-05-16 00:00:00'
+        case '7':
+            return '2024-05-23 00:00:00'
+        case '8':
+            return '2024-05-30 00:00:00'
         default:
             return '2024-04-9 00:00:00'
     }
