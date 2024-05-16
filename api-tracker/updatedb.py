@@ -3,12 +3,12 @@ Update db
 """
 
 import csv
+import itertools
 import os
 import pdb
 import sys
 
-CSV_FILE_PATH = "rows.csv"
-SQL_FILE_NEXT_PUBLIC_WEEK_MAXPATH = "update-statistics.sql"
+SQL_FILE_PATH_FMT = "update-statistics-{}.sql"
 
 
 def generate_user_insert(addrs):
@@ -25,7 +25,7 @@ WHERE NOT EXISTS (
 def generate_stats_upsert(rows):
     return f"""
 INSERT INTO public.statistics
-    (id, timestamp, pool_type, user_address, action_count_longs, action_count_shorts, action_count_lps, volume_longs, volume_shorts, volume_lps)
+    (timestamp, pool_type, user_address, action_count_longs, action_count_shorts, action_count_lps, volume_longs, volume_shorts, volume_lps, pnl_longs, pnl_shorts, pnl_lps, tvl_longs, tvl_shorts, tvl_lps)
 VALUES
 {",\n".join("('" + "', '".join(row) + "')" for row in rows)}
 ON CONFLICT (timestamp, pool_type, user_address) DO UPDATE SET
@@ -34,30 +34,55 @@ ON CONFLICT (timestamp, pool_type, user_address) DO UPDATE SET
     action_count_lps = EXCLUDED.action_count_lps,
     volume_longs = EXCLUDED.volume_longs,
     volume_shorts = EXCLUDED.volume_shorts,
-    volume_lps = EXCLUDED.volume_lps;
+    volume_lps = EXCLUDED.volume_lps,
+    pnl_longs = EXCLUDED.pnl_longs,
+    pnl_shorts = EXCLUDED.pnl_shorts,
+    pnl_lps = EXCLUDED.pnl_lps,
+    tvl_longs = EXCLUDED.tvl_longs,
+    tvl_shorts = EXCLUDED.tvl_shorts,
+    tvl_lps = EXCLUDED.tvl_lps;
     """
 
 
+SQL_STATS_CREATE_INDEX = """
+CREATE UNIQUE INDEX IF NOT EXISTS idx_statistics_on_timestamp_pool_user ON public.statistics (timestamp, pool_type, user_address);
+"""
+
+
+def chunks(iterable, size):
+    it = iter(iterable)
+    while True:
+        chunk = list(itertools.islice(it, size))
+        if not chunk:
+            return
+        yield chunk
+
+
 def main():
-    do_user_update = bool(os.environ["DO_USER"])
-    do_stats_upsert = bool(os.environ["DO_STATS_UPSERT"])
+    csv_file_path = os.environ["CSV_FILE_PATH"]
+    chunk_size = int(os.environ.get("CHUNK_SIZE", 100000))
 
-    statement = ""
+    statements = []
 
-    if do_user_update:
-        with open(CSV_FILE_PATH, newline="", encoding="utf-8") as csvfile:
-            reader = csv.reader(csvfile)
-            next(reader)  # Skip the header row
-            statement += generate_user_insert(r[3] for r in reader)
+    with open(csv_file_path, newline="", encoding="utf-8") as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip the header row
+        statements.append(generate_user_insert(r[3] for r in reader))
 
-    if do_stats_upsert:
-        with open(CSV_FILE_PATH, newline="", encoding="utf-8") as csvfile:
-            reader = csv.reader(csvfile)
-            next(reader)  # Skip the header row
-            statement += generate_stats_upsert(reader)
+    statements.append(SQL_STATS_CREATE_INDEX)
 
-    with open(SQL_FILE_PATH, "w", encoding="utf-8") as sqlfile:
-        sqlfile.write(statement)
+    with open(csv_file_path, newline="", encoding="utf-8") as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip the header row
+        no_block_num_rows = (r[:1] + r[2:] for r in reader)
+        for chunk in chunks(no_block_num_rows, chunk_size):
+            print("chunk")
+            statements.append(generate_stats_upsert(chunk))
+
+    for idx, statement in enumerate(statements):
+        print(f"{idx} file")
+        with open(SQL_FILE_PATH_FMT.format(idx), "w", encoding="utf-8") as sqlfile:
+            sqlfile.write(statement)
 
 
 if __name__ == "__main__":
