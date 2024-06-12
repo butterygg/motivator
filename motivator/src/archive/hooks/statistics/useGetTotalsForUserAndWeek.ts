@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getPNLAndVolume } from '@/server/actions/statistics/getPNLAndVolume'
+import { getPNLAndVolume } from '@/archive/server/actions/statistics/getPNLAndVolume'
 import { getTotalsForUser } from '../../../server/actions/globals/getTotalsForUser'
 
 type Props = {
