@@ -85,6 +85,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
             toast.error('Error on Submit')
             setIsSubmited(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, statusAssessorSlotRQT, AssessorSlot])
 
     return (

@@ -1,7 +1,7 @@
 import React from 'react'
 import { AreaChart } from '@tremor/react'
-import { DataSetChartTrading } from '@/components/assessor/DialogUserData'
-import { cn } from '../../utils/utils'
+import { DataSetChartTrading } from '../DialogUserData'
+import { cn } from '../../../utils/utils'
 
 // const valueFormatter = function (number: number) {
 //     return (
