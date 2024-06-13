@@ -20,7 +20,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useGetTotalPointsDistributed } from '@/hooks/dataComponents/useGetTotalPointsDistributed'
+import { useGetTotalPointsDistributed } from '@/hooks/global/useGetTotalPointsDistributed'
 import { cn } from '@/utils/utils'
 import { useSubmitAssessorSlot } from '@/hooks/assessorSlot/useSubmitAssessorSlot'
 import { useRouter } from 'next/navigation'

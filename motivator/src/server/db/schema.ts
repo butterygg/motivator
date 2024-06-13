@@ -1,12 +1,8 @@
-import { relations, sql } from 'drizzle-orm'
 import {
-    PgTableWithColumns,
     boolean,
     date,
-    decimal,
     doublePrecision,
     integer,
-    numeric,
     pgTable,
     text,
     timestamp,
@@ -17,14 +13,6 @@ export const user = pgTable('users', {
     address: text('address').unique().primaryKey(),
 })
 
-// export const stats = pgTable('stats', {
-//     user_address: text('user_address')
-//         .references(() => user.address)
-//         .primaryKey(),
-//     actions: integer('actions').default(0),
-//     volume: integer('volume').default(0),
-// })
-
 export const assessor = pgTable('assessor', {
     address: text('address').unique().primaryKey(),
 })
@@ -33,6 +21,7 @@ export const assessor_slot = pgTable('assessor_slot', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     assessor_ID: text('assessor_id').references(() => assessor.address),
     done: boolean('done').default(false),
+    // TO DELETE
     week: integer('week').default(1),
 })
 
@@ -54,6 +43,7 @@ export const assessor_slot_user = pgTable('assessor_slot_user', {
     user_address: text('user_address').references(() => user.address),
 })
 
+// TO DELETE
 export const statistics = pgTable('statistics', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     timestamp: timestamp('timestamp', {
@@ -76,7 +66,7 @@ export const statistics = pgTable('statistics', {
     tvl_shorts: doublePrecision('tvl_shorts'),
     tvl_lps: doublePrecision('tvl_lps'),
 })
-
+// TO DELETE
 export const totals = pgTable('totals', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     user_address: text('user_address').references(() => user.address),
@@ -86,7 +76,7 @@ export const totals = pgTable('totals', {
     totalVolumePoolDai: doublePrecision('total_volume_pool_Dai'),
     // totalPnl: doublePrecision('total_pnl'),
 })
-
+//TO DELETE
 export const offChainActions = pgTable('off_chain_actions', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     user_address: text('user_address').references(() => user.address),

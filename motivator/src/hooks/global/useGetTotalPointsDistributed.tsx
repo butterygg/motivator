@@ -1,5 +1,5 @@
 import { useGlobalState } from '../../store/globalStore'
-import { useGetAssessorSlotIDFromURL } from '../global/useGetAssessorSlotIDFromURL'
+import { useGetAssessorSlotIDFromURL } from './useGetAssessorSlotIDFromURL'
 import { useGetRewardedUsers } from '../reward/useGetRewardedUsers'
 import { useEffect, useRef, useState } from 'react'
 
