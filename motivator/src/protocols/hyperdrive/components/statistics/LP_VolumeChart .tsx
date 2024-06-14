@@ -1,6 +1,6 @@
 import { BarChart } from '@tremor/react'
-import { DataSetChartVolumeLP } from '@/components/assessor/DialogUserData'
-import { transformNumberK } from '../../utils/utils'
+import { DataSetChartVolumeLP } from '@protocols/hyperdrive/components/assessor/DialogUserData'
+import { transformNumberK } from '../../../../core/utils/utils'
 
 export type Props = {
     title: string

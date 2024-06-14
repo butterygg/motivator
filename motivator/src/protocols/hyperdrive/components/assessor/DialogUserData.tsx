@@ -12,10 +12,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { User } from '@/types/data/user'
-import AddrAvatar from '../globals/AddrAvatar'
-import { DataCard } from './DataCard'
-import EthLogo from '~/ethereum-eth-logo.svg'
-import DaiLogo from '~/dai.svg'
+import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 import { useEffect, useState } from 'react'
 import {
     Tooltip,
@@ -23,17 +20,12 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { VolumeChart } from '../statistics/VolumeChart'
-import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
-import { useGetOffChainActions } from '../../hooks/offChainActions/useGetOffChainActions'
-import { Tag } from './Tag'
-import { OffChainActions } from '../../types/enum/status'
-import { Card } from '../ui/card'
-import { transformNumberK } from '../../utils/utils'
-import { WeekSelector } from '../globals/WeekSelector'
-import Statistics from '../statistics/Statistics'
-import { LP_LineChart } from '../statistics/LP_LineChart'
-import { LineChart } from '../statistics/LineChart'
+import { useGetOffChainActions } from '@protocols/hyperdrive/hooks/offChainActions/useGetOffChainActions'
+import { Tag } from '@protocols/hyperdrive/components/assessor/Tag'
+import { OffChainActions } from '@protocols/hyperdrive/types/enum/status'
+import Statistics from '@protocols/hyperdrive/components/statistics/Statistics'
+import { LP_LineChart } from '@protocols/hyperdrive/components/statistics/LP_LineChart'
+import { LineChart } from '@protocols/hyperdrive/components/statistics/LineChart'
 type Props = {
     user: User
 }

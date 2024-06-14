@@ -8,6 +8,7 @@ export const YourApp = () => {
 }
 type Props = {}
 
+/** If we want to make it generic for each protocole we should insert a Record of Key labe */
 const NavBar = (props: Props) => {
     return (
         <div className="items-center max-md:gap-4 max-md:flex-col w-full p-8 justify-between flex">

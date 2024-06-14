@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getTotalsVolPnlActions } from '../../server/actions/statistics/getTotalsVolPnlActions'
+import { getTotalsVolPnlActions } from '../../../protocols/hyperdrive/server/actions/statistics/getTotalsVolPnlActions'
 
 type Props = {
     userAddr: string

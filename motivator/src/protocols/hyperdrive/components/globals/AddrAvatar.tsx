@@ -1,18 +1,16 @@
 import React from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
-import { cn, formatAddress } from '../../utils/utils'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { cn, formatAddress } from '@/utils/utils'
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { Button } from '../ui/button'
 import Debank from '~/debank.svg'
 import Etherscan from '~/etherscan.svg'
 import Link from 'next/link'
-import { minidenticon } from 'minidenticons'
-import { MinidenticonImg } from './MinidenticonImg'
+import { MinidenticonImg } from '@/components/globals/MinidenticonImg'
 
 type Props = {
     src?: string

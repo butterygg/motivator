@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getPNLAndVolume } from '@/server/actions/statistics/getPNLAndVolume'
+import { getPNLAndVolume } from '@protocols/hyperdrive/server/actions/statistics/getPNLAndVolume'
 
 type Props = {
     userAddr: string
