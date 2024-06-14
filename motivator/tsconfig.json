@@ -15,9 +15,10 @@
         "jsx": "preserve",
         "incremental": true,
         "paths": {
-            "@/*": ["./src/*"],
+            "@/*": ["./src/core/*"],
+            "@protocols/*": ["./src/protocols/*"],
             "~/*": ["./public/*"],
-            "@db/*": ["./src/server/db/*"]
+            "@db/*": ["./src/core/server/db/*"]
         },
         "plugins": [
             {
