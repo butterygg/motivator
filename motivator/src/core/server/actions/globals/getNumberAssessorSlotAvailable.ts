@@ -1,10 +1,8 @@
 'use server'
-import { and, eq, inArray, isNull } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
-import { NextRequest } from 'next/server'
-import { stat } from 'fs'
-import { AssessorSlot } from '@/types/data/assessorSlot'
+import { assessor_slot } from '@db/schema'
+
 // Send Rewards to specifics users based on their actions
 /**
  *

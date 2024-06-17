@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { signAssessor } from '../../server/actions/assessor/signAssessor'
+import { signAssessor } from '@/server/actions/assessor/signAssessor'
 import { Address } from 'viem'
 type Props = {
     assessorAddr: Address | undefined

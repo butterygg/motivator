@@ -2,8 +2,6 @@
 import { and, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { totals } from '@db/schema'
-// import { v4 as uuid } from 'uuid'
-import { setTotals } from './getTotals'
 /** Test if Totals are present from Week 1 to Week X
  *
  * @param response Send the status of the transaction

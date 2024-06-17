@@ -14,12 +14,12 @@ import {
 } from '@tanstack/react-table'
 
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import AddrAvatar from '@/components/globals/AddrAvatar'
+import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 import { SlCheck, SlClose } from 'react-icons/sl'
 
 import { Label } from '@/components/ui/label'
 
-import { Input } from '../ui/input'
+import { Input } from '@/components/ui/input'
 
 export type LeaderboardDatatable = {
     id: string

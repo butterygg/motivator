@@ -1,5 +1,5 @@
 import React from 'react'
-import { OffChainActions } from '@/types/enum/status'
+import { OffChainActions } from '@protocols/hyperdrive/types/enums/status'
 
 type Props = {
     value: OffChainActions

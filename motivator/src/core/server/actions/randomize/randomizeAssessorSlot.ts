@@ -1,9 +1,6 @@
 'use server'
-import { and, eq, isNull } from 'drizzle-orm'
-import { db } from '@db/dbRouter'
-import { assessor_slot } from '@db/schema'
 import { Address } from 'viem'
-import { getTotals } from '../globals/getTotals'
+import { getTotals } from '@/server/actions/globals/getTotals'
 /** Assign an Assessor Slot to an Assessor
  *
  * @param request Will contain an Array of [{assessorAddr: string}]

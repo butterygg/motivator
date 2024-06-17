@@ -2,7 +2,6 @@
 import { and, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { totals } from '@db/schema'
-// import { v4 as uuid } from 'uuid'
 import { setTotals } from './getTotals'
 /** Set Number Actions and Total Volume for each Users
  *

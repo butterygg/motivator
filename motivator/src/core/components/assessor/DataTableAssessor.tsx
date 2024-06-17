@@ -15,24 +15,23 @@ import EthLogo from '~/ethereum-eth-logo.svg'
 import DaiLogo from '~/dai.svg'
 
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import AddrAvatar from '@/components/globals/AddrAvatar'
-import { Status } from '@/types/enum/status'
+import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
+import { Status } from '@protocols/hyperdrive/types/enums/status'
 
 import {
     AssessorSlot,
     Reward,
     Statistics,
     Totals,
-} from '../../types/data/assessorSlot'
-import { DialogUserData } from './DialogUserData'
+} from '@/types/data/assessorSlot'
+import { DialogUserData } from '@protocols/hyperdrive/components/assessor/DialogUserData'
 
-import InputReward from '../globals/InputReward'
+import InputReward from '@/components/globals/InputReward'
 import { Address } from 'viem'
-import { DialogConfirmSubmit } from './DialogConfirmSubmit'
-import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
-import TotalPoints from './TotalPoints'
-import { useRouter } from 'next/navigation'
-import { transformNumberK } from '../../utils/utils'
+import { DialogConfirmSubmit } from '@/components/assessor/DialogConfirmSubmit'
+import { useGetAssessorSlotIDFromURL } from '@/hooks/global/useGetAssessorSlotIDFromURL'
+import TotalPoints from '@/components/assessor/TotalPoints'
+import { transformNumberK } from '@/utils/utils'
 
 export type UserDatatable = {
     id: { id: string; assessorSlotId: string }
@@ -77,7 +76,7 @@ export const columns: ColumnDef<UserDatatable>[] = [
             )
         },
     },
-
+    //
     {
         accessorKey: 'stat',
         cell: ({ row }) => {

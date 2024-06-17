@@ -11,7 +11,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { DataCard } from './DataCard'
+import { DataCard } from '@/components/assessor/DataCard'
 import { useEffect, useState } from 'react'
 import { useAccount } from 'wagmi'
 import {
@@ -28,8 +28,8 @@ import { toast } from 'sonner'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Card } from '@/components/ui/card'
 import { Address } from 'viem'
-import { useGetAssessorSlotWithID } from '../../hooks/assessorSlot/useGetAssessorSlotWithID'
-import { useIsThisAssessorSlotYours } from '../../hooks/global/useIsThisAssessorSlotYours'
+import { useGetAssessorSlotWithID } from '@/hooks/assessorSlot/useGetAssessorSlotWithID'
+import { useIsThisAssessorSlotYours } from '@/hooks/global/useIsThisAssessorSlotYours'
 
 type Props = {
     assessorSlotId: string

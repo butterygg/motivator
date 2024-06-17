@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { getRewardedUsers } from '@/server/actions/reward/getRewardedUsers'
-import { Answer } from '@/types/data/answer'
 type Props = {
     assessorSlotId: string
 }

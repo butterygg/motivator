@@ -1,7 +1,7 @@
 'use server'
-import { and, eq, isNull } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, audit, auditor } from '@db/schema'
+import { audit, auditor } from '@db/schema'
 /** Assign an Assessor Slot to an Assessor
  *
  * @param request Will contain an Array of [{assessorSlotID: string}]

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getAssessorSlotWithID } from '../../server/actions/assessor/getAssessorSlotWithID'
+import { getAssessorSlotWithID } from '@/server/actions/assessor/getAssessorSlotWithID'
 
 type Props = {
     assessorSlotID: string

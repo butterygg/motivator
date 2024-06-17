@@ -1,4 +1,4 @@
-import { Status } from '@/types/enum/status'
+import { Status } from '@protocols/hyperdrive/types/enums/status'
 import { Reward, Statistics, Totals } from './assessorSlot'
 
 export type User = {

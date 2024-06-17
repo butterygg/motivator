@@ -1,6 +1,6 @@
 import React from 'react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { ToggleTheme } from './ToggleTheme'
+import { ToggleTheme } from '@/components/globals/ToggleTheme'
 import Link from 'next/link'
 
 export const YourApp = () => {

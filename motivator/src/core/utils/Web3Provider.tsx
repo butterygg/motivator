@@ -6,8 +6,6 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from 'next-auth/react'
-// import type { Session } from 'next-auth'
-// import { AppProps } from 'next/app'
 import {
     RainbowKitSiweNextAuthProvider,
     GetSiweMessageOptions,

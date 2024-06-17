@@ -1,8 +1,8 @@
 'use server'
 
 import { Address, parseEther } from 'viem'
-import { randomizeAssessorSlot } from '../randomize/randomizeAssessorSlot'
-import { generateAssessorSlot } from '../assessor/generateAssessorSlot'
+import { randomizeAssessorSlot } from '@/server/actions/randomize/randomizeAssessorSlot'
+import { generateAssessorSlot } from '@/server/actions/assessor/generateAssessorSlot'
 import { InfuraProvider } from 'ethers'
 
 /** handle Payment coming from front end

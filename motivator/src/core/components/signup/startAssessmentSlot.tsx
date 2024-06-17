@@ -6,8 +6,8 @@ import {
     CardDescription,
     CardFooter,
     CardHeader,
-} from '../ui/card'
-import { Button } from '../ui/button'
+} from '@/components//ui/card'
+import { Button } from '@/components//ui/button'
 import { useRouter } from 'next/navigation'
 
 type Props = {

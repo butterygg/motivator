@@ -1,7 +1,7 @@
 import React from 'react'
 import { AreaChart } from '@tremor/react'
-import { DataSetChartLP } from '@/components/assessor/DialogUserData'
-import { cn } from '../../../../core/utils/utils'
+import { DataSetChartLP } from '@protocols/hyperdrive/components/assessor/DialogUserData'
+import { cn } from '@/utils/utils'
 
 export type Props = {
     title: string

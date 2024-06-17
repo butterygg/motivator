@@ -4,7 +4,6 @@
 import { db } from '@db/dbRouter'
 import { reward } from '@db/schema'
 import { eq } from 'drizzle-orm'
-import { toast } from 'sonner'
 
 /**
  *

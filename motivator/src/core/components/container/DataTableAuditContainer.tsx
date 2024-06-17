@@ -7,7 +7,7 @@ import { RoundSpinner } from '@/components/ui/spinner'
 import { useRouter } from 'next/navigation'
 import { AuditAssessorsSlotsDatatable } from '@/components/audit/DataTableAuditAssessorSlot'
 import { useGetAllAssessorSlotsAudit } from '@/hooks/global/useGetAllAssessorSlotsAudit'
-import { Grade } from '../../../protocols/hyperdrive/types/enums/grade'
+import { Grade } from '@protocols/hyperdrive/types/enums/grade'
 import { Address } from 'viem'
 const DataTableAuditContainer = () => {
     const { address, status: statusAccount } = useAccount()

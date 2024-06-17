@@ -12,11 +12,11 @@ import {
 } from '@tanstack/react-table'
 
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import AddrAvatar from '@/components/globals/AddrAvatar'
+import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 
 import { Address } from 'viem'
 import Link from 'next/link'
-import { Grade } from '@/types/enum/grade'
+import { Grade } from '@protocols/hyperdrive/types/enums/grade'
 import GradeAudit from './GradeAudit'
 
 export type AuditAssessorsSlotsDatatable = {

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getWeekTotalsAvailableForUser } from '../../server/actions/globals/getWeekTotalsAvailableForUser'
+import { getWeekTotalsAvailableForUser } from '@/server/actions/globals/getWeekTotalsAvailableForUser'
 
 type Props = {
     assessorAddr: string

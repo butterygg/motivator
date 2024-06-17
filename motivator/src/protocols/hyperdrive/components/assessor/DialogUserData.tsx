@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useGetOffChainActions } from '@protocols/hyperdrive/hooks/offChainActions/useGetOffChainActions'
 import { Tag } from '@protocols/hyperdrive/components/assessor/Tag'
-import { OffChainActions } from '@protocols/hyperdrive/types/enum/status'
+import { OffChainActions } from '@protocols/hyperdrive/types/enums/status'
 import Statistics from '@protocols/hyperdrive/components/statistics/Statistics'
 import { LP_LineChart } from '@protocols/hyperdrive/components/statistics/LP_LineChart'
 import { LineChart } from '@protocols/hyperdrive/components/statistics/LineChart'

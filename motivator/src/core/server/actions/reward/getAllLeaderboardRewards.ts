@@ -3,7 +3,7 @@ import { eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { audit, reward, assessor_slot, user, assessor } from '@db/schema'
 import { auditComputation } from '@/utils/utils'
-import { Grade } from '@/types/enum/grade'
+import { Grade } from '@protocols/hyperdrive/types/enums/grade'
 
 export const getAllLeaderboardRewards = async () => {
     // Get rewards that are not 0

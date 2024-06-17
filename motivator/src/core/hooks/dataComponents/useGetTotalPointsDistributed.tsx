@@ -1,6 +1,6 @@
-import { useGlobalState } from '../../store/globalStore'
-import { useGetAssessorSlotIDFromURL } from '../global/useGetAssessorSlotIDFromURL'
-import { useGetRewardedUsers } from '../reward/useGetRewardedUsers'
+import { useGlobalState } from '@/store/globalStore'
+import { useGetAssessorSlotIDFromURL } from '@/hooks/global/useGetAssessorSlotIDFromURL'
+import { useGetRewardedUsers } from '@/hooks/reward/useGetRewardedUsers'
 import { useEffect, useRef, useState } from 'react'
 
 export const useGetTotalPointsDistributed = () => {

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { Grade } from '../../protocols/hyperdrive/types/enums/grade'
+import { Grade } from '@protocols/hyperdrive/types/enums/grade'
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))

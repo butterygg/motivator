@@ -6,10 +6,10 @@ import {
 } from '@/components/assessor/DataTableAssessor'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
-import { Status } from '@/types/enum/status'
-import { RoundSpinner } from '../ui/spinner'
+import { Status } from '@protocols/hyperdrive/types/enums/status'
+import { RoundSpinner } from '@/components/ui/spinner'
 import { usePathname } from 'next/navigation'
-import { useGetAssessorSlotWithID } from '../../hooks/assessorSlot/useGetAssessorSlotWithID'
+import { useGetAssessorSlotWithID } from '@/hooks/assessorSlot/useGetAssessorSlotWithID'
 export const DataTableContainer = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []

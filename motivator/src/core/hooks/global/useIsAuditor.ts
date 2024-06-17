@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getAllAssessorSlotsAudit } from '../../server/actions/globals/getAllAssessorSlotsAudit'
-import { isAuditor } from '../../server/actions/audit/isAuditor'
+import { isAuditor } from '@/server/actions/audit/isAuditor'
 
 type Props = {
     assessorAddr: string

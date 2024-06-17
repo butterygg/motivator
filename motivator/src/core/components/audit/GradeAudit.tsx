@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { Button } from '../ui/button'
-import { setGrade } from '../../server/actions/audit/setGrade'
-import { cn, formatAddress } from '../../utils/utils'
+import { Button } from '@/components/ui/button'
+import { setGrade } from '@/server/actions/audit/setGrade'
+import { cn, formatAddress } from '@/utils/utils'
 import { useAccount } from 'wagmi'
 import { toast } from 'sonner'
-import { useIsAuditor } from '../../hooks/global/useIsAuditor'
+import { useIsAuditor } from '@/hooks/global/useIsAuditor'
 
 type Props = {
     auditor: string

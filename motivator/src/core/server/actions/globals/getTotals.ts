@@ -1,10 +1,8 @@
 'use server'
-import { and, between, eq, gte, isNull } from 'drizzle-orm'
+import { and, between, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor_slot, statistics, totals, user } from '@db/schema'
+import { statistics, totals } from '@db/schema'
 import { Address } from 'viem'
-// import { v4 as uuid } from 'uuid'
-import { sql } from 'drizzle-orm'
 import { Record } from '@mynaui/icons-react'
 /** Set Number Actions and Total Volume for each Users
  *

@@ -1,10 +1,8 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import { User } from '@/types/data/user'
+import React, { useState } from 'react'
 import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
 import { useAddRewardUsers } from '@/hooks/reward/useAddRewardUsers'
 
 type Props = {

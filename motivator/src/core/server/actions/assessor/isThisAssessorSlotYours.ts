@@ -1,8 +1,7 @@
 'use server'
 import { and, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
-import { assessor, assessor_slot } from '@db/schema'
-import { NextRequest } from 'next/server'
+import { assessor_slot } from '@db/schema'
 /**
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
