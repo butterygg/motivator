@@ -18,12 +18,7 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 import { Status } from '@protocols/hyperdrive/types/enums/status'
 
-import {
-    AssessorSlot,
-    Reward,
-    Statistics,
-    Totals,
-} from '@/types/data/assessorSlot'
+import { Reward, Statistics, Totals } from '@/types/data/assessorSlot'
 import { DialogUserData } from '@protocols/hyperdrive/components/assessor/DialogUserData'
 
 import InputReward from '@/components/globals/InputReward'

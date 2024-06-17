@@ -1,6 +1,6 @@
 import React from 'react'
-import { useGetTotalPointsDistributed } from '../../hooks/dataComponents/useGetTotalPointsDistributed'
-import { cn } from '../../utils/utils'
+import { useGetTotalPointsDistributed } from '@/hooks/dataComponents/useGetTotalPointsDistributed'
+import { cn } from '@/utils/utils'
 
 type Props = {}
 
