@@ -2,7 +2,11 @@
 import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
-import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
+import {
+    AssessorSlot,
+    Statistics,
+    Totals,
+} from '@protocols/hyperdrive/types/data/assessorSlot'
 import { getPNLAndVolume } from '@protocols/hyperdrive/server/actions/statistics/getPNLAndVolume'
 import { getTotalsForUser } from '@/server/actions/globals/getTotalsForUser'
 // Send Rewards to specifics users based on their actions
