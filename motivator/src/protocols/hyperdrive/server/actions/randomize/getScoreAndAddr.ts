@@ -1,5 +1,5 @@
 import { Address } from 'viem'
-import { getTotals } from '@/server/actions/globals/getTotals'
+import { getTotals } from '@protocols/hyperdrive/server/actions/randomize/getTotals'
 
 type ScoreAndAddress = {
     score: number
