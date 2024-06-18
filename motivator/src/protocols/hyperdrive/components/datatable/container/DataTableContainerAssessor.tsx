@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import {
     DataTableAssessor,
     UserDatatable,
-} from '@/components/assessor/DataTableAssessor'
+} from '@protocols/hyperdrive/components/datatable/table/DataTableAssessor'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@protocols/hyperdrive/types/enums/status'

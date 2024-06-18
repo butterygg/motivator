@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 
-import DataTableAuditContainer from '@/components/container/DataTableAuditContainer'
+import DataTableAuditContainer from '@protocols/hyperdrive/components/datatable/container/DataTableAuditContainer'
 
 const HomeAudit = () => {
     return (

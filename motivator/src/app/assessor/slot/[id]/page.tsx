@@ -3,7 +3,7 @@ import React from 'react'
 
 type Props = {}
 
-import { DataTableContainer } from '@/components/container/DataTableContainerAssessor'
+import { DataTableContainer } from '@protocols/hyperdrive/components/datatable/container/DataTableContainerAssessor'
 
 const HomeAssessor = (props: Props) => {
     return (

@@ -17,7 +17,7 @@ import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 import { Address } from 'viem'
 import Link from 'next/link'
 import { Grade } from '@protocols/hyperdrive/types/enums/grade'
-import GradeAudit from './GradeAudit'
+import GradeAudit from '@/components/audit/GradeAudit'
 
 export type AuditAssessorsSlotsDatatable = {
     id: string
