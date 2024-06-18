@@ -1,6 +1,6 @@
 'use server'
 import { Address } from 'viem'
-import { getTotals } from '@/server/actions/globals/getTotals'
+import { proxyRandomizeAssessorSlot } from './proxyRandomizeAssessorSlot'
 /** Assign an Assessor Slot to an Assessor
  *
  * @param request Will contain an Array of [{assessorAddr: string}]
@@ -16,53 +16,16 @@ export async function randomizeAssessorSlot({
      * Use ponderation to get the total score of each user
      * Normalize Score
      */
-    // * Get Number Actions and Total Volume for each Users
-    // const numberAndActionsFromUsers = await db.query.stats.findMany()
-    const getTotalsForUsers = await getTotals()
 
     // const getTotalsForUsers = await getAllTotalsForUsersPromised()
-
-    // * Use ponderation to get the total score of each user
-    const ratioVolume = 0
-    const ratioActions = 1
-
-    const totalMultiplier = Number(
-        process.env.NEXT_PUBLIC_ASSESSOR_MULTIPLIER
-            ? process.env.NEXT_PUBLIC_ASSESSOR_MULTIPLIER
-            : 10
-    )
 
     type ScoreAndAddress = {
         score: number
         address: string
     }
-    let sumOfScore = 0
-    // * Assign Ponderation score to users and store them in an array
-    const getScoreAndAddresseses: () => ScoreAndAddress[] = () => {
-        const result: ScoreAndAddress[] = []
-        getTotalsForUsers.forEach((element) => {
-            result.push({
-                score:
-                    (element?.totalActions
-                        ? element?.totalActions
-                        : 0 * ratioActions) +
-                    (element?.totalVolumePoolDai
-                        ? element.totalVolumePoolDai
-                        : 0 * ratioVolume) +
-                    (element?.totalVolumePoolEth
-                        ? element.totalVolumePoolEth
-                        : 0 * ratioVolume),
-                address: element.user_address as Address,
-            })
+    /* Update the hyperdrive value with Global Variable Env or a Selector of Protocol if Multiprotocol on same App */
+    const protocol = 'hyperdrive'
 
-            sumOfScore += result[result.length - 1].score
-        })
-        // * Normalize the score
-        result.forEach((element) => {
-            element.score = (element.score / sumOfScore) * totalMultiplier
-        })
-        return result
-    }
     const generalPool: ScoreAndAddress[] = []
     // append the pool to general pool foreach frequency
     const cumulativeList = (list: ScoreAndAddress[]) => {
@@ -97,7 +60,7 @@ export async function randomizeAssessorSlot({
 
     const randomizeAssessorSlot = async () => {
         // * Get the number of assessor slot
-        const scoreAndAddresseses = getScoreAndAddresseses()
+        const scoreAndAddresseses = proxyRandomizeAssessorSlot({ protocol })
         cumulativeList(scoreAndAddresseses)
         return pickXUsersRandomly(generalPool, 10)
     }
