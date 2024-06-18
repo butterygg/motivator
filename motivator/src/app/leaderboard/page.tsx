@@ -1,5 +1,5 @@
 import React from 'react'
-import { DataTableContainerLeaderboard } from '@protocols/hyperdrive/components/datatables/container/DataTableContainerLeaderboard'
+import { DataTableContainerLeaderboard } from '@/components/container/DataTableContainerLeaderboard'
 
 type Props = {}
 

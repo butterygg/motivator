@@ -5,7 +5,7 @@ import { RoundSpinner } from '@/components/ui/spinner'
 import {
     DataTableLeaderboard,
     LeaderboardDatatable,
-} from '@protocols/hyperdrive/components/datatables/table/DataTableLeaderboard'
+} from '@/components/datatables/DataTableLeaderboard'
 import { useGetAllLeaderboardRewards } from '@/hooks/reward/useGetAllLeaderboardRewards'
 export const DataTableContainerLeaderboard = () => {
     const prepareDataForTable = (users: LeaderboardDatatable[]) => {
