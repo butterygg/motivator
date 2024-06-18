@@ -2,7 +2,7 @@
 import { and, eq } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { totals } from '@db/schema'
-import { setTotals } from './getTotals'
+import { setTotals } from '@protocols/hyperdrive/server/actions/randomize/getTotals'
 /** Set Number Actions and Total Volume for each Users
  *
  * @param response Send the status of the transaction
