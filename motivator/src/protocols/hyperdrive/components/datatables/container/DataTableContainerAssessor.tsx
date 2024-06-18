@@ -3,14 +3,14 @@ import React, { useEffect } from 'react'
 import {
     DataTableAssessor,
     UserDatatable,
-} from '@protocols/hyperdrive/components/datatable/table/DataTableAssessor'
+} from '@protocols/hyperdrive/components/datatables/table/DataTableAssessor'
 import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@protocols/hyperdrive/types/enums/status'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { usePathname } from 'next/navigation'
 import { useGetAssessorSlotWithID } from '@/hooks/assessorSlot/useGetAssessorSlotWithID'
-export const DataTableContainer = () => {
+export const DataTableContainerAssessor = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
         assessorSlot?.users.forEach((element, index) => {
