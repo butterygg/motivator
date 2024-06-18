@@ -3,12 +3,14 @@ import React from 'react'
 
 type Props = {}
 
-import { DataTableContainer } from '@protocols/hyperdrive/components/datatable/container/DataTableContainerAssessor'
+import DatatableProxyAssessor from '@/components/datatables/DatatableProxyAssessor'
 
 const HomeAssessor = (props: Props) => {
+    const protocol = 'hyperdrive'
     return (
         <main className="flex lg:flex-row w-full">
-            <DataTableContainer />
+            {/* Update the hyperdrive value with Global Variable Env or a Selector of Protocol if Multiprotocol on same App */}
+            <DatatableProxyAssessor protocol={protocol} />
         </main>
     )
 }
