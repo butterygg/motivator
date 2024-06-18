@@ -4,7 +4,11 @@ import {
     DataTableAssessor,
     UserDatatable,
 } from '@protocols/hyperdrive/components/datatables/table/DataTableAssessor'
-import { AssessorSlot, Statistics, Totals } from '@/types/data/assessorSlot'
+import {
+    AssessorSlot,
+    Statistics,
+    Totals,
+} from '@protocols/hyperdrive/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
 import { Status } from '@protocols/hyperdrive/types/enums/status'
 import { RoundSpinner } from '@/components/ui/spinner'

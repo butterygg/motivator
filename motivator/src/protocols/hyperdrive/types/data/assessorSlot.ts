@@ -1,6 +1,6 @@
 import { Address } from 'viem'
-import { Grade } from '../../../protocols/hyperdrive/types/enums/grade'
-import { User } from './user'
+import { Grade } from '../enums/grade'
+import { User } from '../../../../core/types/data/user'
 
 export type AssessorSlot = {
     id: string

@@ -2,7 +2,7 @@
 import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, audit, reward } from '@db/schema'
-import { AssessorSlot } from '@/types/data/assessorSlot'
+import { AssessorSlot } from '@protocols/hyperdrive/types/data/assessorSlot'
 import { Grade } from '@protocols/hyperdrive/types/enums/grade'
 import { Address } from 'viem'
 // Send Rewards to specifics users based on their actions

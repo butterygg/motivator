@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect } from 'react'
 import { DataTableAuditAssessorSlot } from '@/components/datatables/DataTableAuditAssessorSlot'
-import { AssessorSlot } from '@/types/data/assessorSlot'
+import { AssessorSlot } from '@protocols/hyperdrive/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { AuditAssessorsSlotsDatatable } from '@/components/datatables/DataTableAuditAssessorSlot'
