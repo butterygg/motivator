@@ -17,6 +17,7 @@
         "paths": {
             "@/*": ["./src/core/*"],
             "@protocols/*": ["./src/protocols/*"],
+            "@app/*": ["./src/app/*"],
             "~/*": ["./public/*"],
             "@db/*": ["./src/core/server/db/*"]
         },

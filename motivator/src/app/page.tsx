@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Label } from '@/components/ui/label'
-import { Card } from '../components/ui/card'
+import { Card } from '@/components/ui/card'
 type Props = {}
 
 const Signup = (props: Props) => {
