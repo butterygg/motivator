@@ -13,7 +13,7 @@ import { useAccount } from 'wagmi'
 import { Status } from '@protocols/hyperdrive/types/enums/status'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { usePathname } from 'next/navigation'
-import { useGetAssessorSlotWithID } from '@/hooks/assessorSlot/useGetAssessorSlotWithID'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 export const DataTableContainerAssessor = () => {
     const prepareDataForTable = (assessorSlot: AssessorSlot) => {
         const res: UserDatatable[] = []
@@ -39,7 +39,7 @@ export const DataTableContainerAssessor = () => {
             res.push({
                 id: {
                     id: index.toString(),
-                    assessorSlotId: assessorSlot.id,
+                    assessorSlotId: assessorSlot.assessorSlotCore.id,
                 },
                 addressName: element,
                 pnl: 100,
@@ -69,7 +69,7 @@ export const DataTableContainerAssessor = () => {
     // http://localhost:3000/assessor/slot/7677e331-29eb-4c54-8e7a-d44a816fe423
     const slotID = pathname.split('/').slice(2)[1]
 
-    const { data, error, status, refetch } = useGetAssessorSlotWithID({
+    const { data, error, status, refetch } = useGetAssessorSlot({
         assessorSlotID: slotID as string,
     })
 

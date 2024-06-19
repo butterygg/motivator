@@ -7,7 +7,7 @@ import { useAccount, useSendTransaction, useTransaction } from 'wagmi'
 import { Address, parseEther } from 'viem'
 import { handlePayment } from '@/server/actions/payment/handlePayment'
 import { useRouter } from 'next/navigation'
-import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { useWaitForTransactionReceipt } from 'wagmi'
 import { SpokeCheck } from '@/components/ui/check'
@@ -28,8 +28,8 @@ const Payment = (props: Props) => {
         data: assessorSlot,
         refetch,
         status: statusAssessorSlot,
-    } = useGetAssessorSlotWithAddr({
-        assessorAddr: address ? address : '',
+    } = useGetAssessorSlot({
+        assessorSlotAddr: address ? address : '',
     })
     const { push } = useRouter()
     useEffect(() => {
@@ -54,10 +54,10 @@ const Payment = (props: Props) => {
     }, [isConnected, statusAssessorSlot])
 
     useEffect(() => {
-        if (assessorSlot?.res?.id) {
+        if (assessorSlot?.res?.assessorSlotCore.id) {
             setAssessorSlotFinded(true)
             setTimeout(() => {
-                push(`/assessor/slot/${assessorSlot?.res?.id}`)
+                push(`/assessor/slot/${assessorSlot?.res?.assessorSlotCore.id}`)
             }, 2000)
         }
     }, [assessorSlot])

@@ -3,7 +3,7 @@ import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, audit, reward } from '@db/schema'
 import { AssessorSlot } from '@protocols/hyperdrive/types/data/assessorSlot'
-import { Grade } from '@protocols/hyperdrive/types/enums/grade'
+import { Grade } from '@/types/enums/grade'
 import { Address } from 'viem'
 // Send Rewards to specifics users based on their actions
 /**
@@ -34,22 +34,24 @@ export async function getAllAssessorSlotsAudit() {
                 where: eq(audit.assessor_slot_id, assessorSlot.id),
             })
             const assessor: AssessorSlot = {
-                id: assessorSlot.id,
-                assessorID: assessorSlot.assessor_ID as string,
-                done: assessorSlot.done as boolean,
+                assessorSlotCore: {
+                    id: assessorSlot.id,
+                    assessorID: assessorSlot.assessor_ID as string,
+                    done: assessorSlot.done as boolean,
+                    audit: {
+                        auditGrade: getAudit?.audit_grade
+                            ? (getAudit.audit_grade as Grade)
+                            : null,
+                        auditorAddress: getAudit?.auditor_address
+                            ? (getAudit.auditor_address as Address)
+                            : null,
+                    },
+                },
                 week: assessorSlot.week as number,
                 users: [],
                 rewards: getRewardsUsers,
                 totals: [],
                 statistics: [],
-                audit: {
-                    auditGrade: getAudit?.audit_grade
-                        ? (getAudit.audit_grade as Grade)
-                        : null,
-                    auditorAddress: getAudit?.auditor_address
-                        ? (getAudit.auditor_address as Address)
-                        : null,
-                },
             }
             return assessor
         })

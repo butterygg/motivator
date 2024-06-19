@@ -6,7 +6,7 @@ import { useAccount } from 'wagmi'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { AuditAssessorsSlotsDatatable } from '@/components/datatables/DataTableAuditAssessorSlot'
 import { useGetAllAssessorSlotsAudit } from '@/hooks/global/useGetAllAssessorSlotsAudit'
-import { Grade } from '@protocols/hyperdrive/types/enums/grade'
+import { Grade } from '@/types/enums/grade'
 import { Address } from 'viem'
 const DataTableAuditContainer = () => {
     const { address, status: statusAccount } = useAccount()
@@ -57,10 +57,10 @@ const DataTableAuditContainer = () => {
             res.push({
                 id: index.toString(),
                 assessorSlotID: {
-                    id: assessorSlot.id,
+                    id: assessorSlot.assessorSlotCore.id,
                     week: assessorSlot.week,
                 },
-                assessorAddress: assessorSlot.assessorID,
+                assessorAddress: assessorSlot.assessorSlotCore.assessorID,
                 rewardsSent: rewardSent.amount
                     ? (rewardSent.amount as number)
                     : 0,

@@ -28,7 +28,7 @@ import { toast } from 'sonner'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Card } from '@/components/ui/card'
 import { Address } from 'viem'
-import { useGetAssessorSlotWithID } from '@/hooks/assessorSlot/useGetAssessorSlotWithID'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { useIsThisAssessorSlotYours } from '@/hooks/global/useIsThisAssessorSlotYours'
 
 type Props = {
@@ -57,7 +57,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
         data: AssessorSlot,
         refetch,
         status: statusAssessorSlotRQT,
-    } = useGetAssessorSlotWithID({
+    } = useGetAssessorSlot({
         assessorSlotID: assessorSlotId,
     })
     const getPointsAvailable = (val: number) => {
@@ -75,7 +75,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
 
     useEffect(() => {
         if (status === 'success' && data?.status === 'ok') {
-            if (AssessorSlot?.res?.done) {
+            if (AssessorSlot?.res?.assessorSlotCore.done) {
                 push(`/`)
             } else {
                 if (refetch) refetch()

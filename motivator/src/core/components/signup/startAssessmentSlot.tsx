@@ -19,11 +19,7 @@ const StartAssessmentSlot = (props: Props) => {
     const { push } = useRouter()
 
     const handleStartAssessmentSlot = async () => {
-        // await mutateSignAssessor()
-        // const { res } = await mutateAssignAssessorSlot()
         push(`/payment`)
-        // push(`/assessor/slot/${res?.id}`)
-        // setAssessorId(res?.id as string)
     }
 
     return (

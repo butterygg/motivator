@@ -36,8 +36,10 @@ const Signup = (props: Props) => {
 
     useEffect(() => {
         setTimeout(() => {
-            if (assessorSlotID?.res?.done == false) {
-                push(`/assessor/slot/${assessorSlotID?.res?.id}`)
+            if (assessorSlotID?.res?.assessorSlotCore.done == false) {
+                push(
+                    `/assessor/slot/${assessorSlotID?.res?.assessorSlotCore.id}`
+                )
             }
         }, 2000)
     }, [assessorSlotID])
@@ -49,7 +51,7 @@ const Signup = (props: Props) => {
     // const { data: assessorSlotsAvailable } = useGetNumberAssessorSlotAvailable()
 
     const ComponentToDisplay = () => {
-        if (assessorSlotID?.res?.id) {
+        if (assessorSlotID?.res?.assessorSlotCore.id) {
             return (
                 <Card className="w-96 items-center p-4 rounded-lg mx-auto">
                     <div className=" flex flex-col gap-4 items-center justify-center">

@@ -1,11 +1,9 @@
 import { Address } from 'viem'
-import { Grade } from '../enums/grade'
-import { User } from '../../../../core/types/data/user'
+import { Grade } from '@/types/enums/grade'
+import { AssessorSlotCore } from '@/types/data/assessorSlotCore'
 
 export type AssessorSlot = {
-    id: string
-    assessorID: string
-    done: boolean
+    assessorSlotCore: AssessorSlotCore
     week: number
     users: string[]
     rewards: Reward[]

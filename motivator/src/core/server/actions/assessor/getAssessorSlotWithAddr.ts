@@ -80,9 +80,11 @@ export async function getAssessorSlotWithAddr(address: string) {
 
     //build the response
     const assessorSlot: AssessorSlot = {
-        id: assessorSlotOfAssessor.id,
-        assessorID: assessorSlotOfAssessor.assessor_ID as string,
-        done: assessorSlotOfAssessor.done as boolean,
+        assessorSlotCore: {
+            id: assessorSlotOfAssessor.id,
+            assessorID: assessorSlotOfAssessor.assessor_ID as string,
+            done: assessorSlotOfAssessor.done as boolean,
+        },
         week: assessorSlotOfAssessor.week as number,
         users: usersOfAssessorSlot,
         rewards: getRewardsUsers,

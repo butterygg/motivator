@@ -9,17 +9,36 @@ import {
 } from '@protocols/hyperdrive/types/data/assessorSlot'
 import { getPNLAndVolume } from '@protocols/hyperdrive/server/actions/statistics/getPNLAndVolume'
 import { getTotalsForUser } from '@/server/actions/globals/getTotalsForUser'
+
+type Props = {
+    assessorSlotID?: string
+    assessorSlotAddr?: string
+}
+
 // Send Rewards to specifics users based on their actions
 /**
  *
  * @param request Will contain an Array of [{assessorID: string}]
  * @param response Send the status of the transaction
  */
-export async function getAssessorSlotWithID(assessorSlotID: string) {
+export async function getAssessorSlot({
+    assessorSlotAddr,
+    assessorSlotID,
+}: Props) {
     // grab an assessor slot that is not done and has the assessor assigned
-    const assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
-        where: and(eq(assessor_slot.id, assessorSlotID as string)),
-    })
+    let assessorSlotOfAssessor
+    if (assessorSlotAddr === undefined) {
+        assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
+            where: and(eq(assessor_slot.id, assessorSlotID as string)),
+        })
+    } else {
+        assessorSlotOfAssessor = await db.query.assessor_slot.findFirst({
+            where: and(
+                eq(assessor_slot.done, false),
+                eq(assessor_slot.assessor_ID, assessorSlotAddr as string)
+            ),
+        })
+    }
     if (!assessorSlotOfAssessor) {
         return {
             status: 'ko',
@@ -76,9 +95,11 @@ export async function getAssessorSlotWithID(assessorSlotID: string) {
 
     //build the response
     const assessorSlot: AssessorSlot = {
-        id: assessorSlotOfAssessor.id,
-        assessorID: assessorSlotOfAssessor.assessor_ID as string,
-        done: assessorSlotOfAssessor.done as boolean,
+        assessorSlotCore: {
+            id: assessorSlotOfAssessor.id,
+            assessorID: assessorSlotOfAssessor.assessor_ID as string,
+            done: assessorSlotOfAssessor.done as boolean,
+        },
         week: assessorSlotOfAssessor.week as number,
         users: usersOfAssessorSlot,
         rewards: getRewardsUsers,
