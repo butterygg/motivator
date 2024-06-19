@@ -1,14 +1,12 @@
 'use server'
-// Send Rewards to specifics users based on their actions
 
 import { db } from '@db/dbRouter'
 import { reward } from '@db/schema'
 import { eq } from 'drizzle-orm'
 
 /**
- *
- * @param request Will contain an Array of [{assessorAddr: string, userAddr: string, value: number}]
- * @param response Send the status of the transaction
+ * Update the reward for a user
+ * @param request will contain an object of [{userAddr: string, value: number, rewardId: string}]
  */
 export async function updateReward({
     userAddr,

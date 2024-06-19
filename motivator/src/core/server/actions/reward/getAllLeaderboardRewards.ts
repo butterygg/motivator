@@ -40,7 +40,6 @@ export const getAllLeaderboardRewards = async () => {
 
     // Build the rewards for each user parsing his rewards and potentially his audit
     const buildRewards = async () => {
-        // let res: LeaderboardDatatable[] = []
         const res = usersWithAssessors.map(async (element) => {
             // init global variables
             let totalAudit = 0

@@ -18,7 +18,7 @@ type Props = {
 }
 
 const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
-    const { refreshPoints, refreshPointsNeeded } = useGlobalState()
+    const { refreshPoints } = useGlobalState()
     // to avoid unessesary mutate we need to define an initial value on mount
     const [value, setValue] = useState(val ? val : 0)
     // Counter caching when you spam the page
@@ -82,7 +82,6 @@ const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
                 value={value}
                 step={5}
             />
-            {/* <Button onClick={() => handleSubmit()}>Reward</Button> */}
         </div>
     )
 }

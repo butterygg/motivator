@@ -3,6 +3,11 @@ import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { reward } from '@db/schema'
 
+/**
+ * Get the rewarded users for an assessor slot
+ * @param assessorSlotId The assessor slot id
+ * @returns {status: string, message: string, res: any}
+ * */
 export const getRewardedUsers = async (assessorSlotId: string) => {
     const rewardedUsers = await db
         .select()
