@@ -11,7 +11,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { User } from '@/types/data/user'
+import { User } from '@protocols/hyperdrive/types/data/user'
 import AddrAvatar from '@protocols/hyperdrive/components/globals/AddrAvatar'
 import { useEffect, useState } from 'react'
 import {

@@ -10,7 +10,7 @@ import DaiLogo from '~/dai.svg'
 import { Tag } from '@protocols/hyperdrive/components/assessor/Tag'
 import { useGetOffChainActions } from '@protocols/hyperdrive/hooks/offChainActions/useGetOffChainActions'
 import { OffChainActions } from '@protocols/hyperdrive/types/enums/status'
-import { User } from '@/types/data/user'
+import { User } from '@protocols/hyperdrive/types/data/user'
 import { useGetTotalsForUserAndWeek } from '@protocols/hyperdrive/hooks/statistics/useGetTotalsForUserAndWeek'
 import { useGetWeekTotalsAvailableForUser } from '@/hooks/global/useGetWeekTotalsAvailableForUser'
 type Props = {
