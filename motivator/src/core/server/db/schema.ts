@@ -17,14 +17,6 @@ export const user = pgTable('users', {
     address: text('address').unique().primaryKey(),
 })
 
-// export const stats = pgTable('stats', {
-//     user_address: text('user_address')
-//         .references(() => user.address)
-//         .primaryKey(),
-//     actions: integer('actions').default(0),
-//     volume: integer('volume').default(0),
-// })
-
 export const assessor = pgTable('assessor', {
     address: text('address').unique().primaryKey(),
 })
@@ -53,7 +45,9 @@ export const assessor_slot_user = pgTable('assessor_slot_user', {
     ),
     user_address: text('user_address').references(() => user.address),
 })
-
+/**
+ * Specific table needs to be extracted
+ */
 export const statistics = pgTable('statistics', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     timestamp: timestamp('timestamp', {
@@ -76,7 +70,9 @@ export const statistics = pgTable('statistics', {
     tvl_shorts: doublePrecision('tvl_shorts'),
     tvl_lps: doublePrecision('tvl_lps'),
 })
-
+/**
+ * Specific table needs to be extracted
+ */
 export const totals = pgTable('totals', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     user_address: text('user_address').references(() => user.address),
@@ -86,7 +82,9 @@ export const totals = pgTable('totals', {
     totalVolumePoolDai: doublePrecision('total_volume_pool_Dai'),
     // totalPnl: doublePrecision('total_pnl'),
 })
-
+/**
+ * Specific table needs to be extracted
+ */
 export const offChainActions = pgTable('off_chain_actions', {
     id: uuid('id').defaultRandom().unique().primaryKey(),
     user_address: text('user_address').references(() => user.address),

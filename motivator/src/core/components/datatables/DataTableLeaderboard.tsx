@@ -117,6 +117,7 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
             )
         },
     },
+    /**Correlated to protocol but should be delete in the future when we have an idea about the direction for leaderboard */
     {
         accessorKey: 'isTestnetMember',
         enableHiding: false,

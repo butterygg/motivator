@@ -3,7 +3,7 @@ import {
     Reward,
     Statistics,
     Totals,
-} from '../../../protocols/hyperdrive/types/data/assessorSlot'
+} from '@protocols/hyperdrive/types/data/assessorSlot'
 
 export type User = {
     id: string
