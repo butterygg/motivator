@@ -32,7 +32,7 @@ This contain the Game Theory of Motivator, only focus on the elements that are n
 - Points manager
 - Assessor management
 - Authentication
-- Schema, DB , Data related to Motivator 
+- Schema, DB, Data related to Motivator 
 
 ## Protocols
 Contain the specific implementation for each protocol. 
