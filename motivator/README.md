@@ -22,10 +22,11 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+-------------
 
-Separatation in two folders Protocols and Core
+The project is split into two folders: Core and Protocols.
 
-## Core 
+# Core 
 This contain the Game Theory of Motivator, only focus on the elements that are necessary to the life of Motivator
 - Handle of Motivator mechanics
 - Audit, Leaderboard, Payment
@@ -34,7 +35,7 @@ This contain the Game Theory of Motivator, only focus on the elements that are n
 - Authentication
 - Schema, DB, Data related to Motivator 
 
-## Protocols
+# Protocols
 Contain the specific implementation for each protocol. 
 - Acquisition of specifics data
 - Display and components of this data
