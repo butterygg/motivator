@@ -6,9 +6,7 @@ type Props = {
 }
 
 /**
- * This hook is used to return the number of assessor slot available
- *
- *
+ * This hook is used to get AssessorSlotID
  */
 const useGetAssessorSlotID = ({ assessorAddr }: Props) => {
     const { data, refetch, status, error } = useQuery({

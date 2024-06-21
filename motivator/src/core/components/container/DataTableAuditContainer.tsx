@@ -8,6 +8,10 @@ import { AuditAssessorsSlotsDatatable } from '@/components/datatables/DataTableA
 import { useGetAllAssessorSlotsAudit } from '@/hooks/global/useGetAllAssessorSlotsAudit'
 import { Grade } from '@/types/enums/grade'
 import { Address } from 'viem'
+/**
+ * Container for the Audit DataTable , it fetches the data and prepare it for the table
+ * @returns The DataTableAuditAssessorSlot component
+ */
 const DataTableAuditContainer = () => {
     const { address, status: statusAccount } = useAccount()
     const { data, error, status, refetch } = useGetAllAssessorSlotsAudit()

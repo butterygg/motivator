@@ -8,9 +8,7 @@ type Props = {
 
 /**
  * This hook is used to SubmitAssessorSlot
- * @param {Props} props
- *
- *
+ * @param {Props} props assessorSlotID, assessorAddr
  */
 const useSubmitAssessorSlot = ({ assessorSlotID, assessorAddr }: Props) => {
     const { data, mutateAsync, status, error } = useMutation({

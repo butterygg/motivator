@@ -2,9 +2,12 @@ import React from 'react'
 import { useGetTotalPointsDistributed } from '@/hooks/dataComponents/useGetTotalPointsDistributed'
 import { cn } from '@/utils/utils'
 
-type Props = {}
-
-const TotalPoints = (props: Props) => {
+/**
+ *  Component to show the total points distributed
+ * @param props
+ * @returns
+ */
+const TotalPoints = () => {
     const val = useGetTotalPointsDistributed()
 
     return (

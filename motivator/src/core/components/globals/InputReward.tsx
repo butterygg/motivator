@@ -16,7 +16,13 @@ type Props = {
     userAddr: string
     assessorSlotID: string
 }
-
+/**
+ * Component to input rewards to a user in a specific assessor slot
+ * @param val initial value
+ * @param assessorSlotID Assessor Slot ID
+ * @param userAddr Address of the user
+ * @returns
+ */
 const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
     const { refreshPoints } = useGlobalState()
     // to avoid unessesary mutate we need to define an initial value on mount
@@ -25,6 +31,7 @@ const InputReward = ({ val, assessorSlotID, userAddr }: Props) => {
     useEffect(() => {
         setValue(val)
     }, [val])
+    // Debounce the value
     const debouncedValue = useDebounce(value, 200)
     const {
         mutateAsync,

@@ -12,10 +12,13 @@ import { useRouter } from 'next/navigation'
 
 type Props = {
     week: number
-    weekmax: number
 }
-
-const StartAssessmentSlot = (props: Props) => {
+/**
+ *
+ * @param week
+ * @returns
+ */
+const StartAssessmentSlot = ({ week }: Props) => {
     const { push } = useRouter()
 
     const handleStartAssessmentSlot = async () => {
@@ -27,7 +30,7 @@ const StartAssessmentSlot = (props: Props) => {
             <CardHeader className="font-bold p-4  flex flex-wrap">
                 <div>
                     <h2 className="text-xl">Purchase a Motivator Slot</h2>
-                    <h2 className="font-semibold">Week {props.week}</h2>
+                    <h2 className="font-semibold">Week {week}</h2>
                 </div>
                 <br />
                 <p className="text-md font-semibold"> The Rules</p>

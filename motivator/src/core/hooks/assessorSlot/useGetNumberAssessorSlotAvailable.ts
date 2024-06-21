@@ -7,8 +7,6 @@ type Props = {
 
 /**
  * This hook is used to return the number of assessor slot available
- *
- *
  */
 const useGetNumberAssessorSlotAvailable = () => {
     const { data, refetch, status, error } = useQuery({

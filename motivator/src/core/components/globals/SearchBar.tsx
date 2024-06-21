@@ -1,8 +1,10 @@
 import React from 'react'
 import { Input } from '@/components/ui/input'
-type Props = {}
-
-const SearchBar = (props: Props) => {
+/**
+ * Search bar component
+ * @returns The SearchBar component
+ */
+const SearchBar = () => {
     return (
         <div>
             <Input type="search" placeholder="Search..." className="w-full" />

@@ -11,7 +11,10 @@ type Props = {
     grade: string
     assessorSlotID: string
 }
-
+/**
+ * Component to grade an assessment
+ * We Use the A B C to grade the assessment
+ */
 const GradeAudit = ({ auditor, grade, assessorSlotID }: Props) => {
     const [localGrade, setLocalGrade] = useState(grade)
     const [localAuditor, setLocalAuditor] = useState(auditor)

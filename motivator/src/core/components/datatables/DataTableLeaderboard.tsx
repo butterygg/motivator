@@ -31,7 +31,9 @@ export type LeaderboardDatatable = {
     total: number
     isTestnetMember: boolean
 }
-
+/**
+ * Column definition for the Leaderboard
+ */
 export const columns: ColumnDef<LeaderboardDatatable>[] = [
     {
         accessorKey: 'id',
@@ -144,7 +146,11 @@ export const columns: ColumnDef<LeaderboardDatatable>[] = [
 export type Props = {
     users: LeaderboardDatatable[]
 }
-
+/**
+ * This component is used to display the leaderboard , it's a datatable with some specific columns
+ * @param users Data users to display in the leaderboard
+ * @returns
+ */
 export function DataTableLeaderboard({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [columnFilters, setColumnFilters] =

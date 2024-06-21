@@ -7,6 +7,10 @@ import {
     LeaderboardDatatable,
 } from '@/components/datatables/DataTableLeaderboard'
 import { useGetAllLeaderboardRewards } from '@/hooks/reward/useGetAllLeaderboardRewards'
+/**
+ * Container for the Leaderboard DataTable , it fetches the data and prepare it for the table
+ * @returns The DataTableLeaderboard component
+ */
 export const DataTableContainerLeaderboard = () => {
     const prepareDataForTable = (users: LeaderboardDatatable[]) => {
         // sort the array by number of total actions

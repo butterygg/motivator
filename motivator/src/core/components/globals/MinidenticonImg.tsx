@@ -1,6 +1,9 @@
 import { minidenticon } from 'minidenticons'
 import { useMemo } from 'react'
 import Image from 'next/image'
+/**
+ * Component to generate a minidenticon image from a username
+ */
 export const MinidenticonImg = ({
     username,
     saturation,

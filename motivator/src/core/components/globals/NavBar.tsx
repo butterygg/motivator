@@ -3,13 +3,12 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { ToggleTheme } from '@/components/globals/ToggleTheme'
 import Link from 'next/link'
 
-export const YourApp = () => {
-    return
-}
-type Props = {}
-
-/** If we want to make it generic for each protocole we should insert a Record of Key labe */
-const NavBar = (props: Props) => {
+/** If we want to make it generic for each protocole we should insert a Record of Key label */
+/**
+ * NavBar component
+ * @returns the NavBar component
+ */
+const NavBar = () => {
     return (
         <div className="items-center max-md:gap-4 max-md:flex-col w-full p-8 justify-between flex">
             <div className="flex md:items-center gap-2 md:gap-4 max-md:flex-col">

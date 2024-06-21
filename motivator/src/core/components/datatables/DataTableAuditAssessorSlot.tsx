@@ -32,7 +32,9 @@ export type AuditAssessorsSlotsDatatable = {
         auditorAddress?: Address
     }
 }
-
+/**
+ * Column definition for the Audit Assessor Slot
+ */
 export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
     {
         accessorKey: 'id',
@@ -146,7 +148,6 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
             return (
                 <div className="flex-col">
                     <div className="items-center flex">
-                        {/* INSERT SELECT GRADE COMPONENT */}
                         <div className="flex items-center gap-1">
                             <GradeAudit
                                 auditor={audit.auditorAddress as string}
@@ -164,7 +165,11 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
 export type Props = {
     users: AuditAssessorsSlotsDatatable[]
 }
-
+/**
+ * This component is used to display the Audit Table, it's a datatable with some specific columns
+ * @param users Data users to display in the Audit Table
+ * @returns
+ */
 export function DataTableAuditAssessorSlot({ users }: Props) {
     const [rowSelection, setRowSelection] = React.useState({})
     const table = useReactTable({
@@ -198,9 +203,6 @@ export function DataTableAuditAssessorSlot({ users }: Props) {
                                         row.getIsSelected() && 'selected'
                                     }
                                 >
-                                    {/* <Link
-                                        href={`/assessor/slot/${row.getValue('assessorSlotID')}`}
-                                    > */}
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(
@@ -209,7 +211,6 @@ export function DataTableAuditAssessorSlot({ users }: Props) {
                                             )}
                                         </TableCell>
                                     ))}
-                                    {/* </Link> */}
                                 </TableRow>
                             ))
                         ) : (
