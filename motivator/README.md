@@ -30,7 +30,9 @@ This contain the Game Theory of Motivator, only focus on the elements that are n
 - Handle of Motivator mechanics
 - Audit, Leaderboard, Payment
 - Points manager
-- Assessor management 
+- Assessor management
+- Authentication
+- Schema, DB , Data related to Motivator 
 
 ## Protocols
 Contain the specific implementation for each protocol. 
