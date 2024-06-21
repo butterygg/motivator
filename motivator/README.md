@@ -27,7 +27,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 The project is split into two folders: Core and Protocols.
 
 # Core 
-This contain the Game Theory of Motivator, only focus on the elements that are necessary to the life of Motivator
+Contain the Game Theory of Motivator, only focus on the elements that are necessary to the life of Motivator
 - Handle of Motivator mechanics
 - Audit, Leaderboard, Payment
 - Points manager
@@ -37,7 +37,7 @@ This contain the Game Theory of Motivator, only focus on the elements that are n
 
 # Protocols
 Contain the specific implementation for each protocol. 
-- Acquisition of specifics data
+- Acquisition of specific data
 - Display and components of this data
 - Schema and DB for specific protocol
-- Specific implementations for this protocol
+- Specific implementations of this protocol
