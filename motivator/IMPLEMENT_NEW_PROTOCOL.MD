@@ -10,7 +10,6 @@ To implement a new Protocol:
 8. Create the tests to validate the new protocol.
 9. Update the documentation.
 
-
 ```
 Avoid updating hardly the core of Motivator, try to create new components to handle the new protocol.
 ```
@@ -38,4 +37,3 @@ If you create components make it reusable.
 ```
 If you create new types of data, try to make it as simple as possible.
 ```
-
