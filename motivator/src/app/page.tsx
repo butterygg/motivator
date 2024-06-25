@@ -65,9 +65,7 @@ const Signup = (props: Props) => {
         }
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
-                return (
-                    <StartAssessmentSlot week={weekNumber} weekmax={weekMax} />
-                )
+                return <StartAssessmentSlot week={weekNumber} />
         } else if (walletStatus === 'disconnected') {
             return <ConnectWalletCard />
         }
