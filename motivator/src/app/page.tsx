@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useAccount } from 'wagmi'
-import ConnectWalletCard from '@/components/signup/connectWalletCard'
-import StartAssessmentSlot from '@/components/signup/startAssessmentSlot'
+import ConnectWalletCard from '@/components/signup/ConnectWalletCard'
+import StartAssessmentSlot from '@/components/signup/StartAssessmentSlot'
 import { useRouter } from 'next/navigation'
-import { useGetAssessorSlotWithAddr } from '@/hooks/assessorSlot/useGetAssessorSlotWithAddr'
+import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { Label } from '@/components/ui/label'
-import { Card } from '../components/ui/card'
+import { Card } from '@/components/ui/card'
 type Props = {}
 
 const Signup = (props: Props) => {
@@ -23,8 +23,8 @@ const Signup = (props: Props) => {
         data: assessorSlotID,
         refetch,
         status,
-    } = useGetAssessorSlotWithAddr({
-        assessorAddr: address ? address : '',
+    } = useGetAssessorSlot({
+        assessorSlotAddr: address ? address : '',
     })
 
     const { push } = useRouter()
@@ -36,8 +36,10 @@ const Signup = (props: Props) => {
 
     useEffect(() => {
         setTimeout(() => {
-            if (assessorSlotID?.res?.done == false) {
-                push(`/assessor/slot/${assessorSlotID?.res?.id}`)
+            if (assessorSlotID?.res?.assessorSlotCore.done == false) {
+                push(
+                    `/assessor/slot/${assessorSlotID?.res?.assessorSlotCore.id}`
+                )
             }
         }, 2000)
     }, [assessorSlotID])
@@ -49,7 +51,7 @@ const Signup = (props: Props) => {
     // const { data: assessorSlotsAvailable } = useGetNumberAssessorSlotAvailable()
 
     const ComponentToDisplay = () => {
-        if (assessorSlotID?.res?.id) {
+        if (assessorSlotID?.res?.assessorSlotCore.id) {
             return (
                 <Card className="w-96 items-center p-4 rounded-lg mx-auto">
                     <div className=" flex flex-col gap-4 items-center justify-center">
@@ -63,9 +65,7 @@ const Signup = (props: Props) => {
         }
         if (walletStatus === 'connected') {
             if (authenticationStatus === 'authenticated')
-                return (
-                    <StartAssessmentSlot week={weekNumber} weekmax={weekMax} />
-                )
+                return <StartAssessmentSlot week={weekNumber} />
         } else if (walletStatus === 'disconnected') {
             return <ConnectWalletCard />
         }

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import Web3Provider from '../utils/Web3Provider'
-import NavBar from '../components/globals/NavBar'
+import Web3Provider from '@/utils/Web3Provider'
+import NavBar from '@/components/globals/NavBar'
 import { Toaster } from 'sonner'
 import { ThemeProvider } from '@/components/globals/ThemeProvider'
 
