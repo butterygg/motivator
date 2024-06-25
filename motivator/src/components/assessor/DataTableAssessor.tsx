@@ -23,16 +23,16 @@ import {
     Reward,
     Statistics,
     Totals,
-} from '../../types/data/assessorSlot'
-import { DialogUserData } from './DialogUserData'
+} from '@/types/data/assessorSlot'
+import { DialogUserData } from '@/archive/components/DialogUserData'
 
 import InputReward from '../globals/InputReward'
 import { Address } from 'viem'
 import { DialogConfirmSubmit } from './DialogConfirmSubmit'
-import { useGetAssessorSlotIDFromURL } from '../../hooks/global/useGetAssessorSlotIDFromURL'
+import { useGetAssessorSlotIDFromURL } from '@/hooks/global/useGetAssessorSlotIDFromURL'
 import TotalPoints from './TotalPoints'
 import { useRouter } from 'next/navigation'
-import { transformNumberK } from '../../utils/utils'
+import { transformNumberK } from '@/utils/utils'
 
 export type UserDatatable = {
     id: { id: string; assessorSlotId: string }
@@ -78,90 +78,90 @@ export const columns: ColumnDef<UserDatatable>[] = [
         },
     },
 
-    {
-        accessorKey: 'stat',
-        cell: ({ row }) => {
-            const stat = row.getValue('stat') as UserDatatable['stat']
+    // {
+    //     accessorKey: 'stat',
+    //     cell: ({ row }) => {
+    //         const stat = row.getValue('stat') as UserDatatable['stat']
 
-            return (
-                <div className="flex gap-6 items-center justify-evenly">
-                    <div className="flex items-center">
-                        {' '}
-                        <p className="[writing-mode:vertical-lr] rotate-180">
-                            Volume
-                        </p>
-                        <div className="flex flex-col">
-                            <div className="items-center flex-col flex">
-                                <p className="font-extralight text-center text-xs">
-                                    Pool ETH
-                                </p>
-                                <div className="flex items-center gap-1">
-                                    <EthLogo className="h-4 w-4" />
-                                    <p className="font-bold">
-                                        {transformNumberK(
-                                            Number(
-                                                stat.totals.totalVolumePoolEth
-                                            )
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="items-center flex-col flex">
-                                <p className="font-extralight text-center text-xs">
-                                    Pool Dai
-                                </p>
-                                <div className="flex items-center gap-1">
-                                    <DaiLogo className="h-4 w-4" />
-                                    <p className="font-bold">
-                                        {transformNumberK(
-                                            Number(
-                                                stat.totals.totalVolumePoolDai
-                                            )
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    //         return (
+    //             <div className="flex gap-6 items-center justify-evenly">
+    //                 <div className="flex items-center">
+    //                     {' '}
+    //                     <p className="[writing-mode:vertical-lr] rotate-180">
+    //                         Volume
+    //                     </p>
+    //                     <div className="flex flex-col">
+    //                         <div className="items-center flex-col flex">
+    //                             <p className="font-extralight text-center text-xs">
+    //                                 Pool ETH
+    //                             </p>
+    //                             <div className="flex items-center gap-1">
+    //                                 <EthLogo className="h-4 w-4" />
+    //                                 <p className="font-bold">
+    //                                     {transformNumberK(
+    //                                         Number(
+    //                                             stat.totals.totalVolumePoolEth
+    //                                         )
+    //                                     )}
+    //                                 </p>
+    //                             </div>
+    //                         </div>
+    //                         <div className="items-center flex-col flex">
+    //                             <p className="font-extralight text-center text-xs">
+    //                                 Pool Dai
+    //                             </p>
+    //                             <div className="flex items-center gap-1">
+    //                                 <DaiLogo className="h-4 w-4" />
+    //                                 <p className="font-bold">
+    //                                     {transformNumberK(
+    //                                         Number(
+    //                                             stat.totals.totalVolumePoolDai
+    //                                         )
+    //                                     )}
+    //                                 </p>
+    //                             </div>
+    //                         </div>
+    //                     </div>
+    //                 </div>
 
-                    <div className="items-center flex-col flex">
-                        <p className="font-extralight text-center text-xs">
-                            Actions
-                        </p>
-                        <div className="flex items-center">
-                            {/* <EthLogo className="h-4 w-4" /> */}
-                            <p className="font-bold">
-                                {Number(stat.totals.totalActions)}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )
-        },
-    },
+    //                 <div className="items-center flex-col flex">
+    //                     <p className="font-extralight text-center text-xs">
+    //                         Actions
+    //                     </p>
+    //                     <div className="flex items-center">
+    //                         {/* <EthLogo className="h-4 w-4" /> */}
+    //                         <p className="font-bold">
+    //                             {Number(stat.totals.totalActions)}
+    //                         </p>
+    //                     </div>
+    //                 </div>
+    //             </div>
+    //         )
+    //     },
+    // },
 
-    {
-        accessorKey: 'pnl',
-        enableHiding: false,
-        cell: ({ row }) => {
-            const stat = row.getValue('stat') as UserDatatable['stat']
-            const pnl = row.getValue('pnl') as UserDatatable['pnl']
-            const reward = row.getValue('reward') as UserDatatable['reward']
+    // {
+    //     accessorKey: 'pnl',
+    //     enableHiding: false,
+    //     cell: ({ row }) => {
+    //         const stat = row.getValue('stat') as UserDatatable['stat']
+    //         const pnl = row.getValue('pnl') as UserDatatable['pnl']
+    //         const reward = row.getValue('reward') as UserDatatable['reward']
 
-            return (
-                <DialogUserData
-                    user={{
-                        addressName: stat.totals.user_address,
-                        stat: stat,
-                        pnl: pnl,
-                        id: row.index.toString(),
-                        reward: reward?.reward,
-                        status: reward?.status,
-                    }}
-                />
-            )
-        },
-    },
+    //         return (
+    //             <DialogUserData
+    //                 user={{
+    //                     addressName: stat.totals.user_address,
+    //                     stat: stat,
+    //                     pnl: pnl,
+    //                     id: row.index.toString(),
+    //                     reward: reward?.reward,
+    //                     status: reward?.status,
+    //                 }}
+    //             />
+    //         )
+    //     },
+    // },
     {
         accessorKey: 'reward',
         enableHiding: true,

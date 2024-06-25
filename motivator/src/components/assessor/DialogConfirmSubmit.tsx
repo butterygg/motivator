@@ -20,7 +20,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useGetTotalPointsDistributed } from '@/hooks/dataComponents/useGetTotalPointsDistributed'
+import { useGetTotalPointsDistributed } from '@/hooks/global/useGetTotalPointsDistributed'
 import { cn } from '@/utils/utils'
 import { useSubmitAssessorSlot } from '@/hooks/assessorSlot/useSubmitAssessorSlot'
 import { useRouter } from 'next/navigation'
@@ -85,6 +85,7 @@ export function DialogConfirmSubmit({ assessorSlotId }: Props) {
             toast.error('Error on Submit')
             setIsSubmited(false)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [status, statusAssessorSlotRQT, AssessorSlot])
 
     return (

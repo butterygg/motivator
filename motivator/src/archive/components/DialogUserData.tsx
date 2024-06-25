@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { User } from '@/types/data/user'
-import AddrAvatar from '../globals/AddrAvatar'
-import { DataCard } from './DataCard'
+import AddrAvatar from '../../components/globals/AddrAvatar'
+import { DataCard } from '../../components/assessor/DataCard'
 import EthLogo from '~/ethereum-eth-logo.svg'
 import DaiLogo from '~/dai.svg'
 import { useEffect, useState } from 'react'
@@ -23,17 +23,17 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { VolumeChart } from '../statistics/VolumeChart'
-import { LP_VolumeChart } from '../statistics/LP_VolumeChart '
+import { VolumeChart } from './statistics/VolumeChart'
+import { LP_VolumeChart } from './statistics/LP_VolumeChart '
 import { useGetOffChainActions } from '../../hooks/offChainActions/useGetOffChainActions'
-import { Tag } from './Tag'
+import { Tag } from '../../components/assessor/Tag'
 import { OffChainActions } from '../../types/enum/status'
-import { Card } from '../ui/card'
+import { Card } from '../../components/ui/card'
 import { transformNumberK } from '../../utils/utils'
-import { WeekSelector } from '../globals/WeekSelector'
-import Statistics from '../statistics/Statistics'
-import { LP_LineChart } from '../statistics/LP_LineChart'
-import { LineChart } from '../statistics/LineChart'
+import { WeekSelector } from './WeekSelector'
+import Statistics from './Statistics'
+import { LP_LineChart } from './statistics/LP_LineChart'
+import { LineChart } from './statistics/LineChart'
 type Props = {
     user: User
 }

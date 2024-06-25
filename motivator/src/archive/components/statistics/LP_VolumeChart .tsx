@@ -1,12 +1,12 @@
 import { BarChart } from '@tremor/react'
-import { DataSetChartTrading } from '@/components/assessor/DialogUserData'
-import { transformNumberK } from '../../utils/utils'
+import { DataSetChartVolumeLP } from '../DialogUserData'
+import { transformNumberK } from '../../../utils/utils'
 
 export type Props = {
     title: string
-    dataset: DataSetChartTrading[]
+    dataset: DataSetChartVolumeLP[]
 }
-export function VolumeChart({ title, dataset }: Props) {
+export function LP_VolumeChart({ title, dataset }: Props) {
     const valueFormatter = function (number: number) {
         return transformNumberK(Number(number.toFixed(2))).toString()
     }
@@ -21,17 +21,17 @@ export function VolumeChart({ title, dataset }: Props) {
             <h3 className="text-tremor-title text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
                 {title}
             </h3>
-            {/* <p className="text-tremor-label text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
-                {value}
+            {/* <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-semibold">
+                ${value}
             </p> */}
             <BarChart
                 className="h-80 text-white"
                 data={dataset}
                 index="date"
-                categories={['Short', 'Long']}
-                colors={['red', 'blue']}
-                yAxisWidth={80}
                 showXAxis={false}
+                categories={['volume']}
+                colors={['blue']}
+                yAxisWidth={80}
                 valueFormatter={valueFormatter}
             />
         </div>

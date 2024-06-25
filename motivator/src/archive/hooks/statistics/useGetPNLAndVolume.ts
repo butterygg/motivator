@@ -1,10 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { getPNLAndVolume } from '@/server/actions/statistics/getPNLAndVolume'
-import { getTotalsForUser } from '../../server/actions/globals/getTotalsForUser'
+import { getPNLAndVolume } from '@/archive/server/actions/statistics/getPNLAndVolume'
 
 type Props = {
     userAddr: string
-    weekNumber: number
 }
 
 /**
@@ -13,11 +11,11 @@ type Props = {
  *
  *
  */
-const useGetTotalsForUserAndWeek = ({ userAddr, weekNumber }: Props) => {
+const useGetPNLAndVolume = ({ userAddr }: Props) => {
     const { data, refetch, status, error } = useQuery({
-        queryKey: ['useGetTotalsForUserAndWeek'],
+        queryKey: ['useGetPNLAndVolume'],
         queryFn: async () => {
-            return getTotalsForUser({ userAddr, weekNumber })
+            return getPNLAndVolume({ userAddr })
         },
         // staleTime: 1000 * 6,
         retry: 5,
@@ -31,4 +29,4 @@ const useGetTotalsForUserAndWeek = ({ userAddr, weekNumber }: Props) => {
     return { error, status }
 }
 
-export { useGetTotalsForUserAndWeek }
+export { useGetPNLAndVolume }
