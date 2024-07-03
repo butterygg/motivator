@@ -9,7 +9,7 @@ import {
 } from 'wagmi'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
 import { handlePayment } from '@/server/actions/payment/handlePayment'
-import { DisplayPayment } from '../payment/DisplayPayment'
+import { DisplayPayment } from '@/components/payment/DisplayPayment'
 
 type Props = {}
 
