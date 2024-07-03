@@ -61,9 +61,6 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                     <Link
                         href={`/assessor/slot/${row.original.assessorSlotID.id}`}
                     >
-                        {/* <p className="font-extralight text-center text-xs">
-                        Assessor Addr
-                    </p> */}
                         <AddrAvatar
                             addressName={assessorAddress}
                             isDatatableStyle
@@ -92,7 +89,6 @@ export const columns: ColumnDef<AuditAssessorsSlotsDatatable>[] = [
                                         Assessor Slot ID
                                     </p>
                                     <div className="flex items-center gap-1">
-                                        {/* <AiOutlineAudit className="h-4 w-4" /> */}
                                         <p className="font-bold">
                                             {assessorSlotID.id}
                                         </p>

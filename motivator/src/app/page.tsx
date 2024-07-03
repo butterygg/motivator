@@ -45,10 +45,6 @@ const Signup = (props: Props) => {
     }, [assessorSlotID])
 
     const weekNumber = Number(process.env.NEXT_PUBLIC_WEEK_ACTUAL)
-    const weekMax = Number(process.env.NEXT_PUBLIC_WEEK_MAX)
-
-    // TODO : Rework this it's blocking the rendering
-    // const { data: assessorSlotsAvailable } = useGetNumberAssessorSlotAvailable()
 
     const ComponentToDisplay = () => {
         if (assessorSlotID?.res?.assessorSlotCore.id) {

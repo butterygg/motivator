@@ -73,25 +73,10 @@ export const DataTableContainerAssessor = () => {
         assessorSlotID: slotID as string,
     })
 
-    // const { data, error, status, refetch } = useGetAssessorSlotWithAddr({
-    //     assessorAddr: address as string,
-    // })
-
     // Refresh the data when the account is connected
     useEffect(() => {
         if (statusAccount === 'connected' && refetch) refetch()
     }, [refetch, statusAccount])
-
-    // // Redirecting to avoid error
-    // useEffect(() => {
-    //     if (data?.status == 'ko' || data?.res === undefined) {
-    //         // if (statusAccount === 'connected' && refetch) refetch()
-
-    //         if ((data?.res as AssessorSlot) === undefined) {
-    //             push(`/`)
-    //         }
-    //     }
-    // }, [data?.res])
 
     // Implement Skeletton
     if (status != 'success' || (data.res as AssessorSlot) === undefined) {
