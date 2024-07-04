@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect } from 'react'
 import { DataTableAuditAssessorSlot } from '@/components/datatables/DataTableAuditAssessorSlot'
-import { AssessorSlot } from '@protocols/hyperdrive/types/data/assessorSlot'
+import { AssessorSlotHyperdrive } from '@protocols/hyperdrive/types/data/assessorSlot'
 import { useAccount } from 'wagmi'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { AuditAssessorsSlotsDatatable } from '@/components/datatables/DataTableAuditAssessorSlot'
@@ -21,7 +21,7 @@ const DataTableAuditContainer = () => {
         if (statusAccount === 'connected' && refetch) refetch()
     }, [refetch, statusAccount])
 
-    const prepareDataForTable = (assessorSlots: AssessorSlot[]) => {
+    const prepareDataForTable = (assessorSlots: AssessorSlotHyperdrive[]) => {
         const res: AuditAssessorsSlotsDatatable[] = []
         if (
             assessorSlots === undefined ||

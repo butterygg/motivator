@@ -3,7 +3,7 @@ import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, assessor_slot_user, reward } from '@db/schema'
 import {
-    AssessorSlot,
+    AssessorSlotHyperdrive,
     Statistics,
     Totals,
 } from '@protocols/hyperdrive/types/data/assessorSlot'
@@ -94,7 +94,7 @@ export async function getAssessorSlot({
     const statistics = await statisticsPromised()
 
     //build the response
-    const assessorSlot: AssessorSlot = {
+    const assessorSlot: AssessorSlotHyperdrive = {
         assessorSlotCore: {
             id: assessorSlotOfAssessor.id,
             assessorID: assessorSlotOfAssessor.assessor_ID as string,

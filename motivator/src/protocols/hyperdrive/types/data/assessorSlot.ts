@@ -2,7 +2,11 @@ import { Address } from 'viem'
 import { Grade } from '@/types/enums/grade'
 import { AssessorSlotCore } from '@/types/data/assessorSlotCore'
 
-export type AssessorSlot = {
+/**
+ * This type is the Assessor Slot for the Hyperdrive protocol
+ * When implementing a new protocol, Add AssessorSlotCore and add the new parameters
+ */
+export type AssessorSlotHyperdrive = {
     assessorSlotCore: AssessorSlotCore
     week: number
     users: string[]

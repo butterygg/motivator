@@ -23,8 +23,8 @@ export async function randomizeAssessorSlot({
         score: number
         address: string
     }
-    /* Update the hyperdrive value with Global Variable Env or a Selector of Protocol if Multiprotocol on same App */
-    const protocol = 'hyperdrive'
+
+    const protocol = process.env.NEXT_PUBLIC_PROJECT_NAME as string
 
     const generalPool: ScoreAndAddress[] = []
     // append the pool to general pool foreach frequency

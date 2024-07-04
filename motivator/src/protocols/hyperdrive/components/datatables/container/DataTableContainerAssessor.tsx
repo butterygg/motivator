@@ -5,7 +5,7 @@ import {
     UserDatatable,
 } from '@protocols/hyperdrive/components/datatables/table/DataTableAssessor'
 import {
-    AssessorSlot,
+    AssessorSlotHyperdrive,
     Statistics,
     Totals,
 } from '@protocols/hyperdrive/types/data/assessorSlot'
@@ -14,8 +14,19 @@ import { Status } from '@protocols/hyperdrive/types/enums/status'
 import { RoundSpinner } from '@/components/ui/spinner'
 import { usePathname } from 'next/navigation'
 import { useGetAssessorSlot } from '@/hooks/assessorSlot/useGetAssessorSlot'
-export const DataTableContainerAssessor = () => {
-    const prepareDataForTable = (assessorSlot: AssessorSlot) => {
+
+type Props = {
+    data: AssessorSlotHyperdrive
+}
+
+export const DataTableContainerAssessor = ({ data }: Props) => {
+    /**
+     * This function is used to prepare the data for the table
+     * Grab the data in the Assessor Slot and prepare it for the table
+     * @param assessorSlot The Assessor Slot
+     * @returns The UserDatatable array
+     */
+    const prepareDataForTable = (assessorSlot: AssessorSlotHyperdrive) => {
         const res: UserDatatable[] = []
         assessorSlot?.users.forEach((element, index) => {
             const reward = assessorSlot.rewards.find(
@@ -63,33 +74,5 @@ export const DataTableContainerAssessor = () => {
         })
     }
 
-    const { address, status: statusAccount } = useAccount()
-    const pathname = usePathname()
-    // Extract id from the pathname
-    // http://localhost:3000/assessor/slot/7677e331-29eb-4c54-8e7a-d44a816fe423
-    const slotID = pathname.split('/').slice(2)[1]
-
-    const { data, error, status, refetch } = useGetAssessorSlot({
-        assessorSlotID: slotID as string,
-    })
-
-    // Refresh the data when the account is connected
-    useEffect(() => {
-        if (statusAccount === 'connected' && refetch) refetch()
-    }, [refetch, statusAccount])
-
-    // Implement Skeletton
-    if (status != 'success' || (data.res as AssessorSlot) === undefined) {
-        return (
-            <div className="mx-auto">
-                <RoundSpinner size="triplexl" />
-            </div>
-        )
-    }
-
-    return (
-        <DataTableAssessor
-            users={prepareDataForTable(data.res as AssessorSlot)}
-        />
-    )
+    return <DataTableAssessor users={prepareDataForTable(data)} />
 }
