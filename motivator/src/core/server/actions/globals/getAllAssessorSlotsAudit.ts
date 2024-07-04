@@ -2,7 +2,7 @@
 import { and, eq, ne } from 'drizzle-orm'
 import { db } from '@db/dbRouter'
 import { assessor_slot, audit, reward } from '@db/schema'
-import { AssessorSlot } from '@protocols/hyperdrive/types/data/assessorSlot'
+import { AssessorSlotHyperdrive } from '@protocols/hyperdrive/types/data/assessorSlot'
 import { Grade } from '@/types/enums/grade'
 import { Address } from 'viem'
 // Send Rewards to specifics users based on their actions
@@ -33,7 +33,7 @@ export async function getAllAssessorSlotsAudit() {
             const getAudit = await db.query.audit.findFirst({
                 where: eq(audit.assessor_slot_id, assessorSlot.id),
             })
-            const assessor: AssessorSlot = {
+            const assessor: AssessorSlotHyperdrive = {
                 assessorSlotCore: {
                     id: assessorSlot.id,
                     assessorID: assessorSlot.assessor_ID as string,

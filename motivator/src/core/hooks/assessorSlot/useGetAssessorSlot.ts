@@ -13,10 +13,20 @@ type Props = {
  *
  */
 const useGetAssessorSlot = ({ assessorSlotID }: Props) => {
+    const protocol = process.env.NEXT_PUBLIC_PROJECT_NAME as string
+
+    /**
+     * When implementing a new protocol, add a case in the switch statement with the name of the protocol and the new function to get the assessor slot
+     */
     const { data, refetch, status, error } = useQuery({
         queryKey: ['useGetAssessorSlot'],
         queryFn: async () => {
-            return await getAssessorSlot({ assessorSlotID })
+            switch (protocol) {
+                case 'hyperdrive':
+                    return await getAssessorSlot({ assessorSlotID })
+                default:
+                    return await getAssessorSlot({ assessorSlotID })
+            }
         },
         // staleTime: 1000 * 6,
         retry: true,
